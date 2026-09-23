@@ -1,0 +1,223 @@
+/*
+ * Academix — LearningPaths, LearningPathDetail, Roadmaps, RoadmapDetail
+ * Shared list + detail styles
+ */
+
+/* ============================================================
+   LIST PAGES (LearningPaths / Roadmaps)
+   ============================================================ */
+.list-page h1 {
+  margin-bottom: var(--space-2);
+}
+.list-page .page-subtitle {
+  color: var(--color-ink-500);
+  margin-bottom: var(--space-8);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+/* Path / Roadmap card — Level 2 Lifted */
+.path-card,
+.roadmap-card {
+  background: var(--glass-lifted);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: box-shadow var(--transition-lift), transform var(--transition-lift);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.path-card:hover,
+.roadmap-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+  border-color: rgba(194, 96, 10, 0.22);
+}
+
+.path-card:active,
+.roadmap-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-soft);
+}
+
+.path-card h3,
+.roadmap-card h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--color-ink-900);
+  margin: 0;
+}
+
+.path-card p,
+.roadmap-card p {
+  font-size: var(--text-sm);
+  color: var(--color-ink-500);
+  line-height: var(--leading-normal);
+  flex: 1;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.card-actions {
+  margin-top: var(--space-2);
+}
+
+/* ============================================================
+   DETAIL PAGES (LearningPathDetail / RoadmapDetail)
+   ============================================================ */
+.detail-page-header {
+  background: var(--glass-hero);
+  backdrop-filter: var(--blur-heavy);
+  -webkit-backdrop-filter: var(--blur-heavy);
+  border: 1px solid rgba(194, 96, 10, 0.18);
+  border-radius: var(--radius-hero);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-hero);
+  margin-bottom: var(--space-8);
+}
+
+.detail-page-header h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-3);
+}
+
+.detail-page-header p {
+  color: var(--color-ink-500);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-5);
+  line-height: var(--leading-normal);
+}
+
+.detail-stats {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.detail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.detail-stat-value {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink-900);
+}
+
+.detail-stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
+  font-weight: var(--weight-medium);
+}
+
+/* Node / Step list — Level 1 Surface items */
+.nodes-list,
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.node-item,
+.step-item {
+  background: var(--glass-surface);
+  backdrop-filter: var(--blur-subtle);
+  -webkit-backdrop-filter: var(--blur-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-data);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-flat);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: transform var(--transition-lift), box-shadow var(--transition-lift);
+}
+
+.node-item:not(.locked):hover,
+.step-item:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-soft);
+  border-color: var(--color-parchment-300);
+}
+
+.node-item.locked {
+  opacity: 0.55;
+}
+
+.node-state-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.node-state-icon.complete {
+  background: var(--color-verdigris-100);
+  color: var(--color-verdigris-700);
+}
+
+.node-state-icon.current {
+  background: var(--color-ember-100);
+  color: var(--color-ember-600);
+  border: 2px solid var(--color-ember-400);
+}
+
+.node-state-icon.locked {
+  background: var(--color-parchment-200);
+  color: var(--color-ink-300);
+}
+
+.node-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-info h3 {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink-900);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.node-info p {
+  font-size: var(--text-sm);
+  color: var(--color-ink-500);
+  margin: 0;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--color-ink-900);
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .detail-stats { gap: var(--space-4); }
+  .detail-page-header { padding: var(--space-5); border-radius: var(--radius-card); }
+  .cards-grid { grid-template-columns: 1fr; }
+}

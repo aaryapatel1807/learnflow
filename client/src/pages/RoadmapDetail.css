@@ -1,0 +1,193 @@
+/* RoadmapDetail — uses shared styles */
+@import './LearningPaths.css';
+
+/* Roadmap Tree Redesign */
+.roadmap-tree {
+  position: relative;
+  max-width: 800px;
+  margin: var(--space-8) auto;
+  padding: 0;
+}
+
+/* The Central Spine */
+.roadmap-tree::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  background: var(--glass-border);
+  transform: translateX(-50%);
+  border-radius: 4px;
+}
+
+/* Node Container */
+.roadmap-node-container {
+  position: relative;
+  width: 50%;
+  padding: var(--space-4) var(--space-6);
+  box-sizing: border-box;
+}
+
+/* Left/Right Alignment */
+.roadmap-node-container.left {
+  left: 0;
+  text-align: right;
+  padding-left: 0; /* Align left edge to container */
+}
+
+.roadmap-node-container.right {
+  left: 50%;
+  text-align: left;
+  padding-right: 0;
+}
+
+/* The Central Dot */
+.roadmap-node-container::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  background: var(--color-ink-900);
+  border: 4px solid var(--color-parchment-50);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  box-shadow: var(--shadow-soft);
+}
+
+.roadmap-node-container.left::after {
+  right: -12px; /* Center dot on spine */
+}
+
+.roadmap-node-container.right::after {
+  left: -12px;
+}
+
+/* The Connector Line */
+.roadmap-node-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: var(--space-6);
+  height: 4px;
+  background: var(--glass-border);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.roadmap-node-container.left::before {
+  right: 0;
+}
+
+.roadmap-node-container.right::before {
+  left: 0;
+}
+
+/* Content Box (The Node) */
+.roadmap-node-content {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  z-index: 3;
+}
+
+.roadmap-node-content:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--color-ink-300);
+}
+
+/* Node Internal Styling */
+.roadmap-node-content h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-lg);
+  color: var(--color-ink-900);
+}
+
+.roadmap-node-content p {
+  color: var(--color-ink-700);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.node-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  justify-content: inherit;
+}
+
+.roadmap-node-container.left .node-meta {
+  justify-content: flex-end;
+}
+
+.roadmap-node-container.right .node-meta {
+  justify-content: flex-start;
+}
+
+/* Ensure buttons align well in left/right */
+.node-actions {
+  display: flex;
+  justify-content: inherit;
+}
+
+.roadmap-node-container.left .node-actions {
+  justify-content: flex-end;
+}
+
+.roadmap-node-container.right .node-actions {
+  justify-content: flex-start;
+}
+
+
+/* Mobile Responsive View */
+@media (max-width: 768px) {
+  .roadmap-tree {
+    padding-left: var(--space-4);
+  }
+
+  .roadmap-tree::before {
+    left: 24px; /* Move spine to the left side */
+  }
+
+  .roadmap-node-container.left,
+  .roadmap-node-container.right {
+    width: 100%;
+    left: 0;
+    padding-left: 60px;
+    padding-right: 0;
+    text-align: left; /* Force left alignment on mobile */
+  }
+
+  .roadmap-node-container.left::after,
+  .roadmap-node-container.right::after {
+    left: 12px; /* Center dot on the shifted spine */
+    right: auto;
+  }
+
+  .roadmap-node-container.left::before,
+  .roadmap-node-container.right::before {
+    left: 24px; /* Start line at the shifted spine */
+    right: auto;
+    width: 36px;
+  }
+
+  /* Reset flex justification on mobile */
+  .roadmap-node-container.left .node-meta,
+  .roadmap-node-container.right .node-meta,
+  .roadmap-node-container.left .node-actions,
+  .roadmap-node-container.right .node-actions {
+    justify-content: flex-start;
+  }
+}

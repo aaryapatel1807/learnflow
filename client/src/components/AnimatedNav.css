@@ -1,0 +1,202 @@
+/*
+ * Academix — AnimatedNav
+ * Scholar's Cosmos v2 — token-aligned, active route indicator, level chip
+ */
+
+.animated-nav-container {
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+/* ============================================================
+   NAV PILL — glass-lifted styling
+   ============================================================ */
+.animated-nav {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-lifted);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  box-shadow: var(--shadow-hero);
+  height: 3rem;
+  gap: var(--space-1);
+}
+
+.animated-nav.collapsed {
+  cursor: pointer;
+  justify-content: center;
+}
+
+/* ============================================================
+   BRAND LOGO
+   ============================================================ */
+.nav-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: var(--space-4);
+  padding-right: var(--space-2);
+  color: var(--color-ember-600);
+}
+
+.nav-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+/* ============================================================
+   NAV LINKS
+   ============================================================ */
+.nav-items {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-right: var(--space-3);
+}
+
+.nav-items.pointer-none {
+  pointer-events: none;
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-500);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-data);
+  transition: color var(--transition-base), background var(--transition-base);
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--color-ink-900);
+  background: rgba(194, 96, 10, 0.06);
+}
+
+/* Active state — ember tint + underline dot */
+.nav-link.nav-link-active {
+  color: var(--color-ember-600);
+  font-weight: var(--weight-semibold);
+  background: var(--color-ember-100);
+}
+
+/* Ember underline dot indicator */
+.nav-active-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-ember-600);
+  box-shadow: 0 0 6px rgba(194, 96, 10, 0.5);
+}
+
+/* ============================================================
+   RIGHT SIDE — Level chip + theme toggle
+   ============================================================ */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--glass-border);
+  margin-left: var(--space-1);
+}
+
+/* Level badge chip */
+.nav-level-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: var(--weight-extrabold);
+  background: linear-gradient(135deg, var(--color-ember-600) 0%, var(--color-ember-500) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-glow-ember);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  flex-shrink: 0;
+  margin-right: var(--space-2);
+}
+
+.theme-toggle:hover {
+  background: rgba(194, 96, 10, 0.08);
+  transform: rotate(12deg);
+}
+
+.theme-toggle:active {
+  transform: scale(0.88) rotate(12deg);
+}
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============================================================
+   COLLAPSED ICON
+   ============================================================ */
+.collapsed-icon-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--color-ember-600);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .animated-nav-container {
+    top: 0.75rem;
+  }
+
+  .nav-items {
+    gap: 2px;
+  }
+
+  .nav-link {
+    font-size: 0.8rem;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .nav-level-chip {
+    display: none; /* Hidden on very small screens — shown in BottomNav instead */
+  }
+}

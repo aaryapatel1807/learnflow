@@ -1,0 +1,367 @@
+/*
+ * Academix — "Scholar's Cosmos" Design System v2
+ * glass.css — Glass elevation system + all new semantic utility classes
+ */
+
+/* ============================================================
+   Level 1 — Surface
+   For: list items, chapter rows, quick-link buttons, table rows,
+        calendar cells, filter bar, search inputs
+   ============================================================ */
+.glass-surface {
+  background: var(--glass-surface);
+  backdrop-filter: var(--blur-subtle);
+  -webkit-backdrop-filter: var(--blur-subtle);
+  border: 1px solid var(--color-parchment-200);
+  border-radius: var(--radius-data);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ============================================================
+   Level 2 — Lifted
+   For: book cards, subject cards, learning path cards,
+        roadmap cards, achievement cards, note cards,
+        admin stat cards, quiz option items
+   ============================================================ */
+.glass-lifted {
+  background: var(--glass-lifted);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* ============================================================
+   Level 3 — Hero
+   For: "Continue Learning" panel, Recommendation card,
+        flashcard face, book reader content pane,
+        stat hero bar, skill node detail modal,
+        login/register form card
+   ============================================================ */
+.glass-hero {
+  background: var(--glass-hero);
+  backdrop-filter: var(--blur-heavy);
+  -webkit-backdrop-filter: var(--blur-heavy);
+  border: 1px solid rgba(194, 96, 10, 0.18);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-hero);
+}
+
+/* ============================================================
+   NEW: .glass — shorthand alias (= glass-lifted styling)
+   ============================================================ */
+.glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* ============================================================
+   NEW: .glass-strong — shorthand alias for premium surfaces
+   For: modals, flashcard faces, hero panels
+   ============================================================ */
+.glass-strong {
+  background: var(--glass-strong);
+  backdrop-filter: var(--blur-heavy);
+  -webkit-backdrop-filter: var(--blur-heavy);
+  border: 1px solid rgba(194, 96, 10, 0.20);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-hero);
+}
+
+/* ============================================================
+   Modal overlay backdrop
+   ============================================================ */
+.glass-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--glass-dark);
+  backdrop-filter: var(--blur-subtle);
+  -webkit-backdrop-filter: var(--blur-subtle);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+   NEW: .surface-elevated — nested panel substrate
+   For: detail boxes inside glass cards
+   ============================================================ */
+.surface-elevated {
+  background: var(--color-parchment-100);
+  border: 1px solid var(--color-parchment-200);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+}
+
+[data-theme="dark"] .surface-elevated {
+  background: var(--color-parchment-200);
+  border-color: var(--color-parchment-300);
+}
+
+/* ============================================================
+   SCHOLAR SHELL — Page wrapper with animated ambient gradient
+   The "breathing" cosmos background via CSS @property
+   ============================================================ */
+.scholar-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      ellipse 70% 45% at 20% -5%,
+      var(--shell-ember-glow) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 85% 10%,
+      var(--shell-verdigris-glow) 0%,
+      transparent 60%
+    ),
+    conic-gradient(
+      from var(--shell-angle) at 50% 50%,
+      var(--shell-base) var(--shell-stop1),
+      rgba(240, 160, 90, 0.06) calc(var(--shell-stop1) + 15%),
+      var(--shell-base) calc(var(--shell-stop1) + 30%)
+    ),
+    var(--shell-base);
+  animation: shell-drift 18s ease-in-out infinite;
+}
+
+/* ============================================================
+   PAGE BG — kept for backward compatibility
+   ============================================================ */
+.page-bg {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(240, 160, 90, 0.12) 0%,
+      transparent 70%
+    ),
+    var(--color-parchment-50);
+}
+
+/* ============================================================
+   MICRO-INTERACTION CLASSES
+   ============================================================ */
+
+/* .press — haptic tap feedback */
+.press {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.press:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-soft) !important;
+}
+
+/* .lift — hover elevation spring */
+.lift {
+  transition:
+    transform var(--transition-lift),
+    box-shadow var(--transition-lift);
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+.lift:active {
+  transform: translateY(0);
+}
+
+/* .animate-rise — staggered entrance */
+.animate-rise {
+  animation: rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-rise[data-delay="1"] { animation-delay: 60ms; }
+.animate-rise[data-delay="2"] { animation-delay: 120ms; }
+.animate-rise[data-delay="3"] { animation-delay: 180ms; }
+.animate-rise[data-delay="4"] { animation-delay: 240ms; }
+.animate-rise[data-delay="5"] { animation-delay: 300ms; }
+
+/* ============================================================
+   SCHOLAR CHIP — small pill badge (subject, streak, difficulty)
+   ============================================================ */
+.scholar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  color: var(--color-ink-700);
+  backdrop-filter: var(--blur-subtle);
+  -webkit-backdrop-filter: var(--blur-subtle);
+  white-space: nowrap;
+}
+
+.scholar-chip.chip-ember {
+  background: var(--color-ember-100);
+  border-color: rgba(194, 96, 10, 0.22);
+  color: var(--color-ember-600);
+}
+
+.scholar-chip.chip-verdigris {
+  background: var(--color-verdigris-100);
+  border-color: rgba(43, 138, 126, 0.22);
+  color: var(--color-verdigris-700);
+}
+
+.scholar-chip.chip-amber {
+  background: var(--color-amber-100);
+  border-color: rgba(180, 83, 9, 0.22);
+  color: var(--color-amber-600);
+}
+
+/* ============================================================
+   XP CHIP — level / XP badge with ember glow
+   ============================================================ */
+.xp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-extrabold);
+  background: linear-gradient(135deg, var(--color-ember-600) 0%, var(--color-ember-500) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-glow-ember);
+  border: none;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   SCHOLAR RAIL — inline stat chip row (XP · Streak · Level)
+   ============================================================ */
+.scholar-rail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.scholar-rail .rail-divider {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-ink-300);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   CONCEPT SIGNAL — milestone / achievement callout card
+   Mirrors Civic Sathi's heritage-signal cards
+   ============================================================ */
+.concept-signal {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  background: linear-gradient(
+    135deg,
+    rgba(43, 138, 126, 0.08) 0%,
+    rgba(194, 96, 10, 0.06) 100%
+  );
+  border: 1px solid rgba(43, 138, 126, 0.22);
+  border-radius: var(--radius-card);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-soft);
+}
+
+.concept-signal .signal-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(43, 138, 126, 0.3));
+}
+
+.concept-signal .signal-body {
+  flex: 1;
+}
+
+.concept-signal .signal-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-verdigris-700);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-1);
+}
+
+.concept-signal .signal-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-ink-900);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.concept-signal .signal-description {
+  font-size: var(--text-sm);
+  color: var(--color-ink-500);
+  line-height: var(--leading-normal);
+}
+
+/* ============================================================
+   LABEL XS — uppercase tracking section headers
+   ============================================================ */
+.label-xs {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-300);
+}
+
+/* ============================================================
+   DIFFICULTY BADGE VARIANTS — color-coded
+   ============================================================ */
+.badge-beginner {
+  background: var(--color-verdigris-100);
+  color: var(--color-verdigris-700);
+  border: 1px solid rgba(43, 138, 126, 0.22);
+}
+
+.badge-intermediate {
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+  border: 1px solid rgba(180, 83, 9, 0.22);
+}
+
+.badge-advanced {
+  background: var(--color-ember-100);
+  color: var(--color-ember-600);
+  border: 1px solid rgba(194, 96, 10, 0.22);
+}
+
+/* ============================================================
+   DARK MODE — glass overrides
+   ============================================================ */
+[data-theme="dark"] .glass-lifted,
+[data-theme="dark"] .glass {
+  border-color: rgba(194, 96, 10, 0.18);
+}
+
+[data-theme="dark"] .glass-surface {
+  border-color: var(--color-parchment-300);
+}
+
+[data-theme="dark"] .concept-signal {
+  background: linear-gradient(
+    135deg,
+    rgba(43, 138, 126, 0.12) 0%,
+    rgba(194, 96, 10, 0.08) 100%
+  );
+  border-color: rgba(43, 138, 126, 0.30);
+}

@@ -1,0 +1,351 @@
+﻿/*
+ * Academix — SkillTree
+ */
+
+.skill-tree-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.skill-tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.skill-tree-header h1 {
+  margin-bottom: var(--space-2);
+}
+.skill-tree-header .subtitle {
+  color: var(--color-ink-500);
+  margin: 0;
+}
+
+/* Stats */
+.skill-stats {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink-900);
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
+  font-weight: var(--weight-medium);
+}
+
+/* Legend */
+.legend {
+  background: var(--glass-surface);
+  backdrop-filter: var(--blur-subtle);
+  -webkit-backdrop-filter: var(--blur-subtle);
+  border: 1px solid var(--color-parchment-200);
+  border-radius: var(--radius-card);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.legend h3 {
+  font-size: var(--text-sm);
+  margin: 0;
+  color: var(--color-ink-700);
+}
+
+.legend-items {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-ink-700);
+}
+
+.legend-item .skill-node {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   TREE LAYOUT
+   ============================================================ */
+.skill-tree-container {
+  display: flex;
+  flex-direction: column-reverse; /* Bottom-up progression */
+  gap: var(--space-12);
+  padding: var(--space-8) 0;
+  position: relative;
+}
+
+.skill-layer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.layer-label {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--color-ink-300);
+  letter-spacing: 0.1em;
+}
+
+.layer-nodes {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+/* ============================================================
+   SKILL NODES
+   ============================================================ */
+.skill-node-wrapper {
+  position: relative;
+  cursor: pointer;
+  transition: transform var(--transition-base);
+}
+
+.skill-node-wrapper:hover {
+  transform: translateY(-4px);
+}
+
+.skill-node {
+  width: 180px;
+  height: 80px;
+  border-radius: var(--radius-data);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  text-align: center;
+  position: relative;
+  box-shadow: var(--shadow-flat);
+  transition: box-shadow var(--transition-base);
+  z-index: 2;
+}
+
+.node-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.node-title {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.node-prereq-count {
+  font-size: var(--text-xs);
+}
+
+.node-check, .node-lock {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* State styling */
+.node-complete {
+  background: var(--color-verdigris-100);
+  border: 1px solid var(--color-verdigris-300);
+  color: var(--color-verdigris-700);
+}
+.node-complete .node-check {
+  background: var(--color-verdigris-500);
+  color: white;
+}
+.node-complete .node-prereq-count { color: var(--color-verdigris-600); }
+
+.node-current {
+  background: var(--color-ember-100);
+  border: 2px solid var(--color-ember-400);
+  color: var(--color-ember-600);
+  box-shadow: 0 0 0 0 rgba(224, 123, 43, 0.4);
+  animation: pulseGlow 2s infinite; /* Continuous pulse */
+}
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(224, 123, 43, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(224, 123, 43, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(224, 123, 43, 0); }
+}
+.node-current .node-prereq-count { color: var(--color-ember-500); }
+
+.node-locked {
+  background: var(--color-parchment-200);
+  border: 1px solid var(--color-parchment-300);
+  color: var(--color-ink-500);
+}
+.node-locked .node-lock {
+  background: var(--color-ink-300);
+  color: white;
+}
+.node-locked .node-prereq-count { color: var(--color-ink-300); }
+
+/* Connections (visual only, pure CSS approach using pseudo-elements between layers) */
+.skill-layer:not(:first-child)::after {
+  content: '';
+  position: absolute;
+  bottom: -48px;
+  left: 50%;
+  width: 2px;
+  height: 48px;
+  background: var(--color-parchment-300);
+  z-index: 1;
+}
+
+/* ============================================================
+   MODAL (Overlay) — Level 4 / Modal
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--glass-overlay);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.modal-content {
+  background: var(--glass-hero);
+  border: 1px solid rgba(212, 201, 168, 0.6);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-modal);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp var(--transition-base) ease-out;
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-ink-500);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover { background: var(--color-parchment-100); }
+
+.modal-header {
+  padding: var(--space-6) var(--space-8);
+  border-bottom: 1px solid var(--color-parchment-200);
+}
+
+.modal-header h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-ink-900);
+  margin-bottom: var(--space-3);
+  padding-right: var(--space-6);
+}
+
+.modal-section {
+  padding: var(--space-5) var(--space-8);
+  border-bottom: 1px solid var(--color-parchment-200);
+}
+.modal-section:last-child { border-bottom: none; }
+
+.modal-section h3 {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-500);
+  margin-bottom: var(--space-3);
+}
+
+.modal-section p {
+  color: var(--color-ink-700);
+  line-height: var(--leading-relaxed);
+}
+
+.prereq-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  color: var(--color-ink-700);
+}
+
+.linked-content {
+  background: var(--color-parchment-100);
+  padding: var(--space-4);
+  border-radius: var(--radius-data);
+}
+
+.linked-content p { margin-bottom: var(--space-2); font-size: var(--text-sm); }
+.linked-content p strong { color: var(--color-ink-900); }
+.linked-content .btn { margin-top: var(--space-3); }
+
+.locked-message {
+  background: var(--color-parchment-100);
+  color: var(--color-ink-500);
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .layer-label { position: static; transform: none; margin-bottom: var(--space-2); }
+  .modal-content { max-width: 100%; border-radius: var(--radius-card); }
+  .modal-header, .modal-section { padding: var(--space-5); }
+}

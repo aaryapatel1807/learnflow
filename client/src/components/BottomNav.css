@@ -1,0 +1,91 @@
+/*
+ * BottomNav.css — Scholar's Cosmos v2
+ * Mobile-only fixed bottom navigation bar
+ * Inspired by Civic Sathi's bottom nav architecture
+ */
+
+.bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  border-top: 1px solid var(--glass-border);
+  background: rgba(255, 254, 250, 0.92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 -8px 28px rgba(28, 24, 20, 0.10), 0 -1px 4px rgba(28, 24, 20, 0.06);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Only show on small screens */
+@media (min-width: 640px) {
+  .bottom-nav { display: none; }
+}
+
+.bottom-nav-list {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.bottom-nav-item { flex: 1; }
+
+.bottom-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 64px;
+  padding: 0.5rem 0.25rem;
+  text-decoration: none;
+  color: var(--color-ink-500);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  border-radius: 0;
+  position: relative;
+}
+
+.bottom-nav-link:hover {
+  color: var(--color-ink-900);
+  background: rgba(194, 96, 10, 0.05);
+}
+
+.bottom-nav-link-active {
+  color: var(--color-ember-600);
+}
+
+/* Active tab indicator dot */
+.bottom-nav-link-active::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--color-ember-600);
+  box-shadow: var(--shadow-glow-ember);
+}
+
+.bottom-nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform var(--transition-spring);
+}
+
+.bottom-nav-link-active .bottom-nav-icon {
+  transform: scale(1.12) translateY(-1px);
+}
+
+.bottom-nav-label {
+  font-size: 0.6rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+}
