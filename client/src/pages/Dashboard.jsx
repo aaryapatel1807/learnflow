@@ -175,11 +175,12 @@ function Dashboard({ user }) {
       <div className="dashboard-grid animate-rise" data-delay="3">
 
         {/* Recommendation — glass-strong hero */}
-        {!loadingRecommendation && recommendation && (
+        {/* Up Next Section */}
+        {!loadingRecommendation && recommendation ? (
           <div className="recommendation-card">
             <div className="recommendation-header">
-              <h2>Recommended Next</h2>
-              <span className="scholar-chip chip-ember recommendation-badge">✨ Personalised</span>
+              <h2>Up Next</h2>
+              <span className="scholar-chip chip-ember recommendation-badge" style={{ marginLeft: 'auto', marginBottom: 'auto' }}>✨ Personalised</span>
             </div>
             <div className="recommendation-content">
               <h3>{recommendation.title}</h3>
@@ -220,54 +221,53 @@ function Dashboard({ user }) {
               )}
             </div>
           </div>
-        )}
-
-        {/* Continue Learning — glass lifted */}
-        <div className="continue-card">
-          <h2>Continue Learning</h2>
-          {loading ? (
-            <div className="loading-state">
-              <div className="spinner" />
-              <span>Loading your path…</span>
-            </div>
-          ) : nextNode ? (
-            <div className="next-node">
-              <div className="path-indicator">
-                <span>📚</span>
-                <span className="path-name">{activeLearningPath?.title}</span>
+        ) : (
+          <div className="continue-card">
+            <h2>Up Next</h2>
+            {loading ? (
+              <div className="loading-state">
+                <div className="spinner" />
+                <span>Loading your path…</span>
               </div>
-              <h3>Next: {nextNode.title}</h3>
-              {nextNode.description && (
-                <p className="node-description">{nextNode.description}</p>
-              )}
-              {nextNode.book && (
-                <div className="node-content-info">
-                  <p><strong>Book:</strong> {nextNode.book.title}</p>
-                  {nextNode.chapter && (
-                    <p><strong>Chapter:</strong> {nextNode.chapter.title}</p>
-                  )}
+            ) : nextNode ? (
+              <div className="next-node">
+                <div className="path-indicator">
+                  <span>📚</span>
+                  <span className="path-name">{activeLearningPath?.title}</span>
                 </div>
-              )}
-              <div className="node-actions">
-                {nextNode.book && (
-                  <Link to={`/book/${nextNode.book._id}`}>
-                    <button className="btn btn-primary press">Start learning</button>
-                  </Link>
+                <h3>Next: {nextNode.title}</h3>
+                {nextNode.description && (
+                  <p className="node-description">{nextNode.description}</p>
                 )}
-                <Link to={`/learning-path/${activeLearningPath?._id}`}>
-                  <button className="btn btn-secondary press">View full path</button>
+                {nextNode.book && (
+                  <div className="node-content-info">
+                    <p><strong>Book:</strong> {nextNode.book.title}</p>
+                    {nextNode.chapter && (
+                      <p><strong>Chapter:</strong> {nextNode.chapter.title}</p>
+                    )}
+                  </div>
+                )}
+                <div className="node-actions" style={{ flexDirection: 'column' }}>
+                  {nextNode.book && (
+                    <Link to={`/book/${nextNode.book._id}`}>
+                      <button className="btn btn-primary btn-large press">Start learning →</button>
+                    </Link>
+                  )}
+                  <Link to={`/learning-path/${activeLearningPath?._id}`}>
+                    <button className="btn btn-secondary btn-large press">View full path</button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="no-progress">
+                <p>No active learning path yet.</p>
+                <Link to="/learning-paths">
+                  <button className="btn btn-primary btn-large press">Browse learning paths →</button>
                 </Link>
               </div>
-            </div>
-          ) : (
-            <div className="no-progress">
-              <p>No active learning path yet.</p>
-              <Link to="/learning-paths">
-                <button className="btn btn-primary press">Browse learning paths</button>
-              </Link>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Quick Links — glass surface */}
         <div className="quick-links-card">
