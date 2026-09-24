@@ -170,7 +170,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/:roadmapId/nodes', async (req, res) => {
   try {
     const { roadmapId } = req.params;
-    const { title, description, order, phase, learningPath, milestone } = req.body;
+    const { title, description, order, phase, learningPath, milestone, parentId, nodeType, status } = req.body;
 
     if (!title || order === undefined) {
       return res.status(400).json({
@@ -214,7 +214,10 @@ router.post('/:roadmapId/nodes', async (req, res) => {
       order,
       phase: phase || '',
       learningPath: learningPath || null,
-      milestone: milestone || ''
+      milestone: milestone || '',
+      parentId: parentId || null,
+      nodeType: nodeType || 'milestone',
+      status: status || 'not-started'
     });
 
     const populatedNode = await RoadmapNode.findById(node._id)
@@ -246,7 +249,7 @@ router.post('/:roadmapId/nodes', async (req, res) => {
 router.put('/:roadmapId/nodes/:nodeId', async (req, res) => {
   try {
     const { roadmapId, nodeId } = req.params;
-    const { title, description, order, phase, learningPath, milestone } = req.body;
+    const { title, description, order, phase, learningPath, milestone, parentId, nodeType, status } = req.body;
 
     if (!title || order === undefined) {
       return res.status(400).json({
@@ -288,7 +291,10 @@ router.put('/:roadmapId/nodes/:nodeId', async (req, res) => {
         order, 
         phase,
         learningPath: learningPath || null,
-        milestone
+        milestone,
+        parentId: parentId || null,
+        nodeType: nodeType || 'milestone',
+        status: status || 'not-started'
       },
       { new: true, runValidators: true }
     ).populate('learningPath', 'title difficulty');

@@ -1,0 +1,517 @@
+diff --git a/client/src/components/roadmap-graph/MilestoneNode.jsx b/client/src/components/roadmap-graph/MilestoneNode.jsx
+new file mode 100644
+index 0000000..98b7dfc
+--- /dev/null
++++ b/client/src/components/roadmap-graph/MilestoneNode.jsx
+@@ -0,0 +1,56 @@
++import React from 'react';
++import { Handle, Position } from '@xyflow/react';
++import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
++import clsx from 'clsx';
++
++// Solid filled spine node — the roadmap.sh "Internet / HTML / CSS" style box,
++// styled with the site's own ember/verdigris/ink palette instead of a generic theme.
++function MilestoneNode({ data, selected }) {
++  const isDone = data.status === 'done';
++  const isInProgress = data.status === 'in-progress';
++
++  return (
++    <div
++      className={clsx(
++        'relative min-w-[200px] px-5 py-3 rounded-md border-2 shadow-sm transition-all duration-200 cursor-pointer',
++        {
++          'bg-[var(--color-verdigris-100)] border-[var(--color-verdigris-700)]': isDone,
++          'bg-[var(--color-ember-100)] border-[var(--color-ember-600)]': isInProgress,
++          'bg-[var(--color-parchment-200)] border-[var(--color-ink-300)]': !isDone && !isInProgress,
++          'ring-4 ring-[var(--color-ember-400)]/50 scale-105': selected,
++        }
++      )}
++    >
++      <Handle type="target" position={Position.Left} className="!bg-transparent !border-none !w-3 !h-3" />
++
++      <div className="flex items-center gap-2">
++        {isDone ? (
++          <CheckCircle2 className="w-5 h-5 text-[var(--color-verdigris-700)] flex-shrink-0" />
++        ) : isInProgress ? (
++          <Loader2 className="w-5 h-5 text-[var(--color-ember-600)] flex-shrink-0 animate-spin" />
++        ) : (
++          <Circle className="w-5 h-5 text-[var(--color-ink-300)] flex-shrink-0" />
++        )}
++        <h3
++          className={clsx('text-base font-bold tracking-tight', {
++            'text-[var(--color-verdigris-700)]': isDone,
++            'text-[var(--color-ember-600)]': isInProgress,
++            'text-[var(--color-ink-700)]': !isDone && !isInProgress,
++          })}
++        >
++          {data.label}
++        </h3>
++      </div>
++
++      {data.phase && (
++        <span className="absolute -top-3 -right-2 bg-[var(--color-ink-900)] text-[var(--color-parchment-50)] text-[10px] px-2 py-1 rounded-full font-bold shadow-md">
++          {data.phase}
++        </span>
++      )}
++
++      <Handle type="source" position={Position.Right} className="!bg-transparent !border-none !w-3 !h-3" />
++    </div>
++  );
++}
++
++export default MilestoneNode;
+diff --git a/client/src/components/roadmap-graph/RoadmapGraph.jsx b/client/src/components/roadmap-graph/RoadmapGraph.jsx
+index 535e31b..271e73b 100644
+--- a/client/src/components/roadmap-graph/RoadmapGraph.jsx
++++ b/client/src/components/roadmap-graph/RoadmapGraph.jsx
+@@ -11,21 +11,23 @@ import {
+ import '@xyflow/react/dist/style.css';
+ import dagre from 'dagre';
+ import TopicNode from './TopicNode';
+-import SectionNode from './SectionNode';
++import MilestoneNode from './MilestoneNode';
+ 
+ const nodeTypes = {
+   topic: TopicNode,
+-  section: SectionNode,
++  milestone: MilestoneNode,
+ };
+ 
+-const getLayoutedElements = (nodes, edges, direction = 'TB') => {
++const getLayoutedElements = (nodes, edges, direction = 'LR') => {
+   const dagreGraph = new dagre.graphlib.Graph();
+   dagreGraph.setDefaultEdgeLabel(() => ({}));
+-  dagreGraph.setGraph({ rankdir: direction, ranksep: 80, nodesep: 40 });
++  // LR so milestones form the main vertical/horizontal spine and topics branch sideways,
++  // matching roadmap.sh's layout instead of one straight column.
++  dagreGraph.setGraph({ rankdir: direction, ranksep: 90, nodesep: 30 });
+ 
+   nodes.forEach((node) => {
+-    const isSection = node.type === 'section';
+-    dagreGraph.setNode(node.id, { width: isSection ? 300 : 200, height: isSection ? 80 : 60 });
++    const isMilestone = node.type === 'milestone';
++    dagreGraph.setNode(node.id, { width: isMilestone ? 220 : 200, height: isMilestone ? 56 : 44 });
+   });
+ 
+   edges.forEach((edge) => {
+@@ -36,14 +38,14 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+ 
+   return nodes.map((node) => {
+     const nodeWithPosition = dagreGraph.node(node.id);
+-    const isSection = node.type === 'section';
+-    const width = isSection ? 300 : 200;
+-    const height = isSection ? 80 : 60;
+-    
++    const isMilestone = node.type === 'milestone';
++    const width = isMilestone ? 220 : 200;
++    const height = isMilestone ? 56 : 44;
++
+     return {
+       ...node,
+-      targetPosition: 'top',
+-      sourcePosition: 'bottom',
++      targetPosition: direction === 'LR' ? 'left' : 'top',
++      sourcePosition: direction === 'LR' ? 'right' : 'bottom',
+       position: {
+         x: nodeWithPosition.x - width / 2,
+         y: nodeWithPosition.y - height / 2,
+@@ -52,12 +54,6 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+   });
+ };
+ 
+-// Dummy status generator for demo purposes if backend doesn't provide it
+-const getRandomStatus = () => {
+-  const statuses = ['done', 'in-progress', 'not-started'];
+-  return statuses[Math.floor(Math.random() * statuses.length)];
+-};
+-
+ function RoadmapGraph({ rawNodes, onNodeClick }) {
+   const [nodes, setNodes, onNodesChange] = useNodesState([]);
+   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+@@ -65,45 +61,63 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
+   useEffect(() => {
+     if (!rawNodes || rawNodes.length === 0) return;
+ 
+-    // Map raw DB nodes to React Flow nodes
+     const initialNodes = [];
+     const initialEdges = [];
+ 
+-    // Track last section to branch from if necessary, or just linear
+-    for (let i = 0; i < rawNodes.length; i++) {
+-      const dbNode = rawNodes[i];
+-      const isMilestone = !!dbNode.milestone;
+-      
+-      const rfNode = {
++    // 1. Classify by real nodeType from the DB, not by whether `milestone` text exists.
++    //    Milestones (no parentId) form the main spine; everything with a parentId is a
++    //    branch off its parent.
++    const spineNodes = rawNodes
++      .filter((n) => !n.parentId && (n.nodeType || 'milestone') === 'milestone')
++      .sort((a, b) => a.order - b.order);
++
++    rawNodes.forEach((dbNode) => {
++      const nodeType = dbNode.nodeType || (dbNode.parentId ? 'topic' : 'milestone');
++      initialNodes.push({
+         id: dbNode._id,
+-        type: isMilestone ? 'section' : 'topic',
++        type: nodeType === 'milestone' ? 'milestone' : 'topic',
+         data: {
+           label: dbNode.title,
+           description: dbNode.description,
+           phase: dbNode.phase,
+-          status: dbNode.status || getRandomStatus(),
+-          type: 'default',
++          status: dbNode.status || 'not-started',
++          optional: nodeType === 'optional',
+           raw: dbNode,
+         },
+         position: { x: 0, y: 0 },
+-      };
+-      
+-      initialNodes.push(rfNode);
+-
+-      // Create linear edge to previous node
+-      if (i > 0) {
+-        initialEdges.push({
+-          id: `e-${rawNodes[i-1]._id}-${dbNode._id}`,
+-          source: rawNodes[i-1]._id,
+-          target: dbNode._id,
+-          type: 'smoothstep',
+-          animated: rfNode.data.status === 'in-progress',
+-          style: { stroke: rfNode.data.status === 'done' ? '#10b981' : '#9ca3af', strokeWidth: 2 },
+-        });
+-      }
++      });
++    });
++
++    // 2. Spine edges: milestone -> next milestone (solid line down the main path)
++    for (let i = 1; i < spineNodes.length; i++) {
++      initialEdges.push({
++        id: `spine-${spineNodes[i - 1]._id}-${spineNodes[i]._id}`,
++        source: spineNodes[i - 1]._id,
++        target: spineNodes[i]._id,
++        type: 'smoothstep',
++        style: { stroke: spineNodes[i].status === 'done' ? '#1A5C54' : '#A89880', strokeWidth: 3 },
++      });
+     }
+ 
+-    const layoutedNodes = getLayoutedElements(initialNodes, initialEdges, 'TB');
++    // 3. Branch edges: every node with a parentId gets a dotted line off its parent —
++    //    this is what actually produces the tree/branching look, one parent to many children.
++    rawNodes.forEach((dbNode) => {
++      if (!dbNode.parentId) return;
++      const parentId = typeof dbNode.parentId === 'object' ? dbNode.parentId._id : dbNode.parentId;
++      initialEdges.push({
++        id: `branch-${parentId}-${dbNode._id}`,
++        source: parentId,
++        target: dbNode._id,
++        type: 'smoothstep',
++        style: {
++          stroke: dbNode.status === 'done' ? '#2B8A7E' : '#D4C9A8',
++          strokeWidth: 1.5,
++          strokeDasharray: '4 3',
++        },
++      });
++    });
++
++    const layoutedNodes = getLayoutedElements(initialNodes, initialEdges, 'LR');
+     setNodes(layoutedNodes);
+     setEdges(initialEdges);
+   }, [rawNodes, setNodes, setEdges]);
+@@ -118,7 +132,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
+   );
+ 
+   return (
+-    <div className="w-full h-[600px] border border-gray-200 rounded-xl bg-gray-50/50 shadow-inner overflow-hidden">
++    <div className="w-full h-[750px] border border-[var(--color-ink-300)] rounded-xl bg-[var(--color-parchment-50)] shadow-inner overflow-hidden">
+       <ReactFlow
+         nodes={nodes}
+         edges={edges}
+@@ -127,17 +141,21 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
+         onNodeClick={handleNodeClick}
+         nodeTypes={nodeTypes}
+         fitView
++        minZoom={0.3}
+         attributionPosition="bottom-right"
+       >
+         <Controls />
+-        <MiniMap zoomable pannable nodeClassName={(n) => n.type === 'section' ? '!bg-gray-800' : '!bg-blue-500'} />
+-        <Background color="#ccc" gap={16} />
+-        <Panel position="top-left" className="bg-white/90 backdrop-blur p-3 rounded-lg shadow border border-gray-200">
+-          <div className="text-xs font-semibold text-gray-700 mb-2">Legend</div>
+-          <div className="flex flex-col gap-1 text-xs">
+-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> Done</div>
+-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-blue-500"></span> In Progress</div>
+-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-gray-300"></span> Pending</div>
++        <MiniMap zoomable pannable nodeClassName={(n) => n.type === 'milestone' ? '!bg-[var(--color-ink-700)]' : '!bg-[var(--color-verdigris-500)]'} />
++        <Background color="var(--color-ink-300)" gap={16} />
++        <Panel position="top-left" className="bg-[var(--color-parchment-50)]/90 backdrop-blur p-3 rounded-lg shadow border border-[var(--color-ink-300)]">
++          <div className="text-xs font-semibold text-[var(--color-ink-700)] mb-2">Legend</div>
++          <div className="flex flex-col gap-1 text-xs text-[var(--color-ink-700)]">
++            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-verdigris-500)]"></span> Done</div>
++            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-ember-500)]"></span> In Progress</div>
++            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-ink-300)]"></span> Pending</div>
++            <div className="flex items-center gap-2 pt-1 border-t border-[var(--color-ink-300)] mt-1">
++              <span className="w-4 border-t-2 border-dashed border-[var(--color-ink-300)]"></span> Optional
++            </div>
+           </div>
+         </Panel>
+       </ReactFlow>
+diff --git a/client/src/components/roadmap-graph/SectionNode.jsx b/client/src/components/roadmap-graph/SectionNode.jsx
+deleted file mode 100644
+index a640eb4..0000000
+--- a/client/src/components/roadmap-graph/SectionNode.jsx
++++ /dev/null
+@@ -1,23 +0,0 @@
+-import React from 'react';
+-import { Handle, Position } from '@xyflow/react';
+-
+-function SectionNode({ data }) {
+-  return (
+-    <div className="relative px-6 py-4 bg-transparent border-none text-center">
+-      <Handle type="target" position={Position.Top} className="!bg-transparent !border-none !w-4 !h-4" />
+-      
+-      <h3 className="text-2xl font-black text-gray-900 tracking-tight uppercase">
+-        {data.label}
+-      </h3>
+-      {data.description && (
+-        <p className="text-sm text-gray-500 mt-1 max-w-[250px] mx-auto">
+-          {data.description}
+-        </p>
+-      )}
+-
+-      <Handle type="source" position={Position.Bottom} className="!bg-transparent !border-none !w-4 !h-4" />
+-    </div>
+-  );
+-}
+-
+-export default SectionNode;
+diff --git a/client/src/components/roadmap-graph/TopicNode.jsx b/client/src/components/roadmap-graph/TopicNode.jsx
+index 8ffeef3..a151cbd 100644
+--- a/client/src/components/roadmap-graph/TopicNode.jsx
++++ b/client/src/components/roadmap-graph/TopicNode.jsx
+@@ -1,54 +1,50 @@
+ import React from 'react';
+ import { Handle, Position } from '@xyflow/react';
+-import { CheckCircle, Circle, PlayCircle } from 'lucide-react';
++import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+ import clsx from 'clsx';
+ 
++// Branching sub-topic pill — the roadmap.sh "What is HTTP?" style node that hangs
++// off a milestone via a dotted line.
+ function TopicNode({ data, selected }) {
+   const isDone = data.status === 'done';
+   const isInProgress = data.status === 'in-progress';
+-  const isOptional = data.type === 'optional';
++  const isOptional = data.optional;
+ 
+   return (
+     <div
+       className={clsx(
+-        'relative min-w-[200px] max-w-[240px] px-4 py-3 rounded-full border-2 transition-all duration-200 cursor-pointer shadow-sm',
++        'relative min-w-[180px] max-w-[220px] px-3 py-2 rounded-full border-2 transition-all duration-200 cursor-pointer shadow-sm',
+         {
+-          'bg-white border-emerald-500 hover:shadow-emerald-100': isDone,
+-          'bg-white border-blue-500 hover:shadow-blue-100': isInProgress,
+-          'bg-gray-50 border-gray-300 hover:border-gray-400': !isDone && !isInProgress,
+-          'border-dashed': isOptional,
+-          'ring-4 ring-opacity-50 ring-blue-400 scale-105': selected,
++          'bg-[var(--color-verdigris-100)] border-[var(--color-verdigris-500)]': isDone,
++          'bg-[var(--color-ember-100)] border-[var(--color-ember-500)]': isInProgress,
++          'bg-[var(--color-parchment-100)] border-[var(--color-ink-300)]': !isDone && !isInProgress,
++          'border-dashed opacity-80': isOptional,
++          'ring-4 ring-[var(--color-ember-400)]/40 scale-105': selected,
+         }
+       )}
+     >
+-      <Handle type="target" position={Position.Top} className="!bg-transparent !border-none !w-4 !h-4" />
+-      
++      <Handle type="target" position={Position.Left} className="!bg-transparent !border-none !w-3 !h-3" />
++
+       <div className="flex items-center gap-2">
+         {isDone ? (
+-          <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
++          <CheckCircle2 className="w-4 h-4 text-[var(--color-verdigris-700)] flex-shrink-0" />
+         ) : isInProgress ? (
+-          <PlayCircle className="w-5 h-5 text-blue-500 flex-shrink-0" />
++          <Loader2 className="w-4 h-4 text-[var(--color-ember-600)] flex-shrink-0 animate-spin" />
+         ) : (
+-          <Circle className="w-5 h-5 text-gray-300 flex-shrink-0" />
++          <Circle className="w-4 h-4 text-[var(--color-ink-300)] flex-shrink-0" />
+         )}
+-        <div className="flex-1 min-w-0">
+-          <h4 className={clsx('text-sm font-semibold truncate', {
+-            'text-emerald-700': isDone,
+-            'text-blue-700': isInProgress,
+-            'text-gray-700': !isDone && !isInProgress,
+-          })}>
+-            {data.label}
+-          </h4>
+-        </div>
+-      </div>
+-      
+-      {data.phase && (
+-        <span className="absolute -top-3 -right-2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md">
+-          {data.phase}
++        <span
++          className={clsx('text-xs font-semibold truncate', {
++            'text-[var(--color-verdigris-700)]': isDone,
++            'text-[var(--color-ember-600)]': isInProgress,
++            'text-[var(--color-ink-700)]': !isDone && !isInProgress,
++          })}
++        >
++          {data.label}
+         </span>
+-      )}
++      </div>
+ 
+-      <Handle type="source" position={Position.Bottom} className="!bg-transparent !border-none !w-4 !h-4" />
++      <Handle type="source" position={Position.Right} className="!bg-transparent !border-none !w-3 !h-3" />
+     </div>
+   );
+ }
+diff --git a/server/models/RoadmapNode.js b/server/models/RoadmapNode.js
+index b93c269..1d3f1de 100644
+--- a/server/models/RoadmapNode.js
++++ b/server/models/RoadmapNode.js
+@@ -32,6 +32,25 @@ const roadmapNodeSchema = new mongoose.Schema({
+   milestone: {
+     type: String,
+     default: ''
++  },
++  // Tree structure: which node this branches off of (null/undefined = top-level spine node)
++  parentId: {
++    type: mongoose.Schema.Types.ObjectId,
++    ref: 'RoadmapNode',
++    default: null
++  },
++  // 'milestone' = big spine node (like roadmap.sh's Internet/HTML/CSS column)
++  // 'topic'     = branching sub-topic pill (like "What is HTTP?")
++  // 'optional'  = branching sub-topic, dashed/muted styling
++  nodeType: {
++    type: String,
++    enum: ['milestone', 'topic', 'optional'],
++    default: 'milestone'
++  },
++  status: {
++    type: String,
++    enum: ['not-started', 'in-progress', 'done'],
++    default: 'not-started'
+   }
+ }, {
+   timestamps: true
+diff --git a/server/routes/admin/roadmaps.js b/server/routes/admin/roadmaps.js
+index d53e1d9..f317d4c 100644
+--- a/server/routes/admin/roadmaps.js
++++ b/server/routes/admin/roadmaps.js
+@@ -170,7 +170,7 @@ router.delete('/:id', async (req, res) => {
+ router.post('/:roadmapId/nodes', async (req, res) => {
+   try {
+     const { roadmapId } = req.params;
+-    const { title, description, order, phase, learningPath, milestone } = req.body;
++    const { title, description, order, phase, learningPath, milestone, parentId, nodeType, status } = req.body;
+ 
+     if (!title || order === undefined) {
+       return res.status(400).json({
+@@ -214,7 +214,10 @@ router.post('/:roadmapId/nodes', async (req, res) => {
+       order,
+       phase: phase || '',
+       learningPath: learningPath || null,
+-      milestone: milestone || ''
++      milestone: milestone || '',
++      parentId: parentId || null,
++      nodeType: nodeType || 'milestone',
++      status: status || 'not-started'
+     });
+ 
+     const populatedNode = await RoadmapNode.findById(node._id)
+@@ -246,7 +249,7 @@ router.post('/:roadmapId/nodes', async (req, res) => {
+ router.put('/:roadmapId/nodes/:nodeId', async (req, res) => {
+   try {
+     const { roadmapId, nodeId } = req.params;
+-    const { title, description, order, phase, learningPath, milestone } = req.body;
++    const { title, description, order, phase, learningPath, milestone, parentId, nodeType, status } = req.body;
+ 
+     if (!title || order === undefined) {
+       return res.status(400).json({
+@@ -288,7 +291,10 @@ router.put('/:roadmapId/nodes/:nodeId', async (req, res) => {
+         order, 
+         phase,
+         learningPath: learningPath || null,
+-        milestone
++        milestone,
++        parentId: parentId || null,
++        nodeType: nodeType || 'milestone',
++        status: status || 'not-started'
+       },
+       { new: true, runValidators: true }
+     ).populate('learningPath', 'title difficulty');
+diff --git a/server/seed.js b/server/seed.js
+index 598d641..5a16a36 100644
+--- a/server/seed.js
++++ b/server/seed.js
+@@ -286,30 +286,61 @@ Master these hooks and you'll be able to build interactive, dynamic applications
+       order: 1,
+       phase: 'Foundation',
+       learningPath: learningPath._id,
+-      milestone: 'Complete all React fundamental concepts'
++      milestone: 'Complete all React fundamental concepts',
++      nodeType: 'milestone',
++      status: 'done'
+     });
+     console.log(`  ✓ Milestone 1: ${roadmapNode1.title}`);
+ 
++    // Branch sub-topics off Milestone 1 (parentId = roadmapNode1)
++    const m1Topics = await RoadmapNode.insertMany([
++      { roadmap: roadmap._id, title: 'JSX & Components', order: 101, parentId: roadmapNode1._id, nodeType: 'topic', status: 'done' },
++      { roadmap: roadmap._id, title: 'Props & State', order: 102, parentId: roadmapNode1._id, nodeType: 'topic', status: 'done' },
++      { roadmap: roadmap._id, title: 'Hooks (useState, useEffect)', order: 103, parentId: roadmapNode1._id, nodeType: 'topic', status: 'in-progress' },
++      { roadmap: roadmap._id, title: 'Context API', order: 104, parentId: roadmapNode1._id, nodeType: 'optional', status: 'not-started' },
++    ]);
++    console.log(`    ↳ ${m1Topics.length} sub-topics branched from Milestone 1`);
++
+     const roadmapNode2 = await RoadmapNode.create({
+       roadmap: roadmap._id,
+       title: 'Build Real Projects',
+       description: 'Apply your React skills to build production-ready applications',
+       order: 2,
+       phase: 'Application',
+-      milestone: 'Complete 3 portfolio projects'
++      milestone: 'Complete 3 portfolio projects',
++      nodeType: 'milestone',
++      status: 'in-progress'
+     });
+     console.log(`  ✓ Milestone 2: ${roadmapNode2.title}`);
+ 
++    const m2Topics = await RoadmapNode.insertMany([
++      { roadmap: roadmap._id, title: 'Routing (React Router)', order: 201, parentId: roadmapNode2._id, nodeType: 'topic', status: 'in-progress' },
++      { roadmap: roadmap._id, title: 'API Integration', order: 202, parentId: roadmapNode2._id, nodeType: 'topic', status: 'not-started' },
++      { roadmap: roadmap._id, title: 'State Management (Redux/Zustand)', order: 203, parentId: roadmapNode2._id, nodeType: 'topic', status: 'not-started' },
++      { roadmap: roadmap._id, title: 'Testing (Jest/RTL)', order: 204, parentId: roadmapNode2._id, nodeType: 'optional', status: 'not-started' },
++    ]);
++    console.log(`    ↳ ${m2Topics.length} sub-topics branched from Milestone 2`);
++
+     const roadmapNode3 = await RoadmapNode.create({
+       roadmap: roadmap._id,
+       title: 'Advanced Patterns & Job Ready',
+       description: 'Learn advanced React patterns and prepare for interviews',
+       order: 3,
+       phase: 'Mastery',
+-      milestone: 'Pass technical interviews'
++      milestone: 'Pass technical interviews',
++      nodeType: 'milestone',
++      status: 'not-started'
+     });
+     console.log(`  ✓ Milestone 3: ${roadmapNode3.title}`);
+ 
++    const m3Topics = await RoadmapNode.insertMany([
++      { roadmap: roadmap._id, title: 'Performance Optimization', order: 301, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
++      { roadmap: roadmap._id, title: 'Design Patterns', order: 302, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
++      { roadmap: roadmap._id, title: 'System Design Basics', order: 303, parentId: roadmapNode3._id, nodeType: 'optional', status: 'not-started' },
++      { roadmap: roadmap._id, title: 'Mock Interviews', order: 304, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
++    ]);
++    console.log(`    ↳ ${m3Topics.length} sub-topics branched from Milestone 3`);
++
+     // ====== PHASE 3: FLASHCARDS ======
+     console.log('\n🎴 Creating flashcards...');
+     const flashcards = [

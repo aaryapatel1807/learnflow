@@ -286,9 +286,20 @@ Master these hooks and you'll be able to build interactive, dynamic applications
       order: 1,
       phase: 'Foundation',
       learningPath: learningPath._id,
-      milestone: 'Complete all React fundamental concepts'
+      milestone: 'Complete all React fundamental concepts',
+      nodeType: 'milestone',
+      status: 'done'
     });
     console.log(`  ✓ Milestone 1: ${roadmapNode1.title}`);
+
+    // Branch sub-topics off Milestone 1 (parentId = roadmapNode1)
+    const m1Topics = await RoadmapNode.insertMany([
+      { roadmap: roadmap._id, title: 'JSX & Components', order: 101, parentId: roadmapNode1._id, nodeType: 'topic', status: 'done' },
+      { roadmap: roadmap._id, title: 'Props & State', order: 102, parentId: roadmapNode1._id, nodeType: 'topic', status: 'done' },
+      { roadmap: roadmap._id, title: 'Hooks (useState, useEffect)', order: 103, parentId: roadmapNode1._id, nodeType: 'topic', status: 'in-progress' },
+      { roadmap: roadmap._id, title: 'Context API', order: 104, parentId: roadmapNode1._id, nodeType: 'optional', status: 'not-started' },
+    ]);
+    console.log(`    ↳ ${m1Topics.length} sub-topics branched from Milestone 1`);
 
     const roadmapNode2 = await RoadmapNode.create({
       roadmap: roadmap._id,
@@ -296,9 +307,19 @@ Master these hooks and you'll be able to build interactive, dynamic applications
       description: 'Apply your React skills to build production-ready applications',
       order: 2,
       phase: 'Application',
-      milestone: 'Complete 3 portfolio projects'
+      milestone: 'Complete 3 portfolio projects',
+      nodeType: 'milestone',
+      status: 'in-progress'
     });
     console.log(`  ✓ Milestone 2: ${roadmapNode2.title}`);
+
+    const m2Topics = await RoadmapNode.insertMany([
+      { roadmap: roadmap._id, title: 'Routing (React Router)', order: 201, parentId: roadmapNode2._id, nodeType: 'topic', status: 'in-progress' },
+      { roadmap: roadmap._id, title: 'API Integration', order: 202, parentId: roadmapNode2._id, nodeType: 'topic', status: 'not-started' },
+      { roadmap: roadmap._id, title: 'State Management (Redux/Zustand)', order: 203, parentId: roadmapNode2._id, nodeType: 'topic', status: 'not-started' },
+      { roadmap: roadmap._id, title: 'Testing (Jest/RTL)', order: 204, parentId: roadmapNode2._id, nodeType: 'optional', status: 'not-started' },
+    ]);
+    console.log(`    ↳ ${m2Topics.length} sub-topics branched from Milestone 2`);
 
     const roadmapNode3 = await RoadmapNode.create({
       roadmap: roadmap._id,
@@ -306,9 +327,19 @@ Master these hooks and you'll be able to build interactive, dynamic applications
       description: 'Learn advanced React patterns and prepare for interviews',
       order: 3,
       phase: 'Mastery',
-      milestone: 'Pass technical interviews'
+      milestone: 'Pass technical interviews',
+      nodeType: 'milestone',
+      status: 'not-started'
     });
     console.log(`  ✓ Milestone 3: ${roadmapNode3.title}`);
+
+    const m3Topics = await RoadmapNode.insertMany([
+      { roadmap: roadmap._id, title: 'Performance Optimization', order: 301, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
+      { roadmap: roadmap._id, title: 'Design Patterns', order: 302, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
+      { roadmap: roadmap._id, title: 'System Design Basics', order: 303, parentId: roadmapNode3._id, nodeType: 'optional', status: 'not-started' },
+      { roadmap: roadmap._id, title: 'Mock Interviews', order: 304, parentId: roadmapNode3._id, nodeType: 'topic', status: 'not-started' },
+    ]);
+    console.log(`    ↳ ${m3Topics.length} sub-topics branched from Milestone 3`);
 
     // ====== PHASE 3: FLASHCARDS ======
     console.log('\n🎴 Creating flashcards...');
