@@ -502,15 +502,22 @@
    surface and text tone gets a deep-plum equivalent.
    ============================================================ */
 [data-theme="dark"] .pastel-page {
-  background: #1d1728;
+  /* Full-bleed at night: no separate container box, melt into the ambient shell */
+  background: transparent;
+  box-shadow: none;
 }
 
 [data-theme="dark"] .pastel-page::before {
-  background: radial-gradient(circle, rgba(240, 96, 138, 0.22) 0%, rgba(240, 96, 138, 0) 68%);
+  background: radial-gradient(circle, rgba(240, 96, 138, 0.26) 0%, rgba(240, 96, 138, 0) 68%);
 }
 
 [data-theme="dark"] .pastel-page::after {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(139, 92, 246, 0) 68%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(139, 92, 246, 0) 68%);
+}
+
+/* Softer, dark-native shadows so cards sit IN the canvas, not cut out of it */
+[data-theme="dark"] .pastel-stat-card {
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.65);
 }
 
 [data-theme="dark"] .pastel-eyebrow { color: #a68fa1; }
