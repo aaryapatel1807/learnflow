@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Navigation, Menu, ChevronDown } from "lucide-react";
+import { useTheme } from "next-themes";
 import { isAuthenticated, getUser, logout } from "../utils/auth";
 import "./AnimatedNav.css";
 
@@ -73,7 +74,8 @@ const collapsedIconVariants = {
 
 export function AnimatedNav({ onLogout }) {
   const [isExpanded, setExpanded] = useState(true);
-  const [isDark, setIsDark] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
   const [moreOpen, setMoreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const moreRef = useRef(null);
@@ -85,21 +87,9 @@ export function AnimatedNav({ onLogout }) {
   const lastScrollY = useRef(0);
   const scrollPositionOnCollapse = useRef(0);
 
-  // Sync dark mode with html attribute
-  useEffect(() => {
-    const stored = localStorage.getItem("learnflow-theme");
-    if (stored === "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
-      setIsDark(true);
-    }
-  }, []);
-
   const toggleTheme = (e) => {
     e.stopPropagation();
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
-    localStorage.setItem("learnflow-theme", next ? "dark" : "light");
+    setTheme(isDark ? "light" : "dark");
   };
 
   useMotionValueEvent(scrollY, "change", (latest) => {

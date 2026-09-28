@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Typewriter } from "./typewriter";
-import { Auth3DScene } from "./auth-3d";
+import { IconCloud } from "./interactive-icon-cloud";
 
 function formatAuthError(err: unknown): string {
   if (typeof err === "object" && err !== null) {
@@ -261,6 +261,31 @@ const defaultSignUpContent = {
   },
 };
 
+const authIconSlugs = [
+  "typescript",
+  "javascript",
+  "react",
+  "nodedotjs",
+  "express",
+  "nextdotjs",
+  "html5",
+  "css3",
+  "mongodb",
+  "postgresql",
+  "prisma",
+  "docker",
+  "git",
+  "github",
+  "figma",
+  "vercel",
+  "firebase",
+  "jest",
+  "visualstudiocode",
+  "android",
+  "java",
+  "python",
+];
+
 export function AuthUI({
   signInContent = {},
   signUpContent = {},
@@ -303,7 +328,7 @@ export function AuthUI({
 
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
         <div className="absolute inset-0">
-          <Auth3DScene />
+          <IconCloud iconSlugs={authIconSlugs} />
         </div>
 
         <div className="relative z-10 flex h-full flex-col items-center justify-center p-8">
