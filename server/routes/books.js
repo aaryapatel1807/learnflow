@@ -71,6 +71,7 @@ router.get('/', async (req, res) => {
       count: booksWithDetails.length,
       total: totalBooks,
       page: parseInt(page),
+      limit: parseInt(limit),
       totalPages: Math.ceil(totalBooks / parseInt(limit)),
       data: booksWithDetails
     });

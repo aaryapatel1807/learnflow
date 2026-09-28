@@ -29,7 +29,7 @@ function Register({ setUser }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Join Academix</h1>
+        <h1>Join Learnflow</h1>
         {error && <div className="auth-error">{error}</div>}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} required className="form-control" />

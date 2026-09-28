@@ -543,13 +543,13 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     // First, we need to create a demo user (or use an existing one if seeding users separately)
     // For this seed, we'll create a demo user
     const bcrypt = require('bcryptjs');
-    let demoUser = await User.findOne({ email: 'demo@academix.com' });
+    let demoUser = await User.findOne({ email: 'demo@learnflow.com' });
     
     if (!demoUser) {
       const hashedPassword = await bcrypt.hash('demo123', 10);
       demoUser = await User.create({
         name: 'Demo User',
-        email: 'demo@academix.com',
+        email: 'demo@learnflow.com',
         password: hashedPassword,
         role: 'admin', // Promoted to admin for Phase 5
         xp: 45,
@@ -743,7 +743,7 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     console.log(`   Skill Nodes: ${await SkillNode.countDocuments()}`);
     console.log(`   Users: ${await User.countDocuments()}`);
     console.log('\n👤 Demo User Credentials (ADMIN):');
-    console.log(`   Email: demo@academix.com`);
+    console.log(`   Email: demo@learnflow.com`);
     console.log(`   Password: demo123`);
     console.log(`   Role: admin`);
     

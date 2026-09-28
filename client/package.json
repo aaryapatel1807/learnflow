@@ -1,7 +1,7 @@
 {
-  "name": "academix-client",
+  "name": "learnflow-client",
   "version": "1.0.0",
-  "description": "Academix React Client",
+  "description": "Learnflow React Client",
   "private": true,
   "type": "module",
   "scripts": {

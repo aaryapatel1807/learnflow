@@ -74,7 +74,7 @@ export function AnimatedNav() {
 
   // Sync dark mode with html attribute
   useEffect(() => {
-    const stored = localStorage.getItem("academix-theme");
+    const stored = localStorage.getItem("learnflow-theme");
     if (stored === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
       setIsDark(true);
@@ -86,7 +86,7 @@ export function AnimatedNav() {
     const next = !isDark;
     setIsDark(next);
     document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
-    localStorage.setItem("academix-theme", next ? "dark" : "light");
+    localStorage.setItem("learnflow-theme", next ? "dark" : "light");
   };
 
   useMotionValueEvent(scrollY, "change", (latest) => {

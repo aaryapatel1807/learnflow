@@ -208,25 +208,31 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           <div className="text-xs font-bold mb-2" style={{ color: 'var(--rm-panel-text)' }}>Legend</div>
           <div className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: 'var(--rm-panel-text)' }}>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-3 rounded-sm border-2" style={{ background: 'var(--rm-milestone)', borderColor: 'var(--rm-node-border)' }} />
+              <span className="inline-block w-4 h-3 rounded-sm border-2 shrink-0" style={{ background: 'var(--rm-milestone)', borderColor: 'var(--rm-node-border)' }} />
               Milestone
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-3 rounded-sm border-2" style={{ background: 'var(--rm-topic)', borderColor: 'var(--rm-node-border)' }} />
+              <span className="inline-block w-4 h-3 rounded-sm border-2 shrink-0" style={{ background: 'var(--rm-topic)', borderColor: 'var(--rm-node-border)' }} />
               Topic
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full inline-flex items-center justify-center" style={{ background: 'var(--rm-done)' }}>
+              <span className="w-4 h-4 rounded-full inline-flex items-center justify-center shrink-0" style={{ background: 'var(--rm-done)' }}>
                 <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
               </span>
               Done
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-5 border-t-[3px]" style={{ borderColor: 'var(--rm-edge)' }} />
+              <span className="w-4 h-4 rounded-full inline-flex items-center justify-center shrink-0" style={{ background: 'var(--rm-edge)' }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              </span>
+              In Progress
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-5 border-t-[3px] shrink-0" style={{ borderColor: 'var(--rm-edge)' }} />
               Learning path
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-5 border-t-[3px] border-dotted" style={{ borderColor: 'var(--rm-edge)' }} />
+              <span className="inline-block w-5 border-t-[3px] border-dotted shrink-0" style={{ borderColor: 'var(--rm-edge)' }} />
               Optional
             </div>
           </div>

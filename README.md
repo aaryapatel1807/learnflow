@@ -1,4 +1,4 @@
-# Academix - Enhanced Educational Platform
+# Learnflow - Enhanced Educational Platform
 
 A comprehensive MERN-stack educational platform with personalized learning, progress tracking, and content management.
 

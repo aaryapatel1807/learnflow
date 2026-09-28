@@ -1,7 +1,7 @@
 {
-  "name": "academix-server",
+  "name": "learnflow-server",
   "version": "1.0.0",
-  "description": "Academix API Server",
+  "description": "Learnflow API Server",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

@@ -28,7 +28,7 @@ function Login({ setUser }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Login to Academix</h1>
+        <h1>Login to Learnflow</h1>
         {error && <div className="auth-error">{error}</div>}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="form-control" />

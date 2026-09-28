@@ -63,7 +63,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'Academix API',
+    service: 'LearnFlow API',
     version: '1.0.0'
   });
 });
@@ -71,7 +71,7 @@ app.get('/api/health', (req, res) => {
 // API documentation endpoint
 app.get('/api', (req, res) => {
   res.json({
-    message: 'Welcome to Academix API',
+    message: 'Welcome to LearnFlow API',
     endpoints: {
       auth: '/api/auth',
       subjects: '/api/subjects',
