@@ -471,6 +471,12 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     quiz.questionCount = quizQuestions.length;
     await quiz.save();
 
+    // ====== REAL CONTENT PACK (shared, idempotent — safe: DB was just wiped) ======
+    console.log('\n📦 Seeding real content pack (books, quizzes, flashcards, learning paths)...');
+    const { seedRealContent } = require('./seed-data/realContent');
+    const realCounts = await seedRealContent();
+    console.log('  ✓ Real content added:', JSON.stringify(realCounts));
+
     // ====== PHASE 3: ACHIEVEMENT DEFINITIONS ======
     console.log('\n🏆 Creating achievement definitions...');
     const achievements = [
