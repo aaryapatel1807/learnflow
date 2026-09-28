@@ -1,0 +1,58 @@
+/*
+ * Learnflow — shadcn theme tokens
+ * Maps the shadcn token set (background, primary, muted, …) onto the
+ * LearnFlow pastel palette so shadcn-style components (components/ui/*)
+ * render in the app's own look. Values are HSL triplets consumed via
+ * hsl(var(--token)) in tailwind.config.js.
+ */
+
+:root {
+  --radius: 1rem;
+
+  --background: 343 42% 96%;
+  --foreground: 258 16% 16%;
+
+  --primary: 341 64% 58%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 340 45% 91%;
+  --secondary-foreground: 276 10% 30%;
+
+  --muted: 340 44% 94%;
+  --muted-foreground: 336 9% 51%;
+
+  --accent: 341 100% 94%;
+  --accent-foreground: 341 64% 58%;
+
+  --destructive: 351 64% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 338 42% 84%;
+  --input: 338 42% 84%;
+  --ring: 342 84% 69%;
+}
+
+/* Night mode follows the app's data-theme attribute (see AnimatedNav theme toggle) */
+[data-theme="dark"] {
+  --background: 280 22% 14%;
+  --foreground: 312 25% 95%;
+
+  --primary: 342 84% 69%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 280 20% 22%;
+  --secondary-foreground: 308 14% 79%;
+
+  --muted: 282 21% 19%;
+  --muted-foreground: 310 12% 60%;
+
+  --accent: 280 20% 22%;
+  --accent-foreground: 341 100% 74%;
+
+  --destructive: 354 79% 72%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 280 20% 22%;
+  --input: 282 20% 30%;
+  --ring: 341 100% 74%;
+}

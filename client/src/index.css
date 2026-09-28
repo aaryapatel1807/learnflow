@@ -1,11 +1,14 @@
 @import './styles/tokens.css';
+@import './styles/shadcn-tokens.css';
 @import './styles/glass.css';
 @import './styles/pastel.css';
 @import './styles/pastel-pages.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Class-free dark variant driven by the app's data-theme attribute */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /*
  * Learnflow — "Scholar's Cosmos" Design System v2

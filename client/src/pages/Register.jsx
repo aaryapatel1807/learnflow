@@ -1,49 +1,35 @@
-﻿import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { setAuthToken, setUser as saveUser } from '../utils/auth';
-import './Auth.css';
+import { AuthUI } from '../components/ui/auth-ui';
 
 function Register({ setUser }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); setError(''); setLoading(true);
-    try {
-      const response = await api.post('/auth/register', { name, email, password });
-      const { token, user } = response.data;
-      setAuthToken(token); saveUser(user); setUser(user);
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
+  const persistSession = (token, user) => {
+    setAuthToken(token);
+    saveUser(user);
+    setUser(user);
+    navigate('/');
+  };
+
+  const handleSignIn = async (email, password) => {
+    const response = await api.post('/auth/login', { email, password });
+    persistSession(response.data.token, response.data.user);
+  };
+
+  const handleSignUp = async (name, email, password) => {
+    const response = await api.post('/auth/register', { name, email, password });
+    persistSession(response.data.token, response.data.user);
   };
 
   return (
-    <div className="container pp-auth-wrap">
-      <div className="pp-auth-card">
-        <p className="pp-eyebrow">Get started</p>
-        <h1>Join Learnflow</h1>
-        <p className="pp-sub">Create your account and start learning.</p>
-        {error && <div className="adm-error">{error}</div>}
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} required className="form-control" />
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="form-control" />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength="6" className="form-control" />
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
-        <p className="auth-link">Already have an account? <Link to="/login">Login here</Link></p>
-      </div>
-    </div>
+    <AuthUI
+      initialIsSignIn={false}
+      onSignIn={handleSignIn}
+      onSignUp={handleSignUp}
+      onToggleMode={(isSignIn) => navigate(isSignIn ? '/login' : '/register')}
+    />
   );
 }
 
