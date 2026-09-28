@@ -3,7 +3,7 @@ import { useState, useId } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Typewriter } from "./typewriter";
 import { IconCloud } from "./interactive-icon-cloud";
@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-xl border border-white/70 bg-white/60 px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 backdrop-blur-sm transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-white/80 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:bg-white/10 dark:focus-visible:bg-white/15",
+          "flex h-10 w-full rounded-xl border border-white/70 bg-white/60 px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 backdrop-blur-sm transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-white/80 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.07] dark:focus-visible:bg-white/[0.12]",
           className
         )}
         ref={ref}
@@ -103,7 +103,8 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
       <div className="grid w-full items-center gap-2">
         {label && <Label htmlFor={id}>{label}</Label>}
         <div className="relative">
-          <Input id={id} type={showPassword ? "text" : "password"} className={cn("pe-10", className)} ref={ref} {...props} />
+          <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input id={id} type={showPassword ? "text" : "password"} className={cn("pe-10 pl-11", className)} ref={ref} {...props} />
           <button
             type="button"
             onClick={togglePasswordVisibility}
@@ -159,6 +160,9 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
   return (
     <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full border border-white/70 bg-white/60 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
+          L
+        </div>
         <h1 className="text-2xl font-bold">Sign in to your account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your email below to sign in</p>
       </div>
@@ -166,11 +170,14 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
         <AuthError message={error} />
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-11" />
+          </div>
         </div>
         <PasswordInput name="password" label="Password" required autoComplete="current-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25" disabled={loading}>
-          {loading ? "Signing in…" : "Sign In"}
+        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25 dark:bg-white dark:text-[#1b1030] dark:shadow-[0_12px_35px_-10px_rgba(255,255,255,0.45)] dark:hover:bg-white/90" disabled={loading}>
+          {loading ? "Signing in…" : (<>Sign In <ArrowRight /></>)}
         </Button>
       </div>
     </form>
@@ -186,6 +193,9 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
   return (
     <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full border border-white/70 bg-white/60 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
+          L
+        </div>
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your details below to sign up</p>
       </div>
@@ -193,15 +203,21 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
         <AuthError message={error} />
         <div className="grid gap-1">
           <Label htmlFor="name">Full Name</Label>
-          <Input id="name" name="name" type="text" placeholder="John Doe" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
+          <div className="relative">
+            <User className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="name" name="name" type="text" placeholder="John Doe" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className="pl-11" />
+          </div>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-11" />
+          </div>
         </div>
         <PasswordInput name="password" label="Password" required minLength={6} autoComplete="new-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25" disabled={loading}>
-          {loading ? "Creating account…" : "Sign Up"}
+        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25 dark:bg-white dark:text-[#1b1030] dark:shadow-[0_12px_35px_-10px_rgba(255,255,255,0.45)] dark:hover:bg-white/90" disabled={loading}>
+          {loading ? "Creating account…" : (<>Sign Up <ArrowRight /></>)}
         </Button>
       </div>
     </form>
@@ -220,11 +236,11 @@ function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormC
     <div className="relative mx-auto w-[350px] sm:w-[380px]">
       {/* ambient colour blobs that glow through the frosted card */}
       <div aria-hidden="true" className="pointer-events-none absolute -inset-8">
-        <div className="absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[#f4a9c6]/50 blur-3xl" />
-        <div className="absolute -bottom-12 -right-8 h-52 w-52 rounded-full bg-[#c3b5f0]/50 blur-3xl" />
-        <div className="absolute left-1/3 top-1/2 h-32 w-32 rounded-full bg-[#9fdcd2]/40 blur-3xl" />
+        <div className="absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[#f4a9c6]/50 blur-3xl dark:bg-[#a855f7]/25" />
+        <div className="absolute -bottom-12 -right-8 h-52 w-52 rounded-full bg-[#c3b5f0]/50 blur-3xl dark:bg-[#7c3aed]/25" />
+        <div className="absolute left-1/3 top-1/2 h-32 w-32 rounded-full bg-[#9fdcd2]/40 blur-3xl dark:bg-[#4c1d95]/20" />
       </div>
-      <div className="relative grid gap-2 rounded-[28px] border border-white/60 bg-white/45 p-8 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.35)] backdrop-blur-2xl dark:border-white/15 dark:bg-white/[0.08] dark:shadow-[0_24px_70px_-20px_rgba(0,0,0,0.6)]">
+      <div className="relative grid gap-2 rounded-[28px] border border-white/60 bg-white/45 p-8 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
         {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
         <div className="text-center text-sm">
           {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
@@ -323,7 +339,7 @@ export function AuthUI({
   const currentContent = isSignIn ? finalSignInContent : finalSignUpContent;
 
   return (
-    <div className="w-full min-h-screen md:grid md:grid-cols-2">
+    <div className="w-full min-h-screen md:grid md:grid-cols-2 dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#a855f7_0%,#7e22cc_30%,#3b0764_60%,#0d0716_100%)]">
       <style>{`
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
@@ -334,7 +350,7 @@ export function AuthUI({
         <AuthFormContainer isSignIn={isSignIn} onToggle={toggleForm} onSignIn={onSignIn} onSignUp={onSignUp} />
       </div>
 
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:bg-none">
         {/* sphere + quote stacked as one group, nudged slightly below centre */}
         <div className="relative z-10 flex h-full flex-col items-center justify-center p-8 pt-20">
           <div className="aspect-square w-[min(80%,60vh)]">
