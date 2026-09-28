@@ -135,6 +135,28 @@
   white-space: nowrap;
 }
 
+/* Register button (logged-out state) */
+.nav-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-ember-600) 0%, var(--color-ember-500) 100%);
+  box-shadow: var(--shadow-glow-ember);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.nav-auth-btn:hover {
+  transform: translateY(-1px);
+}
+
 /* Theme toggle */
 .theme-toggle {
   display: inline-flex;
@@ -180,6 +202,76 @@
 }
 
 /* ============================================================
+   MORE DROPDOWN
+   ============================================================ */
+.nav-more {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-more-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-more-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.nav-chevron {
+  transition: transform 0.2s ease;
+}
+
+.nav-more-btn.open .nav-chevron {
+  transform: rotate(180deg);
+}
+
+/* Rendered outside the pill so it is never clipped by overflow: hidden */
+.nav-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-lifted);
+  backdrop-filter: var(--blur-standard);
+  -webkit-backdrop-filter: var(--blur-standard);
+  box-shadow: var(--shadow-hero);
+  z-index: 60;
+}
+
+.nav-dropdown-link {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-500);
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: color var(--transition-base), background var(--transition-base);
+}
+
+.nav-dropdown-link:hover {
+  background: rgba(209, 77, 110, 0.08);
+  color: var(--color-ember-600);
+}
+
+.nav-dropdown-link-active {
+  color: var(--color-ember-600);
+  background: rgba(209, 77, 110, 0.1);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 640px) {
@@ -187,8 +279,19 @@
     top: 0.75rem;
   }
 
+  .animated-nav {
+    max-width: calc(100vw - 1.5rem);
+  }
+
   .nav-items {
     gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-items::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-link {

@@ -1,15 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Navigation, Menu } from "lucide-react";
+import { Navigation, Menu, ChevronDown } from "lucide-react";
 import { isAuthenticated, getUser } from "../utils/auth";
 import "./AnimatedNav.css";
 
-const navItems = [
+const primaryItems = [
   { name: "Dashboard", href: "/" },
   { name: "Catalogue", href: "/catalogue" },
   { name: "Paths", href: "/learning-paths" },
   { name: "Roadmaps", href: "/roadmaps" },
+  { name: "Quizzes", href: "/quizzes" },
+];
+
+const moreItems = [
+  { name: "Flashcards", href: "/flashcards" },
+  { name: "Notes", href: "/notes" },
+  { name: "Bookmarks", href: "/bookmarks" },
+  { name: "Achievements", href: "/achievements" },
 ];
 
 const EXPAND_SCROLL_THRESHOLD = 80;
@@ -66,6 +74,8 @@ const collapsedIconVariants = {
 export function AnimatedNav() {
   const [isExpanded, setExpanded] = useState(true);
   const [isDark, setIsDark] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
   const location = useLocation();
 
   const { scrollY } = useScroll();
@@ -93,6 +103,7 @@ export function AnimatedNav() {
     const previous = lastScrollY.current;
     if (isExpanded && latest > previous && latest > 150) {
       setExpanded(false);
+      setMoreOpen(false);
       scrollPositionOnCollapse.current = latest;
     } else if (
       !isExpanded &&
@@ -113,9 +124,36 @@ export function AnimatedNav() {
 
   const user = isAuthenticated() ? getUser() : null;
   const level = user ? Math.floor((user.xp || 0) / 100) + 1 : null;
+  // Extra links live under "More"; the Admin link only shows for admin users
+  const dropdownItems =
+    user && user.role === "admin"
+      ? [...moreItems, { name: "Admin", href: "/admin" }]
+      : moreItems;
+
+  const isActiveHref = (href) =>
+    href === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(href);
+  const isMoreActive = dropdownItems.some((item) => isActiveHref(item.href));
+
+  // Close the dropdown on navigation or outside click
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onPointerDown = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [moreOpen]);
 
   return (
-    <div className="animated-nav-container">
+    <div className="animated-nav-container" ref={moreRef}>
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={isExpanded ? "expanded" : "collapsed"}
@@ -132,11 +170,8 @@ export function AnimatedNav() {
 
         {/* Nav links */}
         <motion.div className={`nav-items ${!isExpanded ? "pointer-none" : ""}`}>
-          {navItems.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(item.href);
+          {primaryItems.map((item) => {
+            const isActive = isActiveHref(item.href);
             return (
               <motion.div key={item.name} variants={itemVariants}>
                 <Link
@@ -151,12 +186,54 @@ export function AnimatedNav() {
             );
           })}
 
-          {/* Right side: Level chip + theme toggle */}
-          <motion.div variants={itemVariants} className="nav-right">
-            {level !== null && (
-              <span className="nav-level-chip">
-                ✦ Lv {level}
+          {/* More dropdown trigger */}
+          <motion.div variants={itemVariants} className="nav-more">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoreOpen((open) => !open);
+              }}
+              aria-expanded={moreOpen}
+              aria-haspopup="true"
+              className={`nav-link nav-more-btn ${moreOpen ? "open" : ""} ${
+                isMoreActive ? "nav-link-active" : ""
+              }`}
+            >
+              <span className="nav-more-label">
+                More
+                <ChevronDown className="nav-chevron" size={13} />
               </span>
+              {isMoreActive && <span className="nav-active-dot" />}
+            </button>
+          </motion.div>
+
+          {/* Right side: auth actions when logged out, level chip when logged in */}
+          <motion.div variants={itemVariants} className="nav-right">
+            {user ? (
+              level !== null && (
+                <span className="nav-level-chip">
+                  ✦ Lv {level}
+                </span>
+              )
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={(e) => e.stopPropagation()}
+                  className={`nav-link ${isActiveHref("/login") ? "nav-link-active" : ""}`}
+                >
+                  Login
+                  {isActiveHref("/login") && <span className="nav-active-dot" />}
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={(e) => e.stopPropagation()}
+                  className="nav-auth-btn"
+                >
+                  Register
+                </Link>
+              </>
             )}
             <button
               className="theme-toggle"
@@ -179,6 +256,28 @@ export function AnimatedNav() {
           </motion.div>
         </div>
       </motion.nav>
+
+      {/* More dropdown — rendered outside the pill so it is never clipped */}
+      {moreOpen && isExpanded && (
+        <motion.div
+          className="nav-dropdown-panel"
+          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.18 }}
+        >
+          {dropdownItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={`nav-dropdown-link ${
+                isActiveHref(item.href) ? "nav-dropdown-link-active" : ""
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 }
