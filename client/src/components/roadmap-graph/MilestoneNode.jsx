@@ -14,7 +14,7 @@ function MilestoneNode({ data, selected }) {
   const pick = (status) => data.onStatusChange?.(data.raw._id, status);
 
   return (
-    <div className={clsx('rm-node rm-milestone', isSkipped && 'rm-skipped', selected && 'rm-selected')}>
+    <div className={clsx('rm-node rm-milestone', isDone && 'rm-done', isSkipped && 'rm-skipped', selected && 'rm-selected')}>
       <Handle type="target" position={Position.Top} id="top" className="rm-handle" />
 
       <NodeHoverBar status={data.status} onPick={pick} />

@@ -7,7 +7,9 @@
   --rm-frame: rgba(20, 20, 20, 0.14);
   --rm-node-border: #161616;
   --rm-node-text: #161616;
-  --rm-milestone: #ffe800;   /* main-path yellow */
+  --rm-milestone: #ffe800;
+  --rm-milestone-done: #2fa84f;   /* main-path yellow */
+  --rm-milestone-done: #34c759; /* done milestone green */
   --rm-topic: #fff3c2;       /* topic beige */
   --rm-edge: #2f6df6;        /* connector blue */
   --rm-done: #7c3aed;        /* done badge purple */
@@ -22,6 +24,7 @@
   --rm-node-border: #0c0c0c;
   --rm-node-text: #141414;
   --rm-milestone: #ffe800;
+  --rm-milestone-done: #2fa84f;
   --rm-topic: #fff3c2;
   --rm-edge: #5b9bff;
   --rm-done: #8b5cf6;
@@ -148,6 +151,14 @@
   font-size: 15px;
   text-align: center;
   line-height: 1.25;
+}
+
+/* Done milestones turn fully green, keeping the 3D sheen */
+.rm-milestone.rm-done {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 55%),
+    var(--rm-milestone-done);
+  color: #ffffff;
 }
 
 .rm-topic {
