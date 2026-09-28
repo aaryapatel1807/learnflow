@@ -8,10 +8,12 @@ import {
   Background,
   Panel,
 } from '@xyflow/react';
+import { Check } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 import TopicNode from './TopicNode';
 import MilestoneNode from './MilestoneNode';
+import './roadmap-sh.css';
 
 const nodeTypes = {
   topic: TopicNode,
@@ -88,18 +90,19 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
       });
     });
 
-    // 2. Spine edges: milestone -> next milestone (solid line down the main path)
+    // 2. Spine edges: milestone -> next milestone (solid blue down the main path,
+    //    roadmap.sh style)
     for (let i = 1; i < spineNodes.length; i++) {
       initialEdges.push({
         id: `spine-${spineNodes[i - 1]._id}-${spineNodes[i]._id}`,
         source: spineNodes[i - 1]._id,
         target: spineNodes[i]._id,
-        type: 'smoothstep',
-        style: { stroke: spineNodes[i].status === 'done' ? '#1A5C54' : '#A89880', strokeWidth: 3 },
+        type: 'default',
+        style: { stroke: 'var(--rm-edge)', strokeWidth: 2.5 },
       });
     }
 
-    // 3. Branch edges: every node with a parentId gets a dotted line off its parent —
+    // 3. Branch edges: every node with a parentId gets a dotted blue line off its parent —
     //    this is what actually produces the tree/branching look, one parent to many children.
     rawNodes.forEach((dbNode) => {
       if (!dbNode.parentId) return;
@@ -108,11 +111,12 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         id: `branch-${parentId}-${dbNode._id}`,
         source: parentId,
         target: dbNode._id,
-        type: 'smoothstep',
+        type: 'default',
         style: {
-          stroke: dbNode.status === 'done' ? '#2B8A7E' : '#D4C9A8',
-          strokeWidth: 1.5,
-          strokeDasharray: '4 3',
+          stroke: 'var(--rm-edge)',
+          strokeWidth: 2.5,
+          strokeDasharray: '0.1 8',
+          strokeLinecap: 'round',
         },
       });
     });
@@ -132,7 +136,10 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
   );
 
   return (
-    <div className="w-full h-[750px] border border-[var(--color-ink-300)] rounded-xl bg-[var(--color-parchment-50)] shadow-inner overflow-hidden">
+    <div
+      className="w-full h-[750px] rounded-xl overflow-hidden border"
+      style={{ background: 'var(--rm-canvas)', borderColor: 'var(--rm-frame)' }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -145,16 +152,41 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         attributionPosition="bottom-right"
       >
         <Controls />
-        <MiniMap zoomable pannable nodeClassName={(n) => n.type === 'milestone' ? '!bg-[var(--color-ink-700)]' : '!bg-[var(--color-verdigris-500)]'} />
-        <Background color="var(--color-ink-300)" gap={16} />
-        <Panel position="top-left" className="bg-[var(--color-parchment-50)]/90 backdrop-blur p-3 rounded-lg shadow border border-[var(--color-ink-300)]">
-          <div className="text-xs font-semibold text-[var(--color-ink-700)] mb-2">Legend</div>
-          <div className="flex flex-col gap-1 text-xs text-[var(--color-ink-700)]">
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-verdigris-500)]"></span> Done</div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-ember-500)]"></span> In Progress</div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-ink-300)]"></span> Pending</div>
-            <div className="flex items-center gap-2 pt-1 border-t border-[var(--color-ink-300)] mt-1">
-              <span className="w-4 border-t-2 border-dashed border-[var(--color-ink-300)]"></span> Optional
+        <MiniMap
+          zoomable
+          pannable
+          nodeColor={(n) => (n.type === 'milestone' ? '#ffe800' : '#fff3c2')}
+          maskColor="rgba(0, 0, 0, 0.08)"
+        />
+        <Background color="var(--rm-dot)" gap={22} />
+        <Panel
+          position="top-left"
+          className="rounded-lg shadow-md px-3 py-2.5"
+          style={{ background: 'var(--rm-panel)', border: '1px solid var(--rm-frame)' }}
+        >
+          <div className="text-xs font-bold mb-2" style={{ color: 'var(--rm-panel-text)' }}>Legend</div>
+          <div className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: 'var(--rm-panel-text)' }}>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-3 rounded-sm border-2" style={{ background: 'var(--rm-milestone)', borderColor: 'var(--rm-node-border)' }} />
+              Milestone
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-3 rounded-sm border-2" style={{ background: 'var(--rm-topic)', borderColor: 'var(--rm-node-border)' }} />
+              Topic
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded-full inline-flex items-center justify-center" style={{ background: 'var(--rm-done)' }}>
+                <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+              </span>
+              Done
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-5 border-t-[3px]" style={{ borderColor: 'var(--rm-edge)' }} />
+              Learning path
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-5 border-t-[3px] border-dotted" style={{ borderColor: 'var(--rm-edge)' }} />
+              Optional
             </div>
           </div>
         </Panel>
