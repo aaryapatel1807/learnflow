@@ -495,3 +495,85 @@
   }
   .pastel-bar { transition: none; }
 }
+
+/* ============================================================
+   NIGHT MODE — pastel night companion
+   The gradient stat cards keep their colours; every light
+   surface and text tone gets a deep-plum equivalent.
+   ============================================================ */
+[data-theme="dark"] .pastel-page {
+  background: #1d1728;
+}
+
+[data-theme="dark"] .pastel-page::before {
+  background: radial-gradient(circle, rgba(240, 96, 138, 0.22) 0%, rgba(240, 96, 138, 0) 68%);
+}
+
+[data-theme="dark"] .pastel-page::after {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(139, 92, 246, 0) 68%);
+}
+
+[data-theme="dark"] .pastel-eyebrow { color: #a68fa1; }
+[data-theme="dark"] .pastel-title { color: #f5eef4; }
+
+[data-theme="dark"] .pastel-panel {
+  background: rgba(38, 30, 52, 0.72);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px -24px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .pastel-panel h2 { color: #f5eef4; }
+[data-theme="dark"] .pastel-count { color: #a68fa1; }
+
+[data-theme="dark"] .pastel-tag {
+  color: #ff8fb0;
+  background: rgba(240, 96, 138, 0.16);
+}
+
+[data-theme="dark"] .pastel-bar-day { color: #a68fa1; }
+
+[data-theme="dark"] .pastel-tip {
+  background: #f5eef4;
+  color: #262033;
+}
+[data-theme="dark"] .pastel-tip::after {
+  border-top-color: #f5eef4;
+}
+
+[data-theme="dark"] .pastel-next-title { color: #f5eef4; }
+[data-theme="dark"] .pastel-meta { color: #b49fad; }
+
+[data-theme="dark"] .pastel-btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ff8fb0;
+  border-color: rgba(240, 96, 138, 0.35);
+}
+
+[data-theme="dark"] .pastel-link {
+  color: #f5eef4;
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+[data-theme="dark"] .pastel-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .pastel-chev { color: #6f5b6d; }
+
+/* Tinted chips — deepened for night */
+[data-theme="dark"] .tint-rose   { background: rgba(240, 96, 138, 0.16); color: #ff8fb0; }
+[data-theme="dark"] .tint-violet { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
+[data-theme="dark"] .tint-amber  { background: rgba(199, 126, 31, 0.20); color: #f5b54a; }
+[data-theme="dark"] .tint-sky    { background: rgba(63, 140, 255, 0.18); color: #8fbfff; }
+[data-theme="dark"] .tint-teal   { background: rgba(45, 212, 191, 0.14); color: #5eead4; }
+[data-theme="dark"] .tint-pink   { background: rgba(244, 114, 182, 0.16); color: #f9a8d4; }
+
+[data-theme="dark"] .pastel-milestone {
+  background: linear-gradient(135deg, rgba(240, 96, 138, 0.14) 0%, rgba(45, 212, 191, 0.10) 100%);
+}
+[data-theme="dark"] .pastel-milestone h2 { color: #f5eef4; }
+
+[data-theme="dark"] .loading-state { color: #a68fa1; }
+[data-theme="dark"] .spinner {
+  border-color: rgba(255, 255, 255, 0.12);
+  border-top-color: #f0608a;
+}
+[data-theme="dark"] .no-progress p { color: #b49fad; }

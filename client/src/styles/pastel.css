@@ -123,10 +123,26 @@
   color: #fff;
 }
 
-/* Soft white inputs */
-input, textarea, select {
+/* Soft inputs — light theme */
+html:not([data-theme="dark"]) input,
+html:not([data-theme="dark"]) textarea,
+html:not([data-theme="dark"]) select {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.85);
+}
+
+/* Soft inputs — night theme */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f5eef4;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #6f5b6d;
 }
 
 /* Pink text selection */
@@ -138,4 +154,88 @@ input, textarea, select {
 /* Progress bars — coral fill by default */
 .progress-fill {
   background: linear-gradient(90deg, var(--color-ember-500) 0%, var(--color-ember-400) 100%);
+}
+
+/* ============================================================
+   PASTEL NIGHT — dark theme companion
+   (Loaded after tokens.css, so these win at equal specificity.
+   The navbar toggle sets data-theme="dark" on <html>.)
+   ============================================================ */
+[data-theme="dark"] {
+  /* ── Canvas — deep plum ─────────────────────────────── */
+  --color-parchment-50:  #211b2b;
+  --color-parchment-100: #2a2336;
+  --color-parchment-200: #372d45;
+  --color-parchment-300: #4a3d5c;
+
+  /* ── Ink — reversed ─────────────────────────────────── */
+  --color-ink-900: #f5eef4;
+  --color-ink-700: #d3c3cf;
+  --color-ink-500: #a68fa1;
+  --color-ink-300: #6f5b6d;
+
+  /* ── Primary accent: brighter coral for dark ────────── */
+  --color-ember-600: #f0608a;
+  --color-ember-500: #ff7d9c;
+  --color-ember-400: #ffa9bb;
+  --color-ember-100: rgba(240, 96, 138, 0.16);
+
+  /* ── Success: glowing teal ──────────────────────────── */
+  --color-verdigris-700: #2dd4bf;
+  --color-verdigris-500: #5eead4;
+  --color-verdigris-300: #99f6e4;
+  --color-verdigris-100: rgba(45, 212, 191, 0.14);
+
+  /* ── Error: soft rose ───────────────────────────────── */
+  --color-chalk-600: #f0718a;
+  --color-chalk-300: #f6a0b0;
+  --color-chalk-100: rgba(214, 69, 91, 0.16);
+
+  /* ── Amber: warm gold ───────────────────────────────── */
+  --color-amber-600: #f5b54a;
+  --color-amber-100: rgba(199, 126, 31, 0.18);
+
+  /* ── Glass → dark frosted plum ──────────────────────── */
+  --glass-surface:  rgba(38, 30, 52, 0.72);
+  --glass-lifted:   rgba(42, 34, 58, 0.88);
+  --glass-hero:     rgba(30, 24, 42, 0.96);
+  --glass-dark:     rgba(0, 0, 0, 0.55);
+
+  --glass:          rgba(42, 34, 58, 0.88);
+  --glass-strong:   rgba(30, 24, 42, 0.99);
+  --glass-border:   rgba(240, 96, 138, 0.22);
+  --glass-overlay:  rgba(20, 14, 28, 0.6);
+
+  /* ── Shadows — deep ─────────────────────────────────── */
+  --shadow-flat:   0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-card:   0 4px 16px rgba(0, 0, 0, 0.40), 0 1px 4px rgba(0, 0, 0, 0.24);
+  --shadow-hero:   0 8px 32px rgba(0, 0, 0, 0.50), 0 2px 8px rgba(0, 0, 0, 0.32);
+  --shadow-modal:  0 16px 48px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-inset:  inset 0 2px 6px rgba(0, 0, 0, 0.30);
+
+  --shadow-soft:           0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-lift:           0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-glow-ember:     0 8px 24px rgba(240, 96, 138, 0.45), 0 2px 8px rgba(240, 96, 138, 0.25);
+  --shadow-glow-verdigris: 0 8px 24px rgba(45, 212, 191, 0.35), 0 2px 8px rgba(45, 212, 191, 0.20);
+
+  /* ── Keep the pastel geometry ───────────────────────── */
+  --radius-card: 20px;
+  --radius-hero: 26px;
+  --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Focus ring ─────────────────────────────────────── */
+  --focus-ring: 0 0 0 3px #211b2b, 0 0 0 5px #f0608a;
+
+  /* ── Ambient shell — deep plum with pink/violet glow ── */
+  --shell-ember-glow:     rgba(240, 96, 138, 0.16);
+  --shell-verdigris-glow: rgba(139, 92, 246, 0.14);
+  --shell-base:           #191423;
+
+  --foreground: #f5eef4;
+}
+
+/* Night selection */
+[data-theme="dark"] ::selection {
+  background: #f0608a;
+  color: #ffffff;
 }
