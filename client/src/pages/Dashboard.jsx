@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import './Dashboard.css';
-import { JourneyHero } from '../components/journey/JourneyHero';
+import { PlayfulHero } from '../components/journey/PlayfulHero';
 
 function Dashboard({ user }) {
   const [nextNode, setNextNode] = useState(null);
@@ -107,8 +107,8 @@ function Dashboard({ user }) {
   return (
     <div className="container dashboard-page scholar-shell">
 
-      {/* ── 3D JOURNEY HERO ─────────────────────────────────────── */}
-      <JourneyHero
+      {/* ── PLAYFUL HERO ──────────────────────────────────────── */}
+      <PlayfulHero
         user={user}
         level={level}
         xpPercent={xpPercent}
@@ -116,21 +116,38 @@ function Dashboard({ user }) {
         xpForNextLevel={xpForNextLevel}
       />
 
-      {/* ── SCHOLAR RAIL ─────────────────────────────────────────── */}
-      <div className="scholar-rail-section animate-rise" data-delay="1">
-        <div className="scholar-rail">
-          <span className="xp-chip">💎 {userStats.xp} XP</span>
-          <span className="rail-divider" />
-          <span className="scholar-chip chip-ember">🔥 {userStats.currentStreak}-day streak</span>
-          <span className="rail-divider" />
-          <span className="scholar-chip">⭐ Level {level}</span>
-          {userStats.longestStreak > 0 && (
-            <>
-              <span className="rail-divider" />
-              <span className="scholar-chip label-xs">Best: {userStats.longestStreak}d</span>
-            </>
-          )}
+      {/* ── PLAYFUL STATS ───────────────────────────────────────── */}
+      <div className="playful-stats animate-rise" data-delay="1">
+        <div className="playful-stat stat-coral">
+          <span className="playful-stat-icon">💎</span>
+          <div>
+            <div className="playful-stat-value">{userStats.xp}</div>
+            <div className="playful-stat-label">Total XP</div>
+          </div>
         </div>
+        <div className="playful-stat stat-lemon">
+          <span className="playful-stat-icon">🔥</span>
+          <div>
+            <div className="playful-stat-value">{userStats.currentStreak} days</div>
+            <div className="playful-stat-label">Streak</div>
+          </div>
+        </div>
+        <div className="playful-stat stat-mint">
+          <span className="playful-stat-icon">⭐</span>
+          <div>
+            <div className="playful-stat-value">Level {level}</div>
+            <div className="playful-stat-label">{xpPercent}% to next</div>
+          </div>
+        </div>
+        {userStats.longestStreak > 0 && (
+          <div className="playful-stat stat-sky">
+            <span className="playful-stat-icon">🏅</span>
+            <div>
+              <div className="playful-stat-value">{userStats.longestStreak} days</div>
+              <div className="playful-stat-label">Best streak</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── ACTIVITY CALENDAR ─────────────────────────────────────── */}

@@ -1,0 +1,187 @@
+/* PlayfulHero — whitish, colourful, bouncy */
+
+.playful-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #fffdf8;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 20px 45px -18px rgba(255, 107, 107, 0.28),
+    0 8px 20px -10px rgba(77, 150, 255, 0.18);
+  margin-bottom: 22px;
+}
+
+.playful-blobs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+  opacity: 0.55;
+}
+
+.blob-pink  { width: 260px; height: 260px; background: #ffd3e3; top: -90px; left: -60px; }
+.blob-mint  { width: 220px; height: 220px; background: #c9f2d8; bottom: -100px; left: 34%; }
+.blob-sky   { width: 240px; height: 240px; background: #cfe4ff; top: -70px; right: 12%; }
+.blob-lemon { width: 170px; height: 170px; background: #fff1b8; bottom: -70px; right: -40px; }
+
+.playful-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 22px;
+  animation: sparkle-float 4s ease-in-out infinite;
+}
+
+.sparkle.s1 { top: 18px; left: 44%; animation-delay: 0s; }
+.sparkle.s2 { top: 26px; right: 8%; animation-delay: 1.2s; font-size: 18px; }
+.sparkle.s3 { bottom: 22px; left: 6%; animation-delay: 2s; }
+.sparkle.s4 { bottom: 30px; right: 30%; animation-delay: 0.6s; font-size: 26px; }
+
+@keyframes sparkle-float {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50%      { transform: translateY(-10px) rotate(8deg); }
+}
+
+.playful-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 38px 40px;
+}
+
+.playful-eyebrow {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ff6b6b;
+  background: #ffe9ec;
+  border: 2px solid #ffc9d1;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  transform: rotate(-2deg);
+}
+
+.playful-name {
+  margin: 0;
+  font-size: clamp(34px, 4.4vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #33313b;
+  line-height: 1.05;
+}
+
+.playful-tagline {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #8a8a93;
+  max-width: 420px;
+}
+
+.playful-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: auto;
+}
+
+.playful-level-sticker {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff9f68 100%);
+  border: 4px solid #ffffff;
+  box-shadow: 0 12px 24px -8px rgba(255, 107, 107, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(8deg);
+  flex-shrink: 0;
+  animation: sticker-wiggle 5s ease-in-out infinite;
+}
+
+@keyframes sticker-wiggle {
+  0%, 100% { transform: rotate(8deg) scale(1); }
+  50%      { transform: rotate(2deg) scale(1.05); }
+}
+
+.playful-level-num {
+  font-size: 44px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.playful-level-cap {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.playful-xp {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 230px;
+}
+
+.playful-xp-track {
+  height: 20px;
+  background: #f3ede4;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.playful-xp-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6b6b 0%, #ff9f68 30%, #ffd93d 55%, #6bcb77 80%, #4d96ff 100%);
+  transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.playful-xp-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a8a93;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .playful-hero-inner {
+    padding: 28px 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .playful-right {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .playful-xp { width: 100%; max-width: 320px; }
+  .playful-xp-text { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle, .playful-level-sticker { animation: none; }
+}
