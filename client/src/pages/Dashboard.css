@@ -505,6 +505,8 @@
   /* Full-bleed at night: no separate container box, melt into the ambient shell */
   background: transparent;
   box-shadow: none;
+  /* Let the ambient glows spill past the container so no edge is ever clipped */
+  overflow: visible;
 }
 
 [data-theme="dark"] .pastel-page::before {
