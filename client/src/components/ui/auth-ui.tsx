@@ -158,7 +158,7 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
   const [{ loading, error }, handleSubmit] = useAuthForm(() => onSignIn(email, password));
 
   return (
-    <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-10">
+    <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex size-12 items-center justify-center rounded-full border border-white/50 bg-white/25 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
           L
@@ -166,7 +166,7 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
         <h1 className="text-2xl font-bold">Sign in to your account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your email below to sign in</p>
       </div>
-      <div className="grid gap-7">
+      <div className="grid gap-5">
         <AuthError message={error} />
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
@@ -191,7 +191,7 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
   const [{ loading, error }, handleSubmit] = useAuthForm(() => onSignUp(name, email, password));
 
   return (
-    <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-10">
+    <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex size-12 items-center justify-center rounded-full border border-white/50 bg-white/25 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
           L
@@ -199,7 +199,7 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your details below to sign up</p>
       </div>
-      <div className="grid gap-7">
+      <div className="grid gap-5">
         <AuthError message={error} />
         <div className="grid gap-1">
           <Label htmlFor="name">Full Name</Label>
@@ -233,14 +233,14 @@ interface AuthFormContainerProps {
 
 function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormContainerProps) {
   return (
-    <div className="relative mx-auto w-[350px] sm:w-[430px]">
+    <div className="relative mx-auto w-[350px] sm:w-[540px]">
       {/* ambient colour blobs that glow through the frosted card */}
       <div aria-hidden="true" className="pointer-events-none absolute -inset-10">
         <div className="absolute -left-16 -top-16 h-72 w-72 rounded-full bg-[#f472a8]/60 blur-3xl dark:bg-[#a855f7]/25" />
         <div className="absolute -bottom-20 -right-14 h-80 w-80 rounded-full bg-[#a78bfa]/60 blur-3xl dark:bg-[#7c3aed]/25" />
         <div className="absolute left-1/4 top-1/3 h-60 w-60 rounded-full bg-[#7dd3c8]/50 blur-3xl dark:bg-[#4c1d95]/20" />
       </div>
-      <div className="relative grid gap-6 rounded-[36px] border border-white/50 bg-white/15 p-16 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.25)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
+      <div className="relative grid gap-5 rounded-[36px] border border-white/50 bg-white/15 px-16 py-10 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.25)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-36 rounded-t-[36px] bg-gradient-to-b from-white/25 to-transparent" />
         {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
         <div className="text-center text-sm">
