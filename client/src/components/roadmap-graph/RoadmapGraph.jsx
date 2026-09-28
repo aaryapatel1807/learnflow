@@ -4,7 +4,6 @@ import {
   useNodesState,
   useEdgesState,
   Background,
-  Panel,
   Position,
 } from '@xyflow/react';
 import { Check } from 'lucide-react';
@@ -212,14 +211,46 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
   const PAD = 40;
 
   return (
-    <div
-      className="w-full rounded-xl border"
-      style={{
-        background: 'var(--rm-canvas)',
-        borderColor: 'var(--rm-frame)',
-        height: bounds ? Math.ceil(bounds.maxY - bounds.minY + PAD * 2) : 750,
-      }}
-    >
+    <>
+      <div className="rm-legend">
+        <span className="rm-legend-title">Legend</span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-box rm-sw-milestone" />
+          Milestone
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-box rm-sw-topic" />
+          Topic
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-dot rm-sw-done">
+            <Check className="w-2.5 h-2.5" strokeWidth={4} />
+          </span>
+          Done
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-dot rm-sw-progress">
+            <span className="rm-sw-inner" />
+          </span>
+          In Progress
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-line" />
+          Learning path
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-dotted" />
+          Optional
+        </span>
+      </div>
+      <div
+        className="w-full rounded-xl border"
+        style={{
+          background: 'var(--rm-canvas)',
+          borderColor: 'var(--rm-frame)',
+          height: bounds ? Math.ceil(bounds.maxY - bounds.minY + PAD * 2) : 750,
+        }}
+      >
       {bounds && (
         <ReactFlow
           nodes={nodes}
@@ -243,40 +274,10 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           attributionPosition="bottom-right"
         >
           <Background color="var(--rm-dot)" gap={22} />
-          <Panel position="top-left" className="rm-legend">
-          <div className="rm-legend-title">Legend</div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-box rm-sw-milestone" />
-            Milestone
-          </div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-box rm-sw-topic" />
-            Topic
-          </div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-dot rm-sw-done">
-              <Check className="w-2.5 h-2.5" strokeWidth={4} />
-            </span>
-            Done
-          </div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-dot rm-sw-progress">
-              <span className="rm-sw-inner" />
-            </span>
-            In Progress
-          </div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-line" />
-            Learning path
-          </div>
-          <div className="rm-legend-row">
-            <span className="rm-sw rm-sw-dotted" />
-            Optional
-          </div>
-        </Panel>
         </ReactFlow>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

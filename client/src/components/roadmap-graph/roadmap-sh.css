@@ -134,33 +134,35 @@
   height: 8px !important;
 }
 
-/* ── Legend (plain CSS — no utility dependency) ───────────── */
+/* ── Legend (plain CSS — sits above the diagram, never over it) ─── */
 .rm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
   background: var(--rm-panel);
   border: 1px solid var(--rm-frame);
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  padding: 10px 12px;
-  min-width: 132px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
 }
 
 .rm-legend-title {
   font-size: 12px;
   font-weight: 700;
   color: var(--rm-panel-text);
-  margin-bottom: 8px;
 }
 
 .rm-legend-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
   font-weight: 500;
   color: var(--rm-panel-text);
-  margin-bottom: 6px;
+  white-space: nowrap;
 }
-.rm-legend-row:last-child { margin-bottom: 0; }
 
 .rm-sw {
   flex: none;
