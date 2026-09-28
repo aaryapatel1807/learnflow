@@ -6,6 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Typewriter } from "./typewriter";
+import { Auth3DScene } from "./auth-3d";
 
 function formatAuthError(err: unknown): string {
   if (typeof err === "object" && err !== null) {
@@ -229,10 +230,6 @@ function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormC
 }
 
 interface AuthContentProps {
-  image?: {
-    src: string;
-    alt: string;
-  };
   quote?: {
     text: string;
     author: string;
@@ -251,10 +248,6 @@ interface AuthUIProps {
 }
 
 const defaultSignInContent = {
-  image: {
-    src: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=1600&auto=format&fit=crop",
-    alt: "A tidy study desk with a notebook and planner",
-  },
   quote: {
     text: "Welcome back. Your learning journey continues.",
     author: "LearnFlow",
@@ -262,10 +255,6 @@ const defaultSignInContent = {
 };
 
 const defaultSignUpContent = {
-  image: {
-    src: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1600&auto=format&fit=crop",
-    alt: "Hands writing notes in a notebook",
-  },
   quote: {
     text: "Create your account. A new chapter of learning awaits.",
     author: "LearnFlow",
@@ -292,11 +281,9 @@ export function AuthUI({
   };
 
   const finalSignInContent = {
-    image: { ...defaultSignInContent.image, ...signInContent.image },
     quote: { ...defaultSignInContent.quote, ...signInContent.quote },
   };
   const finalSignUpContent = {
-    image: { ...defaultSignUpContent.image, ...signUpContent.image },
     quote: { ...defaultSignUpContent.quote, ...signUpContent.quote },
   };
 
@@ -314,18 +301,16 @@ export function AuthUI({
         <AuthFormContainer isSignIn={isSignIn} onToggle={toggleForm} onSignIn={onSignIn} onSignUp={onSignUp} />
       </div>
 
-      <div
-        className="hidden md:block relative bg-cover bg-center transition-all duration-500 ease-in-out"
-        style={{ backgroundImage: `url(${currentContent.image.src})` }}
-        key={currentContent.image.src}
-        role="img"
-        aria-label={currentContent.image.alt}
-      >
-        <div className="absolute inset-x-0 bottom-0 h-[100px] bg-gradient-to-t from-background to-transparent" />
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
+        <div className="absolute inset-0">
+          <Auth3DScene />
+        </div>
 
-        <div className="relative z-10 flex h-full flex-col items-center justify-end p-2 pb-6">
-          <blockquote className="space-y-2 text-center text-foreground">
-            <p className="text-lg font-medium">
+        <div className="relative z-10 flex h-full flex-col items-center justify-center p-8">
+          {/* soft glow behind the quote so it stays readable over the 3D scene */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50 blur-3xl dark:bg-black/30" />
+          <blockquote className="relative space-y-3 text-center text-foreground">
+            <p className="text-xl font-medium">
               &ldquo;
               <Typewriter
                 key={currentContent.quote.text}
