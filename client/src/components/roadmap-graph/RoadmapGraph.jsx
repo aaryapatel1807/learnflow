@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   useNodesState,
@@ -114,6 +114,19 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [bounds, setBounds] = useState(null);
+  const wrapRef = useRef(null);
+  const [wrapW, setWrapW] = useState(0);
+
+  // Measure the canvas width so the static graph can be centred in it.
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setWrapW(el.clientWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!rawNodes || rawNodes.length === 0) {
@@ -208,7 +221,10 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
   // Static diagram: the canvas is sized to the full graph at 1:1 scale and
   // every pan/zoom interaction is disabled, so the mouse wheel scrolls the
   // page instead of hijacking into the diagram. Node clicks still work.
+  // The graph is centred horizontally in the canvas via a measured viewport.
   const PAD = 40;
+  const viewX =
+    bounds && wrapW > 0 ? wrapW / 2 - (bounds.minX + bounds.maxX) / 2 : 0;
 
   return (
     <>
@@ -244,6 +260,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         </span>
       </div>
       <div
+        ref={wrapRef}
         className="w-full rounded-xl border"
         style={{
           background: 'var(--rm-canvas)',
@@ -251,7 +268,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           height: bounds ? Math.ceil(bounds.maxY - bounds.minY + PAD * 2) : 750,
         }}
       >
-      {bounds && (
+      {bounds && wrapW > 0 && (
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -259,11 +276,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           onEdgesChange={onEdgesChange}
           onNodeClick={handleNodeClick}
           nodeTypes={nodeTypes}
-          defaultViewport={{
-            x: -bounds.minX + PAD,
-            y: -bounds.minY + PAD,
-            zoom: 1,
-          }}
+          viewport={{ x: viewX, y: -bounds.minY + PAD, zoom: 1 }}
           panOnDrag={false}
           zoomOnScroll={false}
           zoomOnPinch={false}
