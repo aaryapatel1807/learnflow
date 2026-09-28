@@ -327,8 +327,10 @@ export function AuthUI({
       </div>
 
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
-        {/* centred icon sphere: bounded square so it can never overflow the panel */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* centred icon sphere: bounded square so it can never overflow the panel;
+            centering region excludes the footer height so the sphere floats
+            clear of the bottom edge */}
+        <div className="absolute inset-x-0 top-0 bottom-[14vh] flex items-center justify-center">
           <div className="aspect-square w-[min(85%,70vh)]">
             <IconCloud iconSlugs={authIconSlugs} />
           </div>
