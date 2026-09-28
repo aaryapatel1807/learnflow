@@ -199,13 +199,13 @@
   background: var(--color-ember-100);
   border: 2px solid var(--color-ember-400);
   color: var(--color-ember-600);
-  box-shadow: 0 0 0 0 rgba(224, 123, 43, 0.4);
+  box-shadow: 0 0 0 0 rgba(240, 96, 138, 0.4);
   animation: pulseGlow 2s infinite; /* Continuous pulse */
 }
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(224, 123, 43, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(224, 123, 43, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(224, 123, 43, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(240, 96, 138, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(240, 96, 138, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(240, 96, 138, 0); }
 }
 .node-current .node-prereq-count { color: var(--color-ember-500); }
 
@@ -251,7 +251,7 @@
 
 .modal-content {
   background: var(--glass-hero);
-  border: 1px solid rgba(212, 201, 168, 0.6);
+  border: 1px solid rgba(232, 195, 209, 0.6);
   border-radius: var(--radius-hero);
   box-shadow: var(--shadow-modal);
   width: 100%;

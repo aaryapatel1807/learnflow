@@ -43,7 +43,7 @@
   background: var(--glass-hero);
   backdrop-filter: var(--blur-heavy);
   -webkit-backdrop-filter: var(--blur-heavy);
-  border: 1px solid rgba(194, 96, 10, 0.18);
+  border: 1px solid rgba(217, 79, 126, 0.18);
   border-radius: var(--radius-hero);
   box-shadow: var(--shadow-hero);
 }
@@ -68,7 +68,7 @@
   background: var(--glass-strong);
   backdrop-filter: var(--blur-heavy);
   -webkit-backdrop-filter: var(--blur-heavy);
-  border: 1px solid rgba(194, 96, 10, 0.20);
+  border: 1px solid rgba(217, 79, 126, 0.20);
   border-radius: var(--radius-hero);
   box-shadow: var(--shadow-hero);
 }
@@ -124,7 +124,7 @@
     conic-gradient(
       from var(--shell-angle) at 50% 50%,
       var(--shell-base) var(--shell-stop1),
-      rgba(240, 160, 90, 0.06) calc(var(--shell-stop1) + 15%),
+      rgba(249, 168, 212, 0.06) calc(var(--shell-stop1) + 15%),
       var(--shell-base) calc(var(--shell-stop1) + 30%)
     ),
     var(--shell-base);
@@ -139,7 +139,7 @@
   background:
     radial-gradient(
       ellipse 80% 50% at 50% -10%,
-      rgba(240, 160, 90, 0.12) 0%,
+      rgba(249, 168, 212, 0.12) 0%,
       transparent 70%
     ),
     var(--color-parchment-50);
@@ -206,19 +206,19 @@
 
 .scholar-chip.chip-ember {
   background: var(--color-ember-100);
-  border-color: rgba(194, 96, 10, 0.22);
+  border-color: rgba(217, 79, 126, 0.22);
   color: var(--color-ember-600);
 }
 
 .scholar-chip.chip-verdigris {
   background: var(--color-verdigris-100);
-  border-color: rgba(43, 138, 126, 0.22);
+  border-color: rgba(43, 191, 169, 0.22);
   color: var(--color-verdigris-700);
 }
 
 .scholar-chip.chip-amber {
   background: var(--color-amber-100);
-  border-color: rgba(180, 83, 9, 0.22);
+  border-color: rgba(199, 126, 31, 0.22);
   color: var(--color-amber-600);
 }
 
@@ -269,10 +269,10 @@
   gap: var(--space-4);
   background: linear-gradient(
     135deg,
-    rgba(43, 138, 126, 0.08) 0%,
-    rgba(194, 96, 10, 0.06) 100%
+    rgba(43, 191, 169, 0.08) 0%,
+    rgba(217, 79, 126, 0.06) 100%
   );
-  border: 1px solid rgba(43, 138, 126, 0.22);
+  border: 1px solid rgba(43, 191, 169, 0.22);
   border-radius: var(--radius-card);
   padding: var(--space-5) var(--space-6);
   box-shadow: var(--shadow-soft);
@@ -282,7 +282,7 @@
   font-size: 1.75rem;
   flex-shrink: 0;
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(43, 138, 126, 0.3));
+  filter: drop-shadow(0 2px 4px rgba(43, 191, 169, 0.3));
 }
 
 .concept-signal .signal-body {
@@ -330,19 +330,19 @@
 .badge-beginner {
   background: var(--color-verdigris-100);
   color: var(--color-verdigris-700);
-  border: 1px solid rgba(43, 138, 126, 0.22);
+  border: 1px solid rgba(43, 191, 169, 0.22);
 }
 
 .badge-intermediate {
   background: var(--color-amber-100);
   color: var(--color-amber-600);
-  border: 1px solid rgba(180, 83, 9, 0.22);
+  border: 1px solid rgba(199, 126, 31, 0.22);
 }
 
 .badge-advanced {
   background: var(--color-ember-100);
   color: var(--color-ember-600);
-  border: 1px solid rgba(194, 96, 10, 0.22);
+  border: 1px solid rgba(217, 79, 126, 0.22);
 }
 
 /* ============================================================
@@ -350,7 +350,7 @@
    ============================================================ */
 [data-theme="dark"] .glass-lifted,
 [data-theme="dark"] .glass {
-  border-color: rgba(194, 96, 10, 0.18);
+  border-color: rgba(217, 79, 126, 0.18);
 }
 
 [data-theme="dark"] .glass-surface {
@@ -360,8 +360,8 @@
 [data-theme="dark"] .concept-signal {
   background: linear-gradient(
     135deg,
-    rgba(43, 138, 126, 0.12) 0%,
-    rgba(194, 96, 10, 0.08) 100%
+    rgba(43, 191, 169, 0.12) 0%,
+    rgba(217, 79, 126, 0.08) 100%
   );
-  border-color: rgba(43, 138, 126, 0.30);
+  border-color: rgba(43, 191, 169, 0.30);
 }

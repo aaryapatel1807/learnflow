@@ -1,0 +1,141 @@
+/*
+ * Academix — Pastel Theme
+ * Global re-skin: soft pink canvas, coral / teal / violet accents,
+ * frosted white surfaces, rounded pill buttons, sans display type.
+ *
+ * Applied ONLY to the default (light) theme — dark mode tokens are
+ * left untouched via :root:not([data-theme="dark"]).
+ * The navbar (AnimatedNav / BottomNav) uses its own classes and is
+ * intentionally not restyled here.
+ */
+
+:root:not([data-theme="dark"]) {
+  /* ── Canvas — soft pink ─────────────────────────────── */
+  --color-parchment-50:  #FAF2F4;
+  --color-parchment-100: #F7E9EE;
+  --color-parchment-200: #F3DCE4;
+  --color-parchment-300: #E8C3D1;
+
+  /* ── Ink — slate plum ───────────────────────────────── */
+  --color-ink-900: #262033;
+  --color-ink-700: #4A4356;
+  --color-ink-500: #8B7A83;
+  --color-ink-300: #BFA6B0;
+
+  /* ── Primary accent: Ember → Coral ──────────────────── */
+  --color-ember-600: #D94F7E;
+  --color-ember-500: #F0608A;
+  --color-ember-400: #F78FB0;
+  --color-ember-100: #FFE4EC;
+
+  /* ── Success: Verdigris → Teal ──────────────────────── */
+  --color-verdigris-700: #0E9F8A;
+  --color-verdigris-500: #2BBFA9;
+  --color-verdigris-300: #7FDCCB;
+  --color-verdigris-100: #DCF7F0;
+
+  /* ── Error: Chalk → Rose ────────────────────────────── */
+  --color-chalk-600: #D6455B;
+  --color-chalk-300: #F08090;
+  --color-chalk-100: #FDE9EC;
+
+  /* ── Amber stays warm ───────────────────────────────── */
+  --color-amber-600: #C77E1F;
+  --color-amber-100: #FFEFD6;
+
+  /* ── Glass → white frosted ──────────────────────────── */
+  --glass-surface:  rgba(255, 255, 255, 0.72);
+  --glass-lifted:   rgba(255, 255, 255, 0.88);
+  --glass-hero:     rgba(255, 255, 255, 0.96);
+  --glass-dark:     rgba(38, 32, 51, 0.55);
+
+  --glass:          rgba(255, 255, 255, 0.88);
+  --glass-strong:   rgba(255, 255, 255, 0.99);
+  --glass-border:   rgba(217, 79, 126, 0.14);
+  --glass-overlay:  rgba(250, 242, 244, 0.6);
+
+  /* ── Shadows — mauve tinted ─────────────────────────── */
+  --shadow-flat:   0 1px 3px rgba(130, 105, 145, 0.08);
+  --shadow-card:   0 4px 16px rgba(130, 105, 145, 0.10), 0 1px 4px rgba(130, 105, 145, 0.06);
+  --shadow-hero:   0 8px 32px rgba(130, 105, 145, 0.14), 0 2px 8px rgba(130, 105, 145, 0.08);
+  --shadow-modal:  0 16px 48px rgba(130, 105, 145, 0.20), 0 4px 16px rgba(130, 105, 145, 0.12);
+  --shadow-inset:  inset 0 2px 6px rgba(130, 105, 145, 0.08);
+
+  --shadow-soft:           0 2px 8px rgba(130, 105, 145, 0.08);
+  --shadow-lift:           0 12px 32px rgba(130, 105, 145, 0.18);
+  --shadow-glow-ember:     0 8px 24px rgba(240, 96, 138, 0.35), 0 2px 8px rgba(240, 96, 138, 0.18);
+  --shadow-glow-verdigris: 0 8px 24px rgba(43, 191, 169, 0.28), 0 2px 8px rgba(43, 191, 169, 0.16);
+
+  /* ── Rounder corners ────────────────────────────────── */
+  --radius-card: 20px;
+  --radius-hero: 26px;
+
+  /* ── Display type → clean sans ──────────────────────── */
+  --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Focus ring ─────────────────────────────────────── */
+  --focus-ring: 0 0 0 3px #FAF2F4, 0 0 0 5px #D94F7E;
+
+  /* ── Ambient shell — pink canvas with lavender glow ─── */
+  --shell-ember-glow:     rgba(249, 168, 212, 0.35);
+  --shell-verdigris-glow: rgba(196, 181, 253, 0.30);
+  --shell-base:           #FAF2F4;
+
+  /* ── Fix: --foreground was referenced but never defined ── */
+  --foreground: #262033;
+}
+
+/* ============================================================
+   PASTEL COMPONENT FLOURISHES
+   ============================================================ */
+
+/* Pill buttons everywhere */
+.btn {
+  border-radius: var(--radius-pill);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-ember-400) 0%, var(--color-ember-600) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 20px -10px rgba(224, 80, 122, 0.55);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #F9A0BC 0%, #E85D86 100%);
+  box-shadow: var(--shadow-glow-ember);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--color-verdigris-300) 0%, var(--color-verdigris-700) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.btn-success:hover {
+  box-shadow: var(--shadow-glow-verdigris);
+  color: #fff;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-chalk-300) 0%, var(--color-chalk-600) 100%);
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #F4919F 0%, #C73A50 100%);
+  color: #fff;
+}
+
+/* Soft white inputs */
+input, textarea, select {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Pink text selection */
+::selection {
+  background: #F9A8D4;
+  color: #262033;
+}
+
+/* Progress bars — coral fill by default */
+.progress-fill {
+  background: linear-gradient(90deg, var(--color-ember-500) 0%, var(--color-ember-400) 100%);
+}
