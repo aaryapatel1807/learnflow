@@ -268,6 +268,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           zoomOnScroll={false}
           zoomOnPinch={false}
           zoomOnDoubleClick={false}
+          preventScrolling={false}
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
