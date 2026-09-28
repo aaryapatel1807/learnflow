@@ -1,18 +1,23 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, X } from 'lucide-react';
 import clsx from 'clsx';
 import './roadmap-sh.css';
+import NodeHoverBar from './NodeHoverBar';
 
 // roadmap.sh style: solid yellow main-path box, black border,
 // purple check badge when done.
 function MilestoneNode({ data, selected }) {
   const isDone = data.status === 'done';
   const isInProgress = data.status === 'in-progress';
+  const isSkipped = data.status === 'skipped';
+  const pick = (status) => data.onStatusChange?.(data.raw._id, status);
 
   return (
-    <div className={clsx('rm-node rm-milestone', selected && 'rm-selected')}>
+    <div className={clsx('rm-node rm-milestone', isSkipped && 'rm-skipped', selected && 'rm-selected')}>
       <Handle type="target" position={Position.Top} id="top" className="rm-handle" />
+
+      <NodeHoverBar status={data.status} onPick={pick} />
 
       <span className="rm-label">{data.label}</span>
 
@@ -23,6 +28,10 @@ function MilestoneNode({ data, selected }) {
       ) : isInProgress ? (
         <span className="rm-badge rm-badge-progress" title="In progress">
           <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={3} />
+        </span>
+      ) : isSkipped ? (
+        <span className="rm-badge rm-badge-skipped" title="Skipped">
+          <X className="w-3.5 h-3.5" strokeWidth={3.5} />
         </span>
       ) : null}
 

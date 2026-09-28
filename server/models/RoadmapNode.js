@@ -49,7 +49,7 @@ const roadmapNodeSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['not-started', 'in-progress', 'done'],
+    enum: ['not-started', 'in-progress', 'done', 'skipped'],
     default: 'not-started'
   }
 }, {

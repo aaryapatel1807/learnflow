@@ -62,6 +62,82 @@
   outline-offset: 3px;
 }
 
+/* Skipped nodes: muted and greyed out */
+.rm-node.rm-skipped {
+  opacity: 0.55;
+  filter: grayscale(0.65);
+}
+
+/* Hovering a node lifts its wrapper above neighbours so the
+   toolbar never hides behind adjacent boxes. */
+.react-flow__node:hover {
+  z-index: 40;
+}
+
+/* ── Hover quick-action toolbar ─────────────────────────── */
+.rm-hoverbar {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  display: flex;
+  gap: 2px;
+  background: #ffffff;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 50;
+  white-space: nowrap;
+}
+
+/* invisible bridge so the mouse can travel from node to toolbar
+   without the hover flickering off across the gap */
+.rm-hoverbar::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.rm-node:hover .rm-hoverbar {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.rm-hb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.rm-hb-btn:hover {
+  background: #f0f0f0;
+}
+
+.rm-hb-learning { color: #7c3aed; }
+.rm-hb-done { color: #16a34a; }
+.rm-hb-skip { color: #6b7280; }
+
+.rm-hb-btn.is-active {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
 .rm-milestone {
   width: 220px;
   padding: 12px 22px;
@@ -128,6 +204,10 @@
 
 .rm-badge-progress {
   background: var(--rm-edge);
+}
+
+.rm-badge-skipped {
+  background: #6b7280;
 }
 
 /* ── Phase tag ─────────────────────────────────────────── */
@@ -208,6 +288,7 @@
 }
 .rm-sw-done { background: var(--rm-done); }
 .rm-sw-progress { background: var(--rm-edge); }
+.rm-sw-skipped { background: #6b7280; }
 .rm-sw-dot .rm-sw-inner {
   width: 6px;
   height: 6px;

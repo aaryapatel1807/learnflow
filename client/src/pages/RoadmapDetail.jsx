@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import RoadmapGraph from '../components/roadmap-graph/RoadmapGraph';
@@ -11,6 +11,18 @@ function RoadmapDetail() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
+
+  // Hover-toolbar status updates: optimistic UI, revert on failure.
+  const handleStatusChange = useCallback(async (nodeId, status) => {
+    const prev = nodes;
+    setNodes((ns) => ns.map((n) => (n._id === nodeId ? { ...n, status } : n)));
+    try {
+      await api.patch(`/roadmaps/nodes/${nodeId}/status`, { status });
+    } catch (error) {
+      console.error('Status update failed:', error);
+      setNodes(prev);
+    }
+  }, [nodes]);
 
   useEffect(() => {
     const fetchRoadmap = async () => {
@@ -117,7 +129,7 @@ function RoadmapDetail() {
         </div>
       ) : (
         <div className="relative mt-8">
-          <RoadmapGraph rawNodes={nodes} onNodeClick={setSelectedNode} />
+          <RoadmapGraph rawNodes={nodes} onNodeClick={setSelectedNode} onStatusChange={handleStatusChange} />
         </div>
       )}
 

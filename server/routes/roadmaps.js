@@ -50,4 +50,27 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Update a node's learning status (used by the roadmap hover toolbar)
+router.patch('/nodes/:nodeId/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['not-started', 'in-progress', 'done', 'skipped'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    const node = await RoadmapNode.findByIdAndUpdate(
+      req.params.nodeId,
+      { status },
+      { new: true, runValidators: true }
+    );
+    if (!node) {
+      return res.status(404).json({ message: 'Roadmap node not found' });
+    }
+    res.json(node);
+  } catch (error) {
+    console.error('Update node status error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

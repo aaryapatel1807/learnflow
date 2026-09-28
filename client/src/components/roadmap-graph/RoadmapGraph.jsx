@@ -6,7 +6,7 @@ import {
   Background,
   Position,
 } from '@xyflow/react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 import TopicNode from './TopicNode';
 import MilestoneNode from './MilestoneNode';
@@ -110,7 +110,7 @@ const layoutStraight = (nodes) => {
   return { minX, minY, maxX, maxY };
 };
 
-function RoadmapGraph({ rawNodes, onNodeClick }) {
+function RoadmapGraph({ rawNodes, onNodeClick, onStatusChange }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [bounds, setBounds] = useState(null);
@@ -157,6 +157,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
           status: dbNode.status || 'not-started',
           optional: nodeType === 'optional',
           raw: dbNode,
+          onStatusChange,
         },
         position: { x: 0, y: 0 },
       });
@@ -207,7 +208,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
 
     setNodes(initialNodes);
     setEdges(initialEdges);
-  }, [rawNodes, setNodes, setEdges]);
+  }, [rawNodes, onStatusChange, setNodes, setEdges]);
 
   const handleNodeClick = useCallback(
     (_, node) => {
@@ -249,6 +250,12 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
             <span className="rm-sw-inner" />
           </span>
           In Progress
+        </span>
+        <span className="rm-legend-row">
+          <span className="rm-sw rm-sw-dot rm-sw-skipped">
+            <X className="w-2.5 h-2.5" strokeWidth={4} />
+          </span>
+          Skipped
         </span>
         <span className="rm-legend-row">
           <span className="rm-sw rm-sw-line" />
