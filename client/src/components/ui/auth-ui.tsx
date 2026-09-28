@@ -327,15 +327,19 @@ export function AuthUI({
       </div>
 
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
-        <div className="absolute inset-0">
-          <IconCloud iconSlugs={authIconSlugs} />
+        {/* centred icon sphere: bounded square so it can never overflow the panel */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="aspect-square w-[min(85%,70vh)]">
+            <IconCloud iconSlugs={authIconSlugs} />
+          </div>
         </div>
 
-        <div className="relative z-10 flex h-full flex-col items-center justify-center p-8">
-          {/* soft glow behind the quote so it stays readable over the 3D scene */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50 blur-3xl dark:bg-black/30" />
-          <blockquote className="relative space-y-3 text-center text-foreground">
-            <p className="text-xl font-medium">
+        {/* soft fade so the bottom quote stays readable */}
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-white/70 to-transparent dark:from-black/40 dark:to-transparent" />
+
+        <div className="relative z-10 flex h-full flex-col items-center justify-end p-8 pb-8">
+          <blockquote className="relative space-y-2 text-center text-foreground">
+            <p className="text-lg font-medium">
               &ldquo;
               <Typewriter
                 key={currentContent.quote.text}
