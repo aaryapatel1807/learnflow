@@ -28,6 +28,10 @@ export function Typewriter({
   const textArray = Array.isArray(text) ? text : [text];
   const currentText = textArray[textArrayIndex] || "";
 
+  // Typing is finished when the full text is shown and nothing will change it
+  const isDone =
+    !loop && !isDeleting && currentText.length > 0 && currentIndex >= currentText.length;
+
   useEffect(() => {
     if (!currentText) return;
 
@@ -69,7 +73,7 @@ export function Typewriter({
   return (
     <span className={className}>
       {displayText}
-      <span className="animate-pulse">{cursor}</span>
+      {!isDone && <span className="animate-pulse">{cursor}</span>}
     </span>
   );
 }
