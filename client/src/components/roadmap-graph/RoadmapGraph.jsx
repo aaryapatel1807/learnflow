@@ -23,7 +23,7 @@ const nodeTypes = {
 // ── Straight roadmap.sh-style layout ──────────────────────────────
 // Milestones form one straight vertical spine (x = 0). Every topic fans
 // out to the left or right of its parent, centred on the parent's row.
-const SPINE_DY = 160;   // vertical gap between milestones
+const SPINE_GAP = 40;   // breathing room between neighbouring fan-out areas
 const BRANCH_DX = 320;  // horizontal distance parent centre -> topic centre
 const TOPIC_DY = 72;    // vertical gap between fanned topics
 const MILESTONE_W = 220;
@@ -32,11 +32,6 @@ const TOPIC_W = 200;
 const TOPIC_H = 44;
 
 const layoutStraight = (nodes) => {
-  const byId = {};
-  nodes.forEach((n) => {
-    byId[n.id] = n;
-  });
-
   const spine = nodes
     .filter((n) => n.type === 'milestone' && !n.data.raw.parentId)
     .sort((a, b) => (a.data.raw.order ?? 0) - (b.data.raw.order ?? 0));
@@ -49,37 +44,50 @@ const layoutStraight = (nodes) => {
     if (!childrenOf[pid]) childrenOf[pid] = [];
     childrenOf[pid].push(n);
   });
+  Object.values(childrenOf).forEach((kids) =>
+    kids.sort((a, b) => (a.data.raw.order ?? 0) - (b.data.raw.order ?? 0))
+  );
 
-  // 1. Straight vertical spine.
+  // Vertical half-extent a milestone needs: its fanned topics, or the box
+  // itself, whichever is taller. Used to keep neighbouring fan-out areas
+  // from overlapping.
+  const rowsFor = (pid) => Math.ceil((childrenOf[pid] || []).length / 2);
+  const halfFor = (pid) =>
+    Math.max(((rowsFor(pid) - 1) / 2) * TOPIC_DY + TOPIC_H / 2, MILESTONE_H / 2);
+
+  // 1. Straight vertical spine with adaptive spacing.
+  let cursor = 0;
+  let lastBottom = 0;
   spine.forEach((n, i) => {
-    n.position = { x: -MILESTONE_W / 2, y: i * SPINE_DY };
+    const half = halfFor(n.id);
+    const cy = cursor + half;
+    n.position = { x: -MILESTONE_W / 2, y: cy - MILESTONE_H / 2 };
     n.targetPosition = Position.Top;
     n.sourcePosition = Position.Bottom;
-  });
 
-  // 2. Topics fan out left/right of their parent.
-  Object.entries(childrenOf).forEach(([pid, kids]) => {
-    const parent = byId[pid];
-    if (!parent) return;
-    const cx = parent.position.x + MILESTONE_W / 2;
-    const cy = parent.position.y + MILESTONE_H / 2;
-    const rows = Math.ceil(kids.length / 2);
-    kids.forEach((k, i) => {
-      const side = i % 2 === 0 ? 'right' : 'left';
-      const row = Math.floor(i / 2);
+    // 2. Topics fan out left/right of their parent, centred on its row.
+    const kids = childrenOf[n.id] || [];
+    const rows = rowsFor(n.id);
+    kids.forEach((k, ki) => {
+      const side = ki % 2 === 0 ? 'right' : 'left';
+      const row = Math.floor(ki / 2);
       const yOff = (row - (rows - 1) / 2) * TOPIC_DY;
-      const tx = side === 'right' ? cx + BRANCH_DX : cx - BRANCH_DX;
+      const tx = side === 'right' ? BRANCH_DX : -BRANCH_DX;
       k.position = { x: tx - TOPIC_W / 2, y: cy + yOff - TOPIC_H / 2 };
       k.data.side = side;
       k.targetPosition = side === 'left' ? Position.Right : Position.Left;
       k.sourcePosition = Position.Right;
     });
+
+    const nextHalf = i + 1 < spine.length ? halfFor(spine[i + 1].id) : 0;
+    cursor = cy + half + SPINE_GAP + nextHalf;
+    lastBottom = cy + half;
   });
 
   // 3. Orphans (parent not found — e.g. stale parentId) stack in their own
   //    lane below the spine, clearly off the blue line, instead of sitting
   //    on it like misplaced topics.
-  let orphanY = spine.length * SPINE_DY + 40;
+  let orphanY = lastBottom + 60;
   nodes.forEach((n) => {
     if (n.position.x === 0 && n.position.y === 0) {
       n.position = { x: 60, y: orphanY };
@@ -154,7 +162,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         id: `branch-${parentId}-${dbNode._id}`,
         source: parentId,
         target: dbNode._id,
-        sourceHandle: side === 'left' ? 'target-left' : 'target-right',
+        sourceHandle: side,
         type: 'default',
         style: {
           stroke: 'var(--rm-edge)',
