@@ -20,6 +20,7 @@ const QuizQuestion = require('../models/QuizQuestion');
 const Flashcard = require('../models/Flashcard');
 const LearningPath = require('../models/LearningPath');
 const LearningPathNode = require('../models/LearningPathNode');
+const SkillNode = require('../models/SkillNode');
 
 // ---------------------------------------------------------------- subjects
 const subjects = [
@@ -801,7 +802,7 @@ const learningPaths = [
 
 // ------------------------------------------------------------------- seeder
 async function seedRealContent() {
-  const counts = { subjects: 0, books: 0, chapters: 0, quizzes: 0, questions: 0, flashcards: 0, learningPaths: 0, pathNodes: 0 };
+  const counts = { subjects: 0, books: 0, chapters: 0, quizzes: 0, questions: 0, flashcards: 0, learningPaths: 0, pathNodes: 0, skillTrees: 0, skillNodes: 0 };
 
   // Subjects (idempotent by name)
   const subjectMap = {};
@@ -926,7 +927,117 @@ async function seedRealContent() {
     }
   }
 
+  // Skill trees — one coherent tree per subject.
+  // Skipped for subjects that already have skill nodes (e.g. the demo React
+  // tree from the full seed), so trees never merge into a confusing mix.
+  for (const tree of skillTrees) {
+    const subjDoc = subjectMap[tree.subject];
+    const existing = await SkillNode.countDocuments({ subject: subjDoc._id });
+    if (existing > 0) continue;
+    const nodeByTitle = {};
+    for (const sn of tree.nodes) {
+      let node = await SkillNode.findOne({ subject: subjDoc._id, title: sn.title });
+      if (!node) {
+        const prereqIds = (sn.prereqs || [])
+          .map((t) => nodeByTitle[t])
+          .filter(Boolean)
+          .map((n) => n._id);
+        let bookId;
+        let chapterId;
+        let topic;
+        if (sn.contentType === 'chapter') {
+          const bookDoc = bookMap[sn.bookTitle];
+          bookId = bookDoc._id;
+          const chDoc = await Chapter.findOne({ book: bookDoc._id, chapterNumber: sn.chapterNumber });
+          if (chDoc) chapterId = chDoc._id;
+        } else if (sn.contentType === 'topic') {
+          topic = sn.topic;
+        }
+        node = await SkillNode.create({
+          subject: subjDoc._id,
+          title: sn.title,
+          description: sn.description,
+          prerequisiteSkillNodeIds: prereqIds,
+          contentType: sn.contentType,
+          ...(bookId ? { book: bookId } : {}),
+          ...(chapterId ? { chapter: chapterId } : {}),
+          ...(topic ? { topic } : {}),
+          order: sn.order,
+          layer: sn.layer,
+        });
+        counts.skillNodes++;
+      }
+      nodeByTitle[sn.title] = node;
+    }
+    counts.skillTrees++;
+  }
+
   return counts;
 }
 
 module.exports = { seedRealContent, subjects, books, quizzes, flashcards, learningPaths };
+
+// --------------------------------------------------------------- skill trees
+// One coherent tree per subject. Nodes are created layer by layer so
+// prerequisites (referenced by title) always resolve.
+const skillTrees = [
+  {
+    subject: 'Web Development',
+    nodes: [
+      { title: 'HTML & CSS Foundations', description: 'Structure pages with semantic HTML and style them with modern CSS.', layer: 0, order: 1, contentType: 'topic', topic: 'HTML & CSS', prereqs: [] },
+      { title: 'JavaScript Basics', description: 'Values, types, operators, and control flow — the language core.', layer: 0, order: 2, contentType: 'chapter', bookTitle: 'Eloquent JavaScript', chapterNumber: 1, prereqs: [] },
+      { title: 'Functions & Scope', description: 'Bindings, arrow functions, scope, and closures.', layer: 1, order: 1, contentType: 'chapter', bookTitle: 'Eloquent JavaScript', chapterNumber: 2, prereqs: ['JavaScript Basics'] },
+      { title: 'DOM Manipulation', description: 'Select, create, and update page elements from JavaScript.', layer: 1, order: 2, contentType: 'topic', topic: 'DOM APIs', prereqs: ['JavaScript Basics'] },
+      { title: 'Async JavaScript', description: 'Callbacks, promises, and async/await for real-world data fetching.', layer: 2, order: 1, contentType: 'topic', topic: 'Async JS', prereqs: ['Functions & Scope'] },
+      { title: 'Clean Code Practices', description: 'Meaningful names and small functions in your own projects.', layer: 2, order: 2, contentType: 'chapter', bookTitle: 'Clean Code', chapterNumber: 1, prereqs: ['Functions & Scope'] },
+      { title: 'Build & Deploy a Project', description: 'Ship a complete app: fetch data, handle state, deploy it live.', layer: 3, order: 1, contentType: 'topic', topic: 'Capstone Project', prereqs: ['Async JavaScript', 'DOM Manipulation'] },
+    ],
+  },
+  {
+    subject: 'Data Structures & Algorithms',
+    nodes: [
+      { title: 'Big-O Analysis', description: 'Read and compare growth rates: O(1), O(log n), O(n), O(n log n), O(n²).', layer: 0, order: 1, contentType: 'topic', topic: 'Complexity', prereqs: [] },
+      { title: 'Arrays & Strings', description: 'The workhorse structures: indexing, slicing, two-pointer patterns.', layer: 0, order: 2, contentType: 'topic', topic: 'Arrays', prereqs: [] },
+      { title: 'Why Algorithms Matter', description: 'Correctness, efficiency, and the hardware-beating power of good algorithms.', layer: 1, order: 1, contentType: 'chapter', bookTitle: 'Introduction to Algorithms', chapterNumber: 1, prereqs: ['Big-O Analysis'] },
+      { title: 'Sorting & Loop Invariants', description: 'Insertion sort plus the proof technique behind every loop.', layer: 1, order: 2, contentType: 'chapter', bookTitle: 'Introduction to Algorithms', chapterNumber: 2, prereqs: ['Big-O Analysis', 'Arrays & Strings'] },
+      { title: 'Linked Lists, Stacks & Queues', description: 'Pointer-based structures and LIFO/FIFO discipline.', layer: 2, order: 1, contentType: 'topic', topic: 'Linked Structures', prereqs: ['Arrays & Strings'] },
+      { title: 'Trees & Hashing', description: 'BST properties, tree traversals, and collision handling in hash tables.', layer: 2, order: 2, contentType: 'topic', topic: 'Trees & Hashing', prereqs: ['Sorting & Loop Invariants', 'Linked Lists, Stacks & Queues'] },
+      { title: 'Graphs: BFS & DFS', description: 'Represent graphs and traverse them for paths and connectivity.', layer: 3, order: 1, contentType: 'topic', topic: 'Graphs', prereqs: ['Trees & Hashing'] },
+    ],
+  },
+  {
+    subject: 'Databases',
+    nodes: [
+      { title: 'SQL Basics', description: 'SELECT, WHERE, ORDER BY, and your first real queries.', layer: 0, order: 1, contentType: 'topic', topic: 'SQL', prereqs: [] },
+      { title: 'Data Models & Query Languages', description: 'Relational vs document models — and how to choose.', layer: 0, order: 2, contentType: 'chapter', bookTitle: 'Designing Data-Intensive Applications', chapterNumber: 2, prereqs: [] },
+      { title: 'Keys & Normalization', description: 'Primary/foreign keys and normal forms that kill redundancy.', layer: 1, order: 1, contentType: 'topic', topic: 'Schema Design', prereqs: ['SQL Basics', 'Data Models & Query Languages'] },
+      { title: 'Joins & Aggregation', description: 'Combine tables and summarize with GROUP BY and HAVING.', layer: 1, order: 2, contentType: 'topic', topic: 'Joins', prereqs: ['SQL Basics'] },
+      { title: 'Reliability, Scalability, Maintainability', description: 'The three lenses for every data-system decision.', layer: 2, order: 1, contentType: 'chapter', bookTitle: 'Designing Data-Intensive Applications', chapterNumber: 1, prereqs: ['Keys & Normalization'] },
+      { title: 'Indexing & Transactions', description: 'Speed up reads with indexes; keep writes safe with ACID.', layer: 2, order: 2, contentType: 'topic', topic: 'Performance & ACID', prereqs: ['Joins & Aggregation'] },
+      { title: 'Design a Production Schema', description: 'Model a real application end-to-end and justify each trade-off.', layer: 3, order: 1, contentType: 'topic', topic: 'Capstone Schema', prereqs: ['Reliability, Scalability, Maintainability', 'Indexing & Transactions'] },
+    ],
+  },
+  {
+    subject: 'Computer Science Core',
+    nodes: [
+      { title: 'Processes & Threads', description: 'Isolation vs shared memory — the unit of execution.', layer: 0, order: 1, contentType: 'topic', topic: 'Processes', prereqs: [] },
+      { title: 'Networking Basics', description: 'Packets, addresses, and the layers that move data.', layer: 0, order: 2, contentType: 'topic', topic: 'Networking', prereqs: [] },
+      { title: 'Synchronization Primitives', description: 'Mutexes, semaphores, and defeating deadlocks.', layer: 1, order: 1, contentType: 'topic', topic: 'Concurrency', prereqs: ['Processes & Threads'] },
+      { title: 'TCP/IP & HTTP', description: 'Reliable transport and the protocol of the web.', layer: 1, order: 2, contentType: 'topic', topic: 'TCP/IP', prereqs: ['Networking Basics'] },
+      { title: 'Memory Management', description: 'Paging, segmentation, and virtual memory.', layer: 2, order: 1, contentType: 'topic', topic: 'Memory', prereqs: ['Processes & Threads'] },
+      { title: 'DNS & How the Web Works', description: 'From domain name to rendered page — the full journey.', layer: 2, order: 2, contentType: 'topic', topic: 'DNS', prereqs: ['TCP/IP & HTTP'] },
+    ],
+  },
+  {
+    subject: 'Software Engineering',
+    nodes: [
+      { title: 'A Pragmatic Philosophy', description: 'Care about your craft; think about your work.', layer: 0, order: 1, contentType: 'chapter', bookTitle: 'The Pragmatic Programmer', chapterNumber: 1, prereqs: [] },
+      { title: 'Meaningful Names', description: 'Naming as a design activity, not an afterthought.', layer: 0, order: 2, contentType: 'chapter', bookTitle: 'Clean Code', chapterNumber: 1, prereqs: [] },
+      { title: 'DRY — The Evils of Duplication', description: 'One authoritative representation for every piece of knowledge.', layer: 1, order: 1, contentType: 'chapter', bookTitle: 'The Pragmatic Programmer', chapterNumber: 2, prereqs: ['A Pragmatic Philosophy'] },
+      { title: 'Functions Done Right', description: 'Small, single-purpose, few arguments.', layer: 1, order: 2, contentType: 'chapter', bookTitle: 'Clean Code', chapterNumber: 2, prereqs: ['Meaningful Names'] },
+      { title: 'Git Workflow Mastery', description: 'Branch, merge, rebase, and collaborate without fear.', layer: 2, order: 1, contentType: 'topic', topic: 'Git', prereqs: ['DRY — The Evils of Duplication', 'Functions Done Right'] },
+      { title: 'Code Reviews & Debugging', description: 'Read code critically and hunt bugs systematically.', layer: 3, order: 1, contentType: 'topic', topic: 'Reviews', prereqs: ['Git Workflow Mastery'] },
+    ],
+  },
+];
+module.exports.skillTrees = skillTrees;

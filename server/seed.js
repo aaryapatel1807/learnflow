@@ -472,10 +472,9 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     await quiz.save();
 
     // ====== REAL CONTENT PACK (shared, idempotent — safe: DB was just wiped) ======
-    console.log('\n📦 Seeding real content pack (books, quizzes, flashcards, learning paths)...');
-    const { seedRealContent } = require('./seed-data/realContent');
-    const realCounts = await seedRealContent();
-    console.log('  ✓ Real content added:', JSON.stringify(realCounts));
+    // Placed AFTER the demo skill tree (Phase 4) so Web Development keeps its
+    // original React demo tree; real trees are added only for subjects that
+    // have none.
 
     // ====== PHASE 3: ACHIEVEMENT DEFINITIONS ======
     console.log('\n🏆 Creating achievement definitions...');
@@ -729,6 +728,14 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     });
 
     console.log(`  ✓ Created skill tree with 7 nodes (including 1 node with 2 prerequisites)`);
+
+    // ====== REAL CONTENT PACK (shared, idempotent — safe: DB was just wiped) ======
+    // Runs after the demo skill tree so Web Development keeps its original
+    // React demo tree; real trees are added only for subjects that have none.
+    console.log('\n📦 Seeding real content pack (books, quizzes, flashcards, learning paths, skill trees)...');
+    const { seedRealContent } = require('./seed-data/realContent');
+    const realCounts = await seedRealContent();
+    console.log('  ✓ Real content added:', JSON.stringify(realCounts));
 
     console.log('\n✅ Seed completed successfully!');
     console.log('\n📊 Summary:');
