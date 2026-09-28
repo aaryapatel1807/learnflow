@@ -54,7 +54,7 @@
 }
 
 .rm-milestone {
-  min-width: 200px;
+  width: 220px;
   padding: 12px 22px;
   background: var(--rm-milestone);
   font-size: 15px;
@@ -63,8 +63,7 @@
 }
 
 .rm-topic {
-  min-width: 180px;
-  max-width: 230px;
+  width: 200px;
   padding: 8px 14px;
   background: var(--rm-topic);
   font-size: 13px;

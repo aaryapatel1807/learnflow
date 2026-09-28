@@ -3,8 +3,6 @@ import {
   ReactFlow,
   useNodesState,
   useEdgesState,
-  MiniMap,
-  Controls,
   Background,
   Panel,
   Position,
@@ -55,6 +53,18 @@ const layoutStraight = (nodes) => {
   const halfFor = (pid) =>
     Math.max(((rowsFor(pid) - 1) / 2) * TOPIC_DY + TOPIC_H / 2, MILESTONE_H / 2);
 
+  // Bounds tracking so the canvas can be sized to the full static diagram.
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
+  const track = (x, y, w, h) => {
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x + w > maxX) maxX = x + w;
+    if (y + h > maxY) maxY = y + h;
+  };
+
   // 1. Straight vertical spine with adaptive spacing.
   let cursor = 0;
   let lastBottom = 0;
@@ -62,6 +72,7 @@ const layoutStraight = (nodes) => {
     const half = halfFor(n.id);
     const cy = cursor + half;
     n.position = { x: -MILESTONE_W / 2, y: cy - MILESTONE_H / 2 };
+    track(n.position.x, n.position.y, MILESTONE_W, MILESTONE_H);
     n.targetPosition = Position.Top;
     n.sourcePosition = Position.Bottom;
 
@@ -74,6 +85,7 @@ const layoutStraight = (nodes) => {
       const yOff = (row - (rows - 1) / 2) * TOPIC_DY;
       const tx = side === 'right' ? BRANCH_DX : -BRANCH_DX;
       k.position = { x: tx - TOPIC_W / 2, y: cy + yOff - TOPIC_H / 2 };
+      track(k.position.x, k.position.y, TOPIC_W, TOPIC_H);
       k.data.side = side;
       k.targetPosition = side === 'left' ? Position.Right : Position.Left;
       k.sourcePosition = Position.Right;
@@ -91,19 +103,26 @@ const layoutStraight = (nodes) => {
   nodes.forEach((n) => {
     if (n.position.x === 0 && n.position.y === 0) {
       n.position = { x: 60, y: orphanY };
+      track(n.position.x, n.position.y, TOPIC_W, TOPIC_H);
       orphanY += TOPIC_DY;
     }
   });
 
-  return nodes;
+  return { minX, minY, maxX, maxY };
 };
 
 function RoadmapGraph({ rawNodes, onNodeClick }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [bounds, setBounds] = useState(null);
 
   useEffect(() => {
-    if (!rawNodes || rawNodes.length === 0) return;
+    if (!rawNodes || rawNodes.length === 0) {
+      setNodes([]);
+      setEdges([]);
+      setBounds(null);
+      return;
+    }
 
     const initialNodes = [];
 
@@ -132,7 +151,8 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
     });
 
     // 2. Straight spine layout (replaces the old winding dagre layout).
-    layoutStraight(initialNodes);
+    const graphBounds = layoutStraight(initialNodes);
+    setBounds(graphBounds);
     const byId = {};
     initialNodes.forEach((n) => {
       byId[n.id] = n;
@@ -186,31 +206,44 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
     [onNodeClick]
   );
 
+  // Static diagram: the canvas is sized to the full graph at 1:1 scale and
+  // every pan/zoom interaction is disabled, so the mouse wheel scrolls the
+  // page instead of hijacking into the diagram. Node clicks still work.
+  const PAD = 40;
+
   return (
     <div
-      className="w-full h-[750px] rounded-xl overflow-hidden border"
-      style={{ background: 'var(--rm-canvas)', borderColor: 'var(--rm-frame)' }}
+      className="w-full rounded-xl border"
+      style={{
+        background: 'var(--rm-canvas)',
+        borderColor: 'var(--rm-frame)',
+        height: bounds ? Math.ceil(bounds.maxY - bounds.minY + PAD * 2) : 750,
+      }}
     >
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={handleNodeClick}
-        nodeTypes={nodeTypes}
-        fitView
-        minZoom={0.3}
-        attributionPosition="bottom-right"
-      >
-        <Controls />
-        <MiniMap
-          zoomable
-          pannable
-          nodeColor={(n) => (n.type === 'milestone' ? '#ffe800' : '#fff3c2')}
-          maskColor="rgba(0, 0, 0, 0.08)"
-        />
-        <Background color="var(--rm-dot)" gap={22} />
-        <Panel position="top-left" className="rm-legend">
+      {bounds && (
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          nodeTypes={nodeTypes}
+          defaultViewport={{
+            x: -bounds.minX + PAD,
+            y: -bounds.minY + PAD,
+            zoom: 1,
+          }}
+          panOnDrag={false}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          zoomOnDoubleClick={false}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+          attributionPosition="bottom-right"
+        >
+          <Background color="var(--rm-dot)" gap={22} />
+          <Panel position="top-left" className="rm-legend">
           <div className="rm-legend-title">Legend</div>
           <div className="rm-legend-row">
             <span className="rm-sw rm-sw-box rm-sw-milestone" />
@@ -241,7 +274,8 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
             Optional
           </div>
         </Panel>
-      </ReactFlow>
+        </ReactFlow>
+      )}
     </div>
   );
 }
