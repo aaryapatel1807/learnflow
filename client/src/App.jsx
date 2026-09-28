@@ -15,7 +15,7 @@ import FlashcardReview from './pages/FlashcardReview';
 import Quizzes from './pages/Quizzes';
 import QuizTake from './pages/QuizTake';
 import Achievements from './pages/Achievements';
-import { isAuthenticated, getUser } from './utils/auth';
+import { isAuthenticated, getUser, logout } from './utils/auth';
 import Notes from './pages/Notes';
 import Bookmarks from './pages/Bookmarks';
 import SkillTree from './pages/SkillTree';
@@ -45,9 +45,14 @@ function App() {
     return children;
   };
 
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+  };
+
   return (
     <BrowserRouter>
-      <AnimatedNav />
+      <AnimatedNav onLogout={handleLogout} />
       <Routes>
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register setUser={setUser} />} />

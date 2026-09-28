@@ -272,6 +272,102 @@
 }
 
 /* ============================================================
+   PROFILE AVATAR + MENU
+   ============================================================ */
+.nav-profile {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-ember-600) 0%, var(--color-ember-500) 100%);
+  box-shadow: var(--shadow-glow-ember);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.nav-avatar:hover {
+  transform: scale(1.07);
+}
+
+.nav-avatar-lg {
+  width: 42px;
+  height: 42px;
+  font-size: 1.05rem;
+  cursor: default;
+}
+
+.nav-avatar-lg:hover {
+  transform: none;
+}
+
+.nav-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+}
+
+.nav-profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nav-profile-name {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.nav-profile-sub {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-ink-500);
+  white-space: nowrap;
+}
+
+.nav-dropdown-sep {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 2px 6px 4px;
+}
+
+.nav-dropdown-link.nav-logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-ui);
+}
+
+.nav-dropdown-link.nav-logout-btn:hover {
+  background: rgba(209, 77, 110, 0.08);
+  color: var(--color-ember-600);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 640px) {

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Navigation, Menu, ChevronDown } from "lucide-react";
-import { isAuthenticated, getUser } from "../utils/auth";
+import { isAuthenticated, getUser, logout } from "../utils/auth";
 import "./AnimatedNav.css";
 
 const primaryItems = [
@@ -71,12 +71,15 @@ const collapsedIconVariants = {
   },
 };
 
-export function AnimatedNav() {
+export function AnimatedNav({ onLogout }) {
   const [isExpanded, setExpanded] = useState(true);
   const [isDark, setIsDark] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const moreRef = useRef(null);
+  const profileRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { scrollY } = useScroll();
   const lastScrollY = useRef(0);
@@ -104,6 +107,7 @@ export function AnimatedNav() {
     if (isExpanded && latest > previous && latest > 150) {
       setExpanded(false);
       setMoreOpen(false);
+      setProfileOpen(false);
       scrollPositionOnCollapse.current = latest;
     } else if (
       !isExpanded &&
@@ -136,9 +140,10 @@ export function AnimatedNav() {
       : location.pathname.startsWith(href);
   const isMoreActive = dropdownItems.some((item) => isActiveHref(item.href));
 
-  // Close the dropdown on navigation or outside click
+  // Close the dropdowns on navigation or outside click
   useEffect(() => {
     setMoreOpen(false);
+    setProfileOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -151,6 +156,28 @@ export function AnimatedNav() {
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [moreOpen]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+    const onPointerDown = (e) => {
+      const inTrigger =
+        profileRef.current && profileRef.current.contains(e.target);
+      const inPanel =
+        e.target.closest && e.target.closest(".nav-profile-panel");
+      if (!inTrigger && !inPanel) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [profileOpen]);
+
+  const handleLogout = () => {
+    setProfileOpen(false);
+    logout();
+    if (onLogout) onLogout();
+    navigate("/login");
+  };
 
   return (
     <div className="animated-nav-container" ref={moreRef}>
@@ -193,6 +220,7 @@ export function AnimatedNav() {
               onClick={(e) => {
                 e.stopPropagation();
                 setMoreOpen((open) => !open);
+                setProfileOpen(false);
               }}
               aria-expanded={moreOpen}
               aria-haspopup="true"
@@ -208,14 +236,25 @@ export function AnimatedNav() {
             </button>
           </motion.div>
 
-          {/* Right side: auth actions when logged out, level chip when logged in */}
+          {/* Right side: auth actions when logged out, profile avatar when logged in */}
           <motion.div variants={itemVariants} className="nav-right">
             {user ? (
-              level !== null && (
-                <span className="nav-level-chip">
-                  ✦ Lv {level}
-                </span>
-              )
+              <div className="nav-profile" ref={profileRef}>
+                <button
+                  type="button"
+                  className="nav-avatar"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setProfileOpen((open) => !open);
+                    setMoreOpen(false);
+                  }}
+                  aria-expanded={profileOpen}
+                  aria-haspopup="true"
+                  title={user.name || "Profile"}
+                >
+                  {(user.name || "U").charAt(0).toUpperCase()}
+                </button>
+              </div>
             ) : (
               <>
                 <Link
@@ -276,6 +315,36 @@ export function AnimatedNav() {
               {item.name}
             </Link>
           ))}
+        </motion.div>
+      )}
+
+      {/* Profile menu — avatar card with logout */}
+      {profileOpen && isExpanded && user && (
+        <motion.div
+          className="nav-dropdown-panel nav-profile-panel"
+          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.18 }}
+        >
+          <div className="nav-profile-head">
+            <span className="nav-avatar nav-avatar-lg">
+              {(user.name || "U").charAt(0).toUpperCase()}
+            </span>
+            <span className="nav-profile-meta">
+              <span className="nav-profile-name">{user.name}</span>
+              <span className="nav-profile-sub">
+                Lv {level} · {user.xp || 0} XP
+              </span>
+            </span>
+          </div>
+          <span className="nav-dropdown-sep" />
+          <button
+            type="button"
+            className="nav-dropdown-link nav-logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </motion.div>
       )}
     </div>
