@@ -9,10 +9,9 @@ import './roadmap-sh.css';
 function TopicNode({ data, selected }) {
   const isDone = data.status === 'done';
   const isInProgress = data.status === 'in-progress';
-  const isOptional = data.optional;
 
   return (
-    <div className={clsx('rm-node rm-topic', isOptional && 'rm-optional', selected && 'rm-selected')}>
+    <div className={clsx('rm-node rm-topic', selected && 'rm-selected')}>
       <Handle
         type="target"
         position={data.side === 'left' ? Position.Right : Position.Left}

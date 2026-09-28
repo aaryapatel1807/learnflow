@@ -23,9 +23,9 @@ const nodeTypes = {
 // ── Straight roadmap.sh-style layout ──────────────────────────────
 // Milestones form one straight vertical spine (x = 0). Every topic fans
 // out to the left or right of its parent, centred on the parent's row.
-const SPINE_DY = 150;   // vertical gap between milestones
-const BRANCH_DX = 300;  // horizontal distance parent centre -> topic centre
-const TOPIC_DY = 66;    // vertical gap between fanned topics
+const SPINE_DY = 160;   // vertical gap between milestones
+const BRANCH_DX = 320;  // horizontal distance parent centre -> topic centre
+const TOPIC_DY = 72;    // vertical gap between fanned topics
 const MILESTONE_W = 220;
 const MILESTONE_H = 56;
 const TOPIC_W = 200;
@@ -156,8 +156,8 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         type: 'default',
         style: {
           stroke: 'var(--rm-edge)',
-          strokeWidth: 2.5,
-          strokeDasharray: '0.1 8',
+          strokeWidth: 3,
+          strokeDasharray: '0.1 7',
           strokeLinecap: 'round',
         },
       });
