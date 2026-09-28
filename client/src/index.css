@@ -18,9 +18,12 @@
 /* ============================================================
    RESET
    ============================================================ */
+/* NOTE: margin/padding are intentionally NOT reset here. Tailwind v4 emits
+   utilities inside a cascade layer, and unlayered CSS always beats layered
+   CSS — a global `* { margin: 0; padding: 0 }` would silently disable every
+   Tailwind p-*/m-* utility app-wide. Preflight (in @layer base) already
+   performs this reset, so utilities keep working as expected. */
 *, *::before, *::after {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
