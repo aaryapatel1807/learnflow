@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-xl border border-white/70 bg-white/60 px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 backdrop-blur-sm transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-white/80 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.07] dark:focus-visible:bg-white/[0.12]",
+          "flex h-10 w-full rounded-xl border border-white/50 bg-white/25 px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 backdrop-blur-sm transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-white/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.07] dark:focus-visible:bg-white/[0.12]",
           className
         )}
         ref={ref}
@@ -160,13 +160,13 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
   return (
     <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex size-12 items-center justify-center rounded-full border border-white/70 bg-white/60 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
+        <div className="flex size-12 items-center justify-center rounded-full border border-white/50 bg-white/25 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
           L
         </div>
         <h1 className="text-2xl font-bold">Sign in to your account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your email below to sign in</p>
       </div>
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <AuthError message={error} />
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
@@ -193,13 +193,13 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
   return (
     <form onSubmit={handleSubmit} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex size-12 items-center justify-center rounded-full border border-white/70 bg-white/60 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
+        <div className="flex size-12 items-center justify-center rounded-full border border-white/50 bg-white/25 text-lg font-bold text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/10 dark:text-white">
           L
         </div>
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-balance text-sm text-muted-foreground">Enter your details below to sign up</p>
       </div>
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <AuthError message={error} />
         <div className="grid gap-1">
           <Label htmlFor="name">Full Name</Label>
@@ -240,7 +240,7 @@ function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormC
         <div className="absolute -bottom-12 -right-8 h-52 w-52 rounded-full bg-[#c3b5f0]/50 blur-3xl dark:bg-[#7c3aed]/25" />
         <div className="absolute left-1/3 top-1/2 h-32 w-32 rounded-full bg-[#9fdcd2]/40 blur-3xl dark:bg-[#4c1d95]/20" />
       </div>
-      <div className="relative grid gap-2 rounded-[28px] border border-white/60 bg-white/45 p-8 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
+      <div className="relative grid gap-3 rounded-[32px] border border-white/40 bg-white/20 p-10 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.25)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
         {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
         <div className="text-center text-sm">
           {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
