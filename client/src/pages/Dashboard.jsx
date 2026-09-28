@@ -105,12 +105,12 @@ function Dashboard({ user }) {
   const weekTotal = weekDays.reduce((s, d) => s + d.count, 0);
 
   const quickLinks = [
-    { to: '/flashcards',     label: 'Flashcards',     tint: 'tint-steel',  icon: ICONS.cards },
-    { to: '/quizzes',        label: 'Quizzes',        tint: 'tint-navy',   icon: ICONS.quiz },
+    { to: '/flashcards',     label: 'Flashcards',     tint: 'tint-rose',   icon: ICONS.cards },
+    { to: '/quizzes',        label: 'Quizzes',        tint: 'tint-violet', icon: ICONS.quiz },
     { to: '/achievements',   label: 'Achievements',   tint: 'tint-amber',  icon: ICONS.trophy },
     { to: '/learning-paths', label: 'Learning Paths', tint: 'tint-sky',    icon: ICONS.path },
     { to: '/roadmaps',       label: 'Roadmaps',       tint: 'tint-teal',   icon: ICONS.map },
-    { to: '/catalogue',      label: 'Catalogue',      tint: 'tint-slate',  icon: ICONS.book },
+    { to: '/catalogue',      label: 'Catalogue',      tint: 'tint-pink',   icon: ICONS.book },
   ];
 
   /* Milestone — shown when meaningful XP is accumulated */
@@ -135,17 +135,17 @@ function Dashboard({ user }) {
 
       {/* ── GRADIENT STAT CARDS ─────────────────────────────────── */}
       <div className="pastel-cards animate-rise" data-delay="1">
-        <div className="pastel-card pc-navy">
+        <div className="pastel-card pc-coral">
           <span className="pc-badge">{ICONS.star}</span>
           <span className="pc-label">Level {level}</span>
           <span className="pc-value">{userStats.xp.toLocaleString()} <small>XP</small></span>
         </div>
-        <div className="pastel-card pc-steel">
+        <div className="pastel-card pc-violet">
           <span className="pc-badge">{ICONS.flame}</span>
           <span className="pc-label">Day streak</span>
           <span className="pc-value">{userStats.currentStreak} <small>days</small></span>
         </div>
-        <div className="pastel-card pc-teal">
+        <div className="pastel-card pc-blue">
           <span className="pc-badge">{ICONS.trophy}</span>
           <span className="pc-label">Best streak</span>
           <span className="pc-value">{userStats.longestStreak} <small>days</small></span>
