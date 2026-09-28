@@ -240,7 +240,7 @@ function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormC
         <div className="absolute -bottom-20 -right-14 h-80 w-80 rounded-full bg-[#a78bfa]/60 blur-3xl dark:bg-[#7c3aed]/25" />
         <div className="absolute left-1/4 top-1/3 h-60 w-60 rounded-full bg-[#7dd3c8]/50 blur-3xl dark:bg-[#4c1d95]/20" />
       </div>
-      <div className="relative grid gap-6 rounded-[36px] border border-white/50 bg-white/15 p-12 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.25)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
+      <div className="relative grid gap-6 rounded-[36px] border border-white/50 bg-white/15 px-16 py-12 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.25)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_30px_90px_-20px_rgba(147,51,234,0.45)]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-36 rounded-t-[36px] bg-gradient-to-b from-white/25 to-transparent" />
         {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
         <div className="text-center text-sm">
