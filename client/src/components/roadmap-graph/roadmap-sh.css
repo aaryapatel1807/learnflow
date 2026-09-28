@@ -129,3 +129,75 @@
   width: 8px !important;
   height: 8px !important;
 }
+
+/* ── Legend (plain CSS — no utility dependency) ───────────── */
+.rm-legend {
+  background: var(--rm-panel);
+  border: 1px solid var(--rm-frame);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  padding: 10px 12px;
+  min-width: 132px;
+}
+
+.rm-legend-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rm-panel-text);
+  margin-bottom: 8px;
+}
+
+.rm-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--rm-panel-text);
+  margin-bottom: 6px;
+}
+.rm-legend-row:last-child { margin-bottom: 0; }
+
+.rm-sw {
+  flex: none;
+  display: inline-block;
+}
+
+.rm-sw-box {
+  width: 16px;
+  height: 12px;
+  border: 2px solid var(--rm-node-border);
+  border-radius: 3px;
+}
+.rm-sw-milestone { background: var(--rm-milestone); }
+.rm-sw-topic { background: var(--rm-topic); }
+
+.rm-sw-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+.rm-sw-done { background: var(--rm-done); }
+.rm-sw-progress { background: var(--rm-edge); }
+.rm-sw-dot .rm-sw-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.rm-sw-line {
+  width: 20px;
+  height: 0;
+  border-top: 3px solid var(--rm-edge);
+}
+
+.rm-sw-dotted {
+  width: 20px;
+  height: 0;
+  border-top: 3px dotted var(--rm-edge);
+}
