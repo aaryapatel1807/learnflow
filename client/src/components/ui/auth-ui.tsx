@@ -327,13 +327,13 @@ export function AuthUI({
       </div>
 
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#fbe3ec] via-[#f6e7ee] to-[#e9e4f7] md:block dark:from-[#2a2336] dark:via-[#241d31] dark:to-[#211b2b]">
-        {/* sphere + quote stacked as one centred group: quote sits exactly below the animation */}
-        <div className="relative z-10 flex h-full flex-col items-center justify-center p-8">
+        {/* sphere + quote stacked as one group, nudged slightly below centre */}
+        <div className="relative z-10 flex h-full flex-col items-center justify-center p-8 pt-20">
           <div className="aspect-square w-[min(80%,60vh)]">
             <IconCloud iconSlugs={authIconSlugs} />
           </div>
           <blockquote className="relative mt-6 space-y-2 text-center text-foreground">
-            <p className="text-lg font-medium">
+            <p className="text-xl font-bold">
               &ldquo;
               <Typewriter
                 key={currentContent.quote.text}
