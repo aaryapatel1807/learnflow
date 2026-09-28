@@ -38,7 +38,7 @@ const layoutStraight = (nodes) => {
   });
 
   const spine = nodes
-    .filter((n) => n.type === 'milestone')
+    .filter((n) => n.type === 'milestone' && !n.data.raw.parentId)
     .sort((a, b) => (a.data.raw.order ?? 0) - (b.data.raw.order ?? 0));
 
   const childrenOf = {};
@@ -76,11 +76,13 @@ const layoutStraight = (nodes) => {
     });
   });
 
-  // 3. Orphans (parent not found) stack below the spine instead of piling at 0,0.
+  // 3. Orphans (parent not found — e.g. stale parentId) stack in their own
+  //    lane below the spine, clearly off the blue line, instead of sitting
+  //    on it like misplaced topics.
   let orphanY = spine.length * SPINE_DY + 40;
   nodes.forEach((n) => {
     if (n.position.x === 0 && n.position.y === 0) {
-      n.position = { x: -TOPIC_W / 2, y: orphanY };
+      n.position = { x: 60, y: orphanY };
       orphanY += TOPIC_DY;
     }
   });
@@ -152,7 +154,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
         id: `branch-${parentId}-${dbNode._id}`,
         source: parentId,
         target: dbNode._id,
-        sourceHandle: side,
+        sourceHandle: side === 'left' ? 'target-left' : 'target-right',
         type: 'default',
         style: {
           stroke: 'var(--rm-edge)',
