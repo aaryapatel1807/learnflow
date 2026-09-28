@@ -12,7 +12,7 @@ function MilestoneNode({ data, selected }) {
 
   return (
     <div className={clsx('rm-node rm-milestone', selected && 'rm-selected')}>
-      <Handle type="target" position={Position.Left} className="rm-handle" />
+      <Handle type="target" position={Position.Top} id="top" className="rm-handle" />
 
       <span className="rm-label">{data.label}</span>
 
@@ -28,7 +28,9 @@ function MilestoneNode({ data, selected }) {
 
       {data.phase && <span className="rm-phase">{data.phase}</span>}
 
-      <Handle type="source" position={Position.Right} className="rm-handle" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="rm-handle" />
+      <Handle type="source" position={Position.Left} id="left" className="rm-handle" />
+      <Handle type="source" position={Position.Right} id="right" className="rm-handle" />
     </div>
   );
 }

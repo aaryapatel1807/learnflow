@@ -7,10 +7,10 @@ import {
   Controls,
   Background,
   Panel,
+  Position,
 } from '@xyflow/react';
 import { Check } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
-import dagre from 'dagre';
 import TopicNode from './TopicNode';
 import MilestoneNode from './MilestoneNode';
 import './roadmap-sh.css';
@@ -20,40 +20,72 @@ const nodeTypes = {
   milestone: MilestoneNode,
 };
 
-const getLayoutedElements = (nodes, edges, direction = 'LR') => {
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-  // LR so milestones form the main vertical/horizontal spine and topics branch sideways,
-  // matching roadmap.sh's layout instead of one straight column.
-  dagreGraph.setGraph({ rankdir: direction, ranksep: 90, nodesep: 30 });
+// ── Straight roadmap.sh-style layout ──────────────────────────────
+// Milestones form one straight vertical spine (x = 0). Every topic fans
+// out to the left or right of its parent, centred on the parent's row.
+const SPINE_DY = 150;   // vertical gap between milestones
+const BRANCH_DX = 300;  // horizontal distance parent centre -> topic centre
+const TOPIC_DY = 66;    // vertical gap between fanned topics
+const MILESTONE_W = 220;
+const MILESTONE_H = 56;
+const TOPIC_W = 200;
+const TOPIC_H = 44;
 
-  nodes.forEach((node) => {
-    const isMilestone = node.type === 'milestone';
-    dagreGraph.setNode(node.id, { width: isMilestone ? 220 : 200, height: isMilestone ? 56 : 44 });
+const layoutStraight = (nodes) => {
+  const byId = {};
+  nodes.forEach((n) => {
+    byId[n.id] = n;
   });
 
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
+  const spine = nodes
+    .filter((n) => n.type === 'milestone')
+    .sort((a, b) => (a.data.raw.order ?? 0) - (b.data.raw.order ?? 0));
+
+  const childrenOf = {};
+  nodes.forEach((n) => {
+    const rawPid = n.data.raw.parentId;
+    if (!rawPid) return;
+    const pid = typeof rawPid === 'object' ? rawPid._id : rawPid;
+    if (!childrenOf[pid]) childrenOf[pid] = [];
+    childrenOf[pid].push(n);
   });
 
-  dagre.layout(dagreGraph);
-
-  return nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    const isMilestone = node.type === 'milestone';
-    const width = isMilestone ? 220 : 200;
-    const height = isMilestone ? 56 : 44;
-
-    return {
-      ...node,
-      targetPosition: direction === 'LR' ? 'left' : 'top',
-      sourcePosition: direction === 'LR' ? 'right' : 'bottom',
-      position: {
-        x: nodeWithPosition.x - width / 2,
-        y: nodeWithPosition.y - height / 2,
-      },
-    };
+  // 1. Straight vertical spine.
+  spine.forEach((n, i) => {
+    n.position = { x: -MILESTONE_W / 2, y: i * SPINE_DY };
+    n.targetPosition = Position.Top;
+    n.sourcePosition = Position.Bottom;
   });
+
+  // 2. Topics fan out left/right of their parent.
+  Object.entries(childrenOf).forEach(([pid, kids]) => {
+    const parent = byId[pid];
+    if (!parent) return;
+    const cx = parent.position.x + MILESTONE_W / 2;
+    const cy = parent.position.y + MILESTONE_H / 2;
+    const rows = Math.ceil(kids.length / 2);
+    kids.forEach((k, i) => {
+      const side = i % 2 === 0 ? 'right' : 'left';
+      const row = Math.floor(i / 2);
+      const yOff = (row - (rows - 1) / 2) * TOPIC_DY;
+      const tx = side === 'right' ? cx + BRANCH_DX : cx - BRANCH_DX;
+      k.position = { x: tx - TOPIC_W / 2, y: cy + yOff - TOPIC_H / 2 };
+      k.data.side = side;
+      k.targetPosition = side === 'left' ? Position.Right : Position.Left;
+      k.sourcePosition = Position.Right;
+    });
+  });
+
+  // 3. Orphans (parent not found) stack below the spine instead of piling at 0,0.
+  let orphanY = spine.length * SPINE_DY + 40;
+  nodes.forEach((n) => {
+    if (n.position.x === 0 && n.position.y === 0) {
+      n.position = { x: -TOPIC_W / 2, y: orphanY };
+      orphanY += TOPIC_DY;
+    }
+  });
+
+  return nodes;
 };
 
 function RoadmapGraph({ rawNodes, onNodeClick }) {
@@ -64,7 +96,6 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
     if (!rawNodes || rawNodes.length === 0) return;
 
     const initialNodes = [];
-    const initialEdges = [];
 
     // 1. Classify by real nodeType from the DB, not by whether `milestone` text exists.
     //    Milestones (no parentId) form the main spine; everything with a parentId is a
@@ -90,27 +121,38 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
       });
     });
 
-    // 2. Spine edges: milestone -> next milestone (solid blue down the main path,
-    //    roadmap.sh style)
+    // 2. Straight spine layout (replaces the old winding dagre layout).
+    layoutStraight(initialNodes);
+    const byId = {};
+    initialNodes.forEach((n) => {
+      byId[n.id] = n;
+    });
+
+    const initialEdges = [];
+
+    // 3. Spine edges: straight vertical blue line down the milestones.
     for (let i = 1; i < spineNodes.length; i++) {
       initialEdges.push({
         id: `spine-${spineNodes[i - 1]._id}-${spineNodes[i]._id}`,
         source: spineNodes[i - 1]._id,
         target: spineNodes[i]._id,
-        type: 'default',
+        sourceHandle: 'bottom',
+        targetHandle: 'top',
+        type: 'straight',
         style: { stroke: 'var(--rm-edge)', strokeWidth: 2.5 },
       });
     }
 
-    // 3. Branch edges: every node with a parentId gets a dotted blue line off its parent —
-    //    this is what actually produces the tree/branching look, one parent to many children.
+    // 4. Branch edges: dotted blue curve from the parent's side to each topic.
     rawNodes.forEach((dbNode) => {
       if (!dbNode.parentId) return;
       const parentId = typeof dbNode.parentId === 'object' ? dbNode.parentId._id : dbNode.parentId;
+      const side = (byId[dbNode._id] && byId[dbNode._id].data.side) || 'right';
       initialEdges.push({
         id: `branch-${parentId}-${dbNode._id}`,
         source: parentId,
         target: dbNode._id,
+        sourceHandle: side,
         type: 'default',
         style: {
           stroke: 'var(--rm-edge)',
@@ -121,8 +163,7 @@ function RoadmapGraph({ rawNodes, onNodeClick }) {
       });
     });
 
-    const layoutedNodes = getLayoutedElements(initialNodes, initialEdges, 'LR');
-    setNodes(layoutedNodes);
+    setNodes(initialNodes);
     setEdges(initialEdges);
   }, [rawNodes, setNodes, setEdges]);
 

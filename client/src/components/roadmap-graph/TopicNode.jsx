@@ -13,7 +13,11 @@ function TopicNode({ data, selected }) {
 
   return (
     <div className={clsx('rm-node rm-topic', isOptional && 'rm-optional', selected && 'rm-selected')}>
-      <Handle type="target" position={Position.Left} className="rm-handle" />
+      <Handle
+        type="target"
+        position={data.side === 'left' ? Position.Right : Position.Left}
+        className="rm-handle"
+      />
 
       <span className="rm-label">{data.label}</span>
 
