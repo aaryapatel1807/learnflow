@@ -21,6 +21,8 @@ const Flashcard = require('../models/Flashcard');
 const LearningPath = require('../models/LearningPath');
 const LearningPathNode = require('../models/LearningPathNode');
 const SkillNode = require('../models/SkillNode');
+const Note = require('../models/Note');
+const User = require('../models/User');
 
 // ---------------------------------------------------------------- subjects
 const subjects = [
@@ -802,7 +804,7 @@ const learningPaths = [
 
 // ------------------------------------------------------------------- seeder
 async function seedRealContent() {
-  const counts = { subjects: 0, books: 0, chapters: 0, quizzes: 0, questions: 0, flashcards: 0, learningPaths: 0, pathNodes: 0, skillTrees: 0, skillNodes: 0 };
+  const counts = { subjects: 0, books: 0, chapters: 0, quizzes: 0, questions: 0, flashcards: 0, learningPaths: 0, pathNodes: 0, skillTrees: 0, skillNodes: 0, sampleNotes: 0 };
 
   // Subjects (idempotent by name)
   const subjectMap = {};
@@ -972,6 +974,27 @@ async function seedRealContent() {
     counts.skillTrees++;
   }
 
+  // Starter notes — only for users who have zero notes. Never touches
+  // existing user data; acts as starter content for an empty Notes page.
+  const users = await User.find({}, '_id');
+  for (const u of users) {
+    const existing = await Note.countDocuments({ userId: u._id });
+    if (existing > 0) continue;
+    for (const sn of sampleNotes) {
+      const bookDoc = bookMap[sn.bookTitle];
+      if (!bookDoc) continue;
+      const chDoc = await Chapter.findOne({ book: bookDoc._id, chapterNumber: sn.chapterNumber });
+      if (!chDoc) continue;
+      await Note.create({
+        userId: u._id,
+        contentType: 'chapter',
+        contentId: chDoc._id,
+        text: sn.text,
+      });
+      counts.sampleNotes++;
+    }
+  }
+
   return counts;
 }
 
@@ -1041,3 +1064,36 @@ const skillTrees = [
   },
 ];
 module.exports.skillTrees = skillTrees;
+
+// ---------------------------------------------------------- sample notes
+// Starter notes, seeded ONLY for users who have zero notes (never touches
+// real user data). Linked to real chapters so the Notes page shows how
+// chapter-pinned notes look.
+const sampleNotes = [
+  {
+    bookTitle: 'Eloquent JavaScript',
+    chapterNumber: 1,
+    text: "typeof null returns 'object' — a famous quirk from JS's first implementation. Remember: null is an assigned 'no value', undefined means nothing was ever assigned.",
+  },
+  {
+    bookTitle: 'Clean Code',
+    chapterNumber: 1,
+    text: 'Names should reveal intent: elapsedTimeInDays beats d. If a name needs a comment to explain it, rename it instead of commenting.',
+  },
+  {
+    bookTitle: 'Designing Data-Intensive Applications',
+    chapterNumber: 2,
+    text: 'Relational vs document: joins and many-to-many favour relational; nested data accessed together favours documents. No single model wins everywhere — pick per access pattern.',
+  },
+  {
+    bookTitle: 'Introduction to Algorithms',
+    chapterNumber: 2,
+    text: 'Loop invariant: the statement true before and after each iteration. Prove it in three steps — initialization, maintenance, termination. This is how insertion sort is shown correct.',
+  },
+  {
+    bookTitle: 'The Pragmatic Programmer',
+    chapterNumber: 2,
+    text: 'DRY: every piece of knowledge must have a single authoritative representation. Duplicated knowledge in code, comments and docs always drifts apart.',
+  },
+];
+module.exports.sampleNotes = sampleNotes;
