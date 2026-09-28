@@ -103,113 +103,108 @@ function Catalogue() {
   const featuredBook = books.length > 0 ? books[0] : null;
 
   return (
-    <div className="container catalogue-page">
-      <h1 className="animate-rise">Learning Catalogue</h1>
-      <p className="page-subtitle animate-rise">Explore subjects and books at your own pace.</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Catalogue</p>
+        <h1 className="pp-title">Learning Catalogue</h1>
+        <p className="pp-sub">Explore subjects and books at your own pace.</p>
+      </div>
 
       {/* FEATURED SPOTLIGHT */}
       {featuredBook && (
-        <div className="featured-spotlight animate-rise" data-delay="1">
-          <div className="spotlight-cover">
+        <div className="pp-panel cat-spotlight">
+          <div className="cat-spotlight-cover">
             {featuredBook.coverImage ? (
               <img src={featuredBook.coverImage} alt={featuredBook.title} />
             ) : (
               <span>📖</span>
             )}
           </div>
-          <div className="spotlight-body">
-            <span className="scholar-chip chip-ember spotlight-label">✨ Featured Choice</span>
-            <h2 className="spotlight-title">{featuredBook.title}</h2>
-            <div className="spotlight-author">by {featuredBook.author}</div>
+          <div className="cat-spotlight-body">
+            <span className="pp-tag pp-tag-coral">✨ Featured Choice</span>
+            <h2>{featuredBook.title}</h2>
+            <div className="cat-spotlight-author">by {featuredBook.author}</div>
             {featuredBook.description && (
-              <div className="spotlight-desc">{featuredBook.description}</div>
+              <p className="cat-spotlight-desc">{featuredBook.description}</p>
             )}
             <Link to={`/book/${featuredBook._id}`}>
-              <button className="btn btn-primary press">Start reading →</button>
+              <button className="btn btn-primary">Start reading →</button>
             </Link>
           </div>
         </div>
       )}
 
-      {/* SUBJECTS STRIP */}
-      <section className="subjects-section animate-rise" data-delay="2">
-        <h2>Subjects</h2>
-        <div className="subjects-grid">
-          {subjects.map(subject => (
-            <Link to={`/skill-tree/${subject._id}`} key={subject._id} className="subject-chip press">
-              <span className="subject-chip-name">{subject.name}</span>
-              <span className="subject-chip-count">{subject.bookCount || 0}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* SUBJECTS */}
+      <div className="pp-section-head">
+        <h2 className="pp-section-title">Subjects</h2>
+        <span className="pp-count">{subjects.length} subjects</span>
+      </div>
+      <div className="pp-tags" style={{ marginBottom: 'var(--space-2)' }}>
+        {subjects.map(subject => (
+          <Link to={`/skill-tree/${subject._id}`} key={subject._id} className="pp-tag cat-subject">
+            {subject.name} · {subject.bookCount || 0}
+          </Link>
+        ))}
+      </div>
 
       {/* BOOKS GRID */}
-      <section className="books-section animate-rise" data-delay="3">
-        <div className="books-section-header">
-          <h2>Available Books</h2>
-          <span className="books-count">{books.length} items</span>
-        </div>
-        <div className="books-grid">
-          {books.map(book => {
-            const bookProgress = progress[book._id];
-            const completedChapters = bookProgress?.completedChapters?.length || 0;
-            const progressPercent = book.chapterCount > 0
-              ? (completedChapters / book.chapterCount) * 100
-              : 0;
-            const difficultyClass = book.difficulty ? `difficulty-${book.difficulty.toLowerCase()}` : '';
-            const subjectName = typeof book.subject === 'object' ? (book.subject?.name || 'General') : (book.subject || 'General');
+      <div className="pp-section-head">
+        <h2 className="pp-section-title">Available Books</h2>
+        <span className="pp-count">{books.length} items</span>
+      </div>
+      <div className="pp-grid">
+        {books.map(book => {
+          const bookProgress = progress[book._id];
+          const completedChapters = bookProgress?.completedChapters?.length || 0;
+          const progressPercent = book.chapterCount > 0
+            ? (completedChapters / book.chapterCount) * 100
+            : 0;
+          const subjectName = typeof book.subject === 'object' ? (book.subject?.name || 'General') : (book.subject || 'General');
 
-            return (
-              <Link to={`/book/${book._id}`} key={book._id} className="book-card">
-                <div className="book-card-top">
-                  <div className="book-cover-placeholder">
-                    {book.coverImage ? (
-                      <img src={book.coverImage} alt={book.title} style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'var(--radius-data)'}}/>
-                    ) : (
-                      '📖'
-                    )}
-                  </div>
-                  <div style={{flex: 1, minWidth: 0}}>
-                    <div className="book-badges" style={{marginBottom: 'var(--space-2)'}}>
-                      <span className="book-subject-tag">{subjectName}</span>
-                      <span className={`book-difficulty-tag ${difficultyClass}`}>{book.difficulty}</span>
-                    </div>
-                    <h3 className="book-card-title">{book.title}</h3>
-                    <p className="book-card-author">by {book.author}</p>
-                  </div>
-                  <button
-                    className="theme-toggle"
-                    style={{marginLeft: '-10px', marginTop: '-5px'}}
-                    onClick={(e) => toggleBookmark(book._id, e)}
-                    title={bookmarks[book._id] ? 'Remove bookmark' : 'Add bookmark'}
-                    aria-label={bookmarks[book._id] ? 'Remove bookmark' : 'Add bookmark'}
-                  >
-                    {bookmarks[book._id] ? '🔖' : '🔖'}
-                  </button>
-                </div>
-
-                {bookProgress && (
-                  <div className="book-progress" style={{marginTop: 'var(--space-2)'}}>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-                    </div>
-                  </div>
-                )}
-
-                <div className="book-card-meta" style={{marginTop: 'auto'}}>
-                  <span>{book.chapterCount || 0} chapters</span>
-                  {bookProgress ? (
-                    <span className="book-card-action">Continue →</span>
+          return (
+            <Link to={`/book/${book._id}`} key={book._id} className="pp-card-item cat-book">
+              <div className="cat-book-top">
+                <div className="cat-book-cover">
+                  {book.coverImage ? (
+                    <img src={book.coverImage} alt={book.title} />
                   ) : (
-                    <span className="book-card-action">Start →</span>
+                    <span>📖</span>
                   )}
                 </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+                <div className="cat-book-info">
+                  <div className="pp-tags">
+                    <span className="pp-tag pp-tag-blue">{subjectName}</span>
+                    {book.difficulty && <span className="pp-tag pp-tag-coral">{book.difficulty}</span>}
+                  </div>
+                  <h3>{book.title}</h3>
+                  <p>by {book.author}</p>
+                </div>
+                <button
+                  className="cat-bookmark"
+                  onClick={(e) => toggleBookmark(book._id, e)}
+                  title={bookmarks[book._id] ? 'Remove bookmark' : 'Add bookmark'}
+                  aria-label={bookmarks[book._id] ? 'Remove bookmark' : 'Add bookmark'}
+                >
+                  {bookmarks[book._id] ? '🔖' : '📑'}
+                </button>
+              </div>
+
+              {bookProgress && (
+                <div className="pp-progress" style={{ marginTop: 'var(--space-2)' }}>
+                  <div className="pp-progress-fill" style={{ width: `${progressPercent}%` }} />
+                </div>
+              )}
+
+              <div className="cat-book-meta">
+                <span>{book.chapterCount || 0} chapters</span>
+                <span className="cat-book-action">
+                  {bookProgress ? 'Continue →' : 'Start →'}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

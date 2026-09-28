@@ -27,15 +27,17 @@ function Register({ setUser }) {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
+    <div className="container pp-auth-wrap">
+      <div className="pp-auth-card">
+        <p className="pp-eyebrow">Get started</p>
         <h1>Join Learnflow</h1>
-        {error && <div className="auth-error">{error}</div>}
+        <p className="pp-sub">Create your account and start learning.</p>
+        {error && <div className="adm-error">{error}</div>}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} required className="form-control" />
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="form-control" />
           <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength="6" className="form-control" />
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>

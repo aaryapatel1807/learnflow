@@ -44,9 +44,12 @@ function Notes() {
 
   if (subjects.length === 0) {
     return (
-      <div className="container notes-page">
-        <h1>My Notes</h1>
-        <div className="empty-state">
+      <div className="container">
+        <div className="pp-hero">
+          <p className="pp-eyebrow">Notes</p>
+          <h1 className="pp-title">My Notes</h1>
+        </div>
+        <div className="pp-empty">
           <p>No notes yet. Start reading and pin your thoughts as you go.</p>
           <Link to="/catalogue"><button className="btn btn-primary">Browse catalogue</button></Link>
         </div>
@@ -55,65 +58,68 @@ function Notes() {
   }
 
   return (
-    <div className="container notes-page">
-      <div className="notes-header">
-        <h1>My Notes</h1>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Notes</p>
+        <h1 className="pp-title">My Notes</h1>
+        <p className="pp-sub">Everything you've pinned while reading, grouped by subject.</p>
+      </div>
+
+      <div className="pp-toolbar" style={{ justifyContent: 'flex-end' }}>
         <Link to="/catalogue"><button className="btn btn-secondary btn-sm">+ Add more notes</button></Link>
       </div>
 
       {subjects.map(subject => (
-        <div key={subject} className="book-group">
-          <h2 className="book-group-title">
-            {subject}
-            <span className="group-count">
+        <div key={subject}>
+          <div className="pp-section-head">
+            <h2 className="pp-section-title">{subject}</h2>
+            <span className="pp-count">
               {groupedNotes[subject].length} {groupedNotes[subject].length === 1 ? 'note' : 'notes'}
             </span>
-          </h2>
+          </div>
 
+          <div className="pp-rows">
           {groupedNotes[subject].map(note => (
-            <div key={note._id} className="note-card">
-              <div className="note-card-header">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--color-ink-700)' }}>
-                    {note.contentDetails?.bookTitle}
-                  </span>
+            <div key={note._id} className="pp-row">
+              <div className="pp-row-main">
+                <div className="pp-tags" style={{ marginBottom: '6px' }}>
+                  <span className="pp-tag pp-tag-blue">{note.contentDetails?.bookTitle}</span>
                   {note.contentDetails && (
-                    <span className="note-chapter">
+                    <span className="pp-tag pp-tag-grey">
                       Ch. {note.contentDetails.chapterNumber}: {note.contentDetails.title}
                     </span>
                   )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
-                  <span className="note-date">
+                  <span className="pp-count">
                     {new Date(note.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
-                  {editingNote !== note._id && (
-                    <>
-                      <button onClick={() => handleEdit(note)} className="btn btn-secondary btn-sm" title="Edit">Edit</button>
-                      <button onClick={() => handleDelete(note._id)} className="btn btn-danger btn-sm" title="Delete">Delete</button>
-                    </>
-                  )}
                 </div>
-              </div>
 
-              {editingNote === note._id ? (
-                <div className="note-edit-form">
-                  <textarea
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows="4"
-                    autoFocus
-                  />
-                  <div className="note-edit-actions">
-                    <button onClick={() => handleSaveEdit(note._id)} className="btn btn-primary btn-sm">Save</button>
-                    <button onClick={handleCancelEdit} className="btn btn-secondary btn-sm">Cancel</button>
+                {editingNote === note._id ? (
+                  <div className="note-edit-form">
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows="4"
+                      autoFocus
+                    />
+                    <div className="note-edit-actions">
+                      <button onClick={() => handleSaveEdit(note._id)} className="btn btn-primary btn-sm">Save</button>
+                      <button onClick={handleCancelEdit} className="btn btn-secondary btn-sm">Cancel</button>
+                    </div>
                   </div>
+                ) : (
+                  <p className="note-text">{note.text}</p>
+                )}
+              </div>
+              {editingNote !== note._id && (
+                <div className="note-row-actions">
+                  <button onClick={() => handleEdit(note)} className="btn btn-secondary btn-sm" title="Edit">Edit</button>
+                  <button onClick={() => handleDelete(note._id)} className="btn btn-danger btn-sm" title="Delete">Delete</button>
                 </div>
-              ) : (
-                <p className="note-text">{note.text}</p>
               )}
             </div>
           ))}
+          </div>
         </div>
       ))}
     </div>

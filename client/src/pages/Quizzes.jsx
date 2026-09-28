@@ -30,30 +30,31 @@ function Quizzes() {
   }
 
   return (
-    <div className="container list-page">
-      <h1>Quizzes</h1>
-      <p className="page-subtitle">Test your knowledge and earn XP.</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Challenge</p>
+        <h1 className="pp-title">Quizzes</h1>
+        <p className="pp-sub">Test your knowledge and earn XP.</p>
+      </div>
 
       {quizzes.length === 0 ? (
-        <div className="empty-state"><p>No quizzes available yet.</p></div>
+        <div className="pp-empty"><p>No quizzes available yet.</p></div>
       ) : (
-        <div className="grid grid-2">
+        <div className="pp-grid pp-grid-2">
           {quizzes.map(quiz => (
-            <Link key={quiz._id} to={`/quiz/${quiz._id}`} className="quiz-card">
-              <div>
-                <h3>{quiz.title}</h3>
-                <div className="card-meta" style={{ marginTop: 'var(--space-2)' }}>
-                  {quiz.topic && <span className="badge badge-ink">{quiz.topic}</span>}
-                  {quiz.difficulty && <span className="badge badge-ember">{quiz.difficulty}</span>}
-                  {quiz.questionCount && (
-                    <span className="badge badge-ink">{quiz.questionCount} questions</span>
-                  )}
-                </div>
+            <Link key={quiz._id} to={`/quiz/${quiz._id}`} className="pp-card-item">
+              <h3>{quiz.title}</h3>
+              <div className="pp-tags">
+                {quiz.topic && <span className="pp-tag pp-tag-blue">{quiz.topic}</span>}
+                {quiz.difficulty && <span className="pp-tag pp-tag-coral">{quiz.difficulty}</span>}
+                {quiz.questionCount && (
+                  <span className="pp-tag pp-tag-grey">{quiz.questionCount} questions</span>
+                )}
               </div>
-              {quiz.description && <p className="quiz-description">{quiz.description}</p>}
-              <div className="quiz-xp">
-                <span>💎 +30 XP</span>
-                <span className="bonus-xp">+50 XP bonus for 100%</span>
+              {quiz.description && <p>{quiz.description}</p>}
+              <div className="pp-card-actions" style={{ justifyContent: 'space-between' }}>
+                <span className="pp-tag pp-tag-mint">💎 +30 XP</span>
+                <span className="pp-count">+50 XP bonus for 100%</span>
               </div>
             </Link>
           ))}

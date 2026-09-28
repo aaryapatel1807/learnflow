@@ -49,9 +49,12 @@ function Bookmarks() {
 
   if (totalBookmarks === 0) {
     return (
-      <div className="container bookmarks-page">
-        <h1>My Bookmarks</h1>
-        <div className="empty-state">
+      <div className="container">
+        <div className="pp-hero">
+          <p className="pp-eyebrow">Saved</p>
+          <h1 className="pp-title">My Bookmarks</h1>
+        </div>
+        <div className="pp-empty">
           <p>You haven't bookmarked anything yet.</p>
           <Link to="/catalogue"><button className="btn btn-primary">Browse catalogue</button></Link>
         </div>
@@ -97,34 +100,40 @@ function Bookmarks() {
   ];
 
   return (
-    <div className="container bookmarks-page">
-      <h1>My Bookmarks</h1>
-      <p className="page-subtitle">Your saved content, organized by type.</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Saved</p>
+        <h1 className="pp-title">My Bookmarks</h1>
+        <p className="pp-sub">Your saved content, organized by type.</p>
+      </div>
 
       {categories.map(({ key, label, icon }) => {
         const items = bookmarks[key];
         if (!items || items.length === 0) return null;
         return (
-          <div key={key} className="bookmark-category">
-            <h2>
-              {icon} {label}
-              <span className="badge badge-ink">{items.length}</span>
-            </h2>
-            <div className="bookmarks-grid">
+          <div key={key}>
+            <div className="pp-section-head">
+              <h2 className="pp-section-title">{icon} {label}</h2>
+              <span className="pp-count">{items.length} saved</span>
+            </div>
+            <div className="pp-grid">
               {items.map(bookmark => (
-                <Link key={bookmark._id} to={getTargetUrl(bookmark)} className="bookmark-card">
+                <Link key={bookmark._id} to={getTargetUrl(bookmark)} className="pp-card-item bkm-card">
                   <button
-                    className="bookmark-remove"
+                    className="bkm-remove"
                     onClick={(e) => handleRemoveBookmark(e, bookmark._id)}
                     title="Remove bookmark"
+                    aria-label="Remove bookmark"
                   >
                     ×
                   </button>
                   <h3>{getTitle(bookmark)}</h3>
-                  <p className="bookmark-meta">{getMeta(bookmark)}</p>
-                  <span className="bookmark-date">
-                    Added {new Date(bookmark.createdAt).toLocaleDateString()}
-                  </span>
+                  <p>{getMeta(bookmark)}</p>
+                  <div className="pp-card-actions">
+                    <span className="pp-count">
+                      Added {new Date(bookmark.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>

@@ -1,6 +1,7 @@
 @import './styles/tokens.css';
 @import './styles/glass.css';
 @import './styles/pastel.css';
+@import './styles/pastel-pages.css';
 
 @tailwind base;
 @tailwind components;

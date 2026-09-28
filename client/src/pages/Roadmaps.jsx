@@ -30,33 +30,34 @@ function Roadmaps() {
   }
 
   return (
-    <div className="container list-page">
-      <h1>Learning Roadmaps</h1>
-      <p className="page-subtitle">Big-picture journeys from beginner to expert.</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Big picture</p>
+        <h1 className="pp-title">Learning Roadmaps</h1>
+        <p className="pp-sub">Big-picture journeys from beginner to expert.</p>
+      </div>
 
       {roadmaps.length === 0 ? (
-        <div className="empty-state"><p>No roadmaps available yet.</p></div>
+        <div className="pp-empty"><p>No roadmaps available yet.</p></div>
       ) : (
-        <div className="cards-grid">
+        <div className="pp-grid">
           {roadmaps.map(roadmap => (
-            <div key={roadmap._id} className="roadmap-card">
+            <div key={roadmap._id} className="pp-card-item">
               <h3>{roadmap.title}</h3>
-              <div className="card-meta">
-                {roadmap.category && <span className="badge badge-ink">{roadmap.category}</span>}
+              <div className="pp-tags">
+                {roadmap.category && <span className="pp-tag pp-tag-blue">{roadmap.category}</span>}
                 {roadmap.nodeCount && (
-                  <span className="badge badge-ink">{roadmap.nodeCount} milestones</span>
+                  <span className="pp-tag pp-tag-grey">{roadmap.nodeCount} milestones</span>
                 )}
                 {roadmap.estimatedDuration && (
-                  <span className="badge badge-ink">{roadmap.estimatedDuration}</span>
+                  <span className="pp-tag pp-tag-grey">{roadmap.estimatedDuration}</span>
                 )}
               </div>
               {roadmap.description && <p>{roadmap.description}</p>}
               {roadmap.targetAudience && (
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-500)' }}>
-                  For: {roadmap.targetAudience}
-                </p>
+                <p className="pp-count">For: {roadmap.targetAudience}</p>
               )}
-              <div className="card-actions">
+              <div className="pp-card-actions">
                 <Link to={`/roadmap/${roadmap._id}`}>
                   <button className="btn btn-primary btn-sm">View roadmap</button>
                 </Link>

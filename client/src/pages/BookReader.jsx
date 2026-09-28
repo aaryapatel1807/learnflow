@@ -91,62 +91,71 @@ function BookReader({ user }) {
   const isChapterComplete = progress?.completedChapters?.some(ch => ch._id === currentChapter._id);
 
   return (
-    <div className="reader-container">
-      <div className="reader-sidebar">
-        <div className="book-header">
-          <button onClick={() => navigate('/catalogue')} className="btn btn-secondary btn-sm" style={{ marginBottom: 'var(--space-4)' }}>← Back to Catalogue</button>
+    <div className="br-layout">
+      <aside className="pp-panel br-sidebar">
+        <div className="br-book-head">
+          <button onClick={() => navigate('/catalogue')} className="btn btn-secondary btn-sm">← Catalogue</button>
           <h2>{book.title}</h2>
-          <p className="author">by {book.author}</p>
+          <p className="br-author">by {book.author}</p>
         </div>
 
-        <div className="chapters-list">
-          <h3 style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-500)', textTransform: 'uppercase', marginBottom: 'var(--space-3)' }}>Chapters</h3>
+        <div className="br-chapters">
+          <p className="pp-eyebrow">Chapters</p>
           {chapters.map((chapter, index) => {
             const isCompleted = progress?.completedChapters?.some(ch => ch._id === chapter._id);
             return (
-              <div key={chapter._id} className={`chapter-item ${index === currentChapterIndex ? 'active' : ''}`} onClick={() => handleChapterSelect(index)}>
-                <span className="chapter-number">{chapter.chapterNumber}</span>
-                <span className="chapter-title">{chapter.title}</span>
-                {isCompleted && <span className="completed-badge">✓</span>}
+              <div
+                key={chapter._id}
+                className={`br-chapter ${index === currentChapterIndex ? 'active' : ''}`}
+                onClick={() => handleChapterSelect(index)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleChapterSelect(index)}
+              >
+                <span className="br-chapter-num">{chapter.chapterNumber}</span>
+                <span className="br-chapter-title">{chapter.title}</span>
+                {isCompleted && <span className="br-done">✓</span>}
               </div>
             );
           })}
         </div>
 
-        <div className="progress-section" style={{ marginTop: 'auto', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--color-parchment-200)' }}>
-          <h3 style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-500)', marginBottom: 'var(--space-2)' }}>Your Progress</h3>
-          <div className="progress-bar"><div className="progress-fill" style={{ width: `${(progress?.completedChapters?.length || 0) / chapters.length * 100}%` }} /></div>
-          <p className="progress-text" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-500)', marginTop: 'var(--space-2)' }}>
+        <div className="br-progress">
+          <p className="pp-eyebrow">Your Progress</p>
+          <div className="pp-progress">
+            <div className="pp-progress-fill" style={{ width: `${(progress?.completedChapters?.length || 0) / chapters.length * 100}%` }} />
+          </div>
+          <p className="pp-count" style={{ marginTop: '8px' }}>
             {progress?.completedChapters?.length || 0} of {chapters.length} chapters completed
           </p>
         </div>
-      </div>
+      </aside>
 
-      <div className="reader-pane">
-        <div className="chapter-header">
+      <main className="br-pane">
+        <div className="pp-panel br-chapter-head">
           <div>
-            <h1>Chapter {currentChapter.chapterNumber}: {currentChapter.title}</h1>
-            <p className="page-indicator">Page {currentPage} of {currentChapter.pages}</p>
+            <p className="pp-eyebrow" style={{ marginBottom: '4px' }}>Page {currentPage} of {currentChapter.pages}</p>
+            <h1 className="pp-title">Chapter {currentChapter.chapterNumber}: {currentChapter.title}</h1>
           </div>
           {!isChapterComplete ? (
-            <button onClick={handleMarkComplete} className="btn btn-success">Mark Chapter Complete</button>
+            <button onClick={handleMarkComplete} className="btn btn-primary">Mark Chapter Complete</button>
           ) : (
-            <span className="badge badge-verdigris" style={{ fontSize: 'var(--text-sm)' }}>✓ Completed</span>
+            <span className="pp-pill pp-pill-done">✓ Completed</span>
           )}
         </div>
 
-        <div className="content-area">
-          <div className="chapter-content" dangerouslySetInnerHTML={{ __html: currentChapter.content.replace(/\n/g, '<br>') }} />
+        <div className="pp-panel br-content">
+          <div className="br-chapter-text" dangerouslySetInnerHTML={{ __html: currentChapter.content.replace(/\n/g, '<br>') }} />
         </div>
 
-        <div className="note-section" style={{ marginTop: 'var(--space-8)' }}>
+        <div className="br-note">
           {!showNoteForm ? (
             <button onClick={handleAddNote} className="btn btn-secondary">📌 Add Note</button>
           ) : (
-            <div className="note-form slide-in">
-              <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-3)' }}>Add a Note</h3>
-              <textarea value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="Write your thoughts..." className="form-control" rows="4" autoFocus />
-              <div className="note-form-actions" style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
+            <div className="pp-panel">
+              <h3 className="br-note-title">Add a Note</h3>
+              <textarea value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="Write your thoughts..." className="form-control br-note-input" rows="4" autoFocus />
+              <div className="br-note-actions">
                 <button onClick={handleSaveNote} className="btn btn-primary" disabled={savingNote}>{savingNote ? 'Saving...' : 'Save Note'}</button>
                 <button onClick={handleCancelNote} className="btn btn-secondary" disabled={savingNote}>Cancel</button>
               </div>
@@ -154,12 +163,12 @@ function BookReader({ user }) {
           )}
         </div>
 
-        <div className="navigation-controls">
+        <div className="pp-panel br-nav">
           <button onClick={handlePrevPage} className="btn btn-secondary" disabled={currentChapterIndex === 0 && currentPage === 1}>← Previous</button>
-          <span className="page-info" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-ink-500)' }}>Page {currentPage} / {currentChapter.pages}</span>
+          <span className="pp-count">Page {currentPage} / {currentChapter.pages}</span>
           <button onClick={handleNextPage} className="btn btn-primary" disabled={currentChapterIndex === chapters.length - 1 && currentPage === currentChapter.pages}>Next →</button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

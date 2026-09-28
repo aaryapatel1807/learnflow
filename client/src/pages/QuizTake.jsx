@@ -79,36 +79,35 @@ function QuizTake() {
 
   if (submitted && result) {
     return (
-      <div className="container quiz-take">
-        <div className="result-card">
-          <div className="result-header">
-            <h1>Quiz Complete!</h1>
-            <div className="score-display">
-              <div className="score-circle">
-                <span className="score-number">{result.score}%</span>
-              </div>
+      <div className="container">
+        <div className="pp-panel qt-result">
+          <p className="pp-eyebrow">Results</p>
+          <h1 className="pp-title">Quiz Complete!</h1>
+          <div className="qt-score">
+            <div className="qt-score-circle">
+              <span>{result.score}%</span>
             </div>
           </div>
 
-          <div className="result-stats">
-            <div className="stat-item">
-              <span className="stat-label">Correct Answers</span>
-              <span className="stat-value">{result.correctAnswers} / {result.totalQuestions}</span>
+          <div className="pp-cards">
+            <div className="pp-card pp-mint">
+              <span className="pp-card-label">Correct Answers</span>
+              <span className="pp-card-value">{result.correctAnswers}<small>/{result.totalQuestions}</small></span>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">XP Earned</span>
-              <span className="stat-value xp-earned">💎 +{result.xpEarned} XP</span>
+            <div className="pp-card pp-violet">
+              <span className="pp-card-label">XP Earned</span>
+              <span className="pp-card-value">💎 +{result.xpEarned}</span>
             </div>
           </div>
 
-          <div className="recommendation">
-            <h3>📝 Recommendation</h3>
+          <div className="pp-panel qt-reco">
+            <h2>📝 Recommendation</h2>
             <p>{result.recommendation}</p>
           </div>
 
-          <div className="result-actions">
+          <div className="qt-actions">
             <button onClick={() => navigate('/quizzes')} className="btn btn-primary">Back to Quizzes</button>
-            <button onClick={() => navigate('/dashboard')} className="btn btn-secondary">Dashboard</button>
+            <button onClick={() => navigate('/')} className="btn btn-secondary">Dashboard</button>
           </div>
         </div>
       </div>
@@ -119,33 +118,39 @@ function QuizTake() {
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
 
   return (
-    <div className="container quiz-take">
-      <div className="quiz-progress">
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+    <div className="container">
+      <div className="pp-panel">
+        <div className="pp-progress-head">
+          <span>Question {currentQuestionIndex + 1} of {quiz.questions.length}</span>
+          <span>{Math.round(progress)}%</span>
         </div>
-        <span className="progress-text">Question {currentQuestionIndex + 1} of {quiz.questions.length}</span>
+        <div className="pp-progress" style={{ marginBottom: 0 }}>
+          <div className="pp-progress-fill" style={{ width: `${progress}%` }}></div>
+        </div>
       </div>
 
-      <div className="question-card">
-        <h2>{currentQuestion.questionText}</h2>
+      <div className="pp-panel">
+        <h2 className="qt-question">{currentQuestion.questionText}</h2>
 
-        <div className="options-list">
+        <div className="qt-options">
           {currentQuestion.options.map((option, index) => (
             <div
               key={index}
-              className={`option-item ${selectedOption === index ? 'selected' : ''}`}
+              className={`qt-option ${selectedOption === index ? 'selected' : ''}`}
               onClick={() => handleSelectOption(index)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleSelectOption(index)}
             >
-              <div className="option-radio">
-                {selectedOption === index && <div className="radio-selected"></div>}
+              <div className="qt-option-radio">
+                {selectedOption === index && <div className="qt-radio-dot"></div>}
               </div>
-              <span className="option-text">{option}</span>
+              <span>{option}</span>
             </div>
           ))}
         </div>
 
-        <div className="question-actions">
+        <div className="qt-actions">
           <button onClick={handlePreviousQuestion} className="btn btn-secondary" disabled={currentQuestionIndex === 0}>
             Previous
           </button>

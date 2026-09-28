@@ -26,14 +26,16 @@ function Login({ setUser }) {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
+    <div className="container pp-auth-wrap">
+      <div className="pp-auth-card">
+        <p className="pp-eyebrow">Welcome back</p>
         <h1>Login to Learnflow</h1>
-        {error && <div className="auth-error">{error}</div>}
+        <p className="pp-sub">Pick up right where you left off.</p>
+        {error && <div className="adm-error">{error}</div>}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="form-control" />
           <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="form-control" />
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>

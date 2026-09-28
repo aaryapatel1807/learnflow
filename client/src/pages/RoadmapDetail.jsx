@@ -58,106 +58,91 @@ function RoadmapDetail() {
 
   return (
     <div className="container">
-      {/* Hero header */}
-      <div className="detail-page-header">
-        <Link to="/roadmaps" className="btn btn-secondary btn-sm" style={{ marginBottom: 'var(--space-5)', display: 'inline-flex' }}>
-          ← Roadmaps
-        </Link>
-        <h1>{roadmap.title}</h1>
-        {roadmap.description && <p>{roadmap.description}</p>}
-        <div className="detail-stats">
-          <div className="detail-stat">
-            <span className="detail-stat-value">{nodes.length}</span>
-            <span className="detail-stat-label">Milestones</span>
-          </div>
-          {roadmap.category && (
-            <div className="detail-stat">
-              <span className="detail-stat-value">{roadmap.category}</span>
-              <span className="detail-stat-label">Category</span>
-            </div>
-          )}
-          {roadmap.estimatedDuration && (
-            <div className="detail-stat">
-              <span className="detail-stat-value">{roadmap.estimatedDuration}</span>
-              <span className="detail-stat-label">Estimated time</span>
-            </div>
-          )}
-        </div>
+      <Link to="/roadmaps" className="btn btn-secondary btn-sm pp-back">
+        ← Roadmaps
+      </Link>
+
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Roadmap</p>
+        <h1 className="pp-title">{roadmap.title}</h1>
+        {roadmap.description && <p className="pp-sub">{roadmap.description}</p>}
       </div>
 
-      <h2 className="section-title">Milestones</h2>
+      <div className="pp-cards">
+        <div className="pp-card pp-coral">
+          <span className="pp-card-label">Milestones</span>
+          <span className="pp-card-value">{nodes.length}</span>
+        </div>
+        {roadmap.category && (
+          <div className="pp-card pp-violet">
+            <span className="pp-card-label">Category</span>
+            <span className="pp-card-value pp-card-text">{roadmap.category}</span>
+          </div>
+        )}
+        {roadmap.estimatedDuration && (
+          <div className="pp-card pp-blue">
+            <span className="pp-card-label">Estimated time</span>
+            <span className="pp-card-value pp-card-text">{roadmap.estimatedDuration}</span>
+          </div>
+        )}
+      </div>
+
+      <h2 className="pp-section-title">Milestones</h2>
 
       {nodes.length === 0 ? (
-        <div className="empty-state"><p>No milestones yet.</p></div>
+        <div className="pp-empty"><p>No milestones yet.</p></div>
       ) : isMobile ? (
-        <div className="roadmap-tree animate-rise">
-          {nodes.map((node, index) => {
-            const sideClass = index % 2 === 0 ? 'left' : 'right';
-            return (
-              <div key={node._id} className={`roadmap-node-container ${sideClass}`}>
-                <div className="roadmap-node-content scholar-shell press">
-                  <h3>
-                    <span style={{ color: 'var(--color-ink-500)', marginRight: '8px' }}>
-                      {node.order || index + 1}.
-                    </span>
-                    {node.title}
-                  </h3>
-                  {node.description && <p>{node.description}</p>}
-                  
-                  <div className="node-meta">
-                    {node.phase && (
-                      <span className="badge badge-ember">{node.phase}</span>
-                    )}
-                    {node.milestone && (
-                      <span className="badge badge-verdigris">🏆 {node.milestone}</span>
-                    )}
-                  </div>
-
-                  {node.learningPath && (
-                    <div className="node-actions">
-                      <Link to={`/learning-path/${node.learningPath._id}`}>
-                        <button className="btn btn-secondary btn-sm">
-                          📚 {node.learningPath.title}
-                        </button>
-                      </Link>
-                    </div>
-                  )}
+        <div className="pp-rows">
+          {nodes.map((node, index) => (
+            <div key={node._id} className="pp-row">
+              <div className="pp-row-main">
+                <h3>{node.order || index + 1}. {node.title}</h3>
+                {node.description && <p>{node.description}</p>}
+                <div className="pp-tags" style={{ marginTop: '8px' }}>
+                  {node.phase && <span className="pp-tag pp-tag-coral">{node.phase}</span>}
+                  {node.milestone && <span className="pp-tag pp-tag-mint">🏆 {node.milestone}</span>}
                 </div>
+                {node.learningPath && (
+                  <div style={{ marginTop: '10px' }}>
+                    <Link to={`/learning-path/${node.learningPath._id}`}>
+                      <button className="btn btn-secondary btn-sm">
+                        📚 {node.learningPath.title}
+                      </button>
+                    </Link>
+                  </div>
+                )}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="relative mt-8">
+        <div className="rd-graph-wrap">
           <RoadmapGraph rawNodes={nodes} onNodeClick={setSelectedNode} onStatusChange={handleStatusChange} />
         </div>
       )}
 
       {selectedNode && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/20 backdrop-blur-sm" onClick={() => setSelectedNode(null)}>
-          <div 
-            className="w-full max-w-md h-full bg-white shadow-2xl p-6 overflow-y-auto animate-slide-in-right"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">{selectedNode.title}</h3>
-              <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+        <div className="rd-overlay" onClick={() => setSelectedNode(null)}>
+          <div className="rd-drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="rd-drawer-head">
+              <h3>{selectedNode.title}</h3>
+              <button onClick={() => setSelectedNode(null)} className="rd-close" aria-label="Close">✕</button>
             </div>
-            
+
             {selectedNode.phase && (
-              <span className="badge badge-ember mb-4">{selectedNode.phase}</span>
+              <span className="pp-tag pp-tag-coral">{selectedNode.phase}</span>
             )}
-            
-            <p className="text-gray-700 text-base leading-relaxed mb-6">
+
+            <p className="rd-drawer-desc">
               {selectedNode.description || 'No description available for this milestone.'}
             </p>
 
             {selectedNode.learningPath && (
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resources</h4>
-                <Link to={`/learning-path/${selectedNode.learningPath._id}`} className="block w-full">
-                  <button className="w-full btn btn-secondary flex items-center justify-center gap-2">
-                    <span>📚</span> View {selectedNode.learningPath.title}
+              <div className="rd-drawer-resources">
+                <h4>Resources</h4>
+                <Link to={`/learning-path/${selectedNode.learningPath._id}`}>
+                  <button className="btn btn-secondary" style={{ width: '100%' }}>
+                    📚 View {selectedNode.learningPath.title}
                   </button>
                 </Link>
               </div>

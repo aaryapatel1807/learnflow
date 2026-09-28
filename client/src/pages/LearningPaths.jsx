@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import './LearningPaths.css';
 
 function LearningPaths() {
   const [learningPaths, setLearningPaths] = useState([]);
@@ -30,29 +29,32 @@ function LearningPaths() {
   }
 
   return (
-    <div className="container list-page">
-      <h1>Learning Paths</h1>
-      <p className="page-subtitle">Structured journeys to master new skills, step by step.</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Journeys</p>
+        <h1 className="pp-title">Learning Paths</h1>
+        <p className="pp-sub">Structured journeys to master new skills, step by step.</p>
+      </div>
 
       {learningPaths.length === 0 ? (
-        <div className="empty-state">
+        <div className="pp-empty">
           <p>No learning paths available yet.</p>
         </div>
       ) : (
-        <div className="cards-grid">
+        <div className="pp-grid">
           {learningPaths.map(path => (
-            <div key={path._id} className="path-card">
+            <div key={path._id} className="pp-card-item">
               <h3>{path.title}</h3>
-              <div className="card-meta">
-                {path.subject && <span className="badge badge-ink">{path.subject.name}</span>}
-                <span className="badge badge-ember">{path.difficulty}</span>
-                {path.nodeCount && <span className="badge badge-ink">{path.nodeCount} steps</span>}
+              <div className="pp-tags">
+                {path.subject && <span className="pp-tag pp-tag-blue">{path.subject.name}</span>}
+                {path.difficulty && <span className="pp-tag pp-tag-coral">{path.difficulty}</span>}
+                {path.nodeCount && <span className="pp-tag pp-tag-grey">{path.nodeCount} steps</span>}
                 {path.estimatedDuration && (
-                  <span className="badge badge-ink">{path.estimatedDuration}</span>
+                  <span className="pp-tag pp-tag-grey">{path.estimatedDuration}</span>
                 )}
               </div>
               <p>{path.description}</p>
-              <div className="card-actions">
+              <div className="pp-card-actions">
                 <Link to={`/learning-path/${path._id}`}>
                   <button className="btn btn-primary btn-sm">View path</button>
                 </Link>

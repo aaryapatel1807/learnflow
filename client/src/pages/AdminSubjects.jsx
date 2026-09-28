@@ -68,72 +68,71 @@ function AdminSubjects() {
   if (loading) return <div className="container admin-page"><div className="loading-state"><div className="spinner" /><span>Loading…</span></div></div>;
 
   return (
-    <div className="admin-page" style={{ minHeight: '100vh' }}>
-      <div className="admin-header-stripe">
-        <div className="container admin-header-content">
-          <div>
-            <h1>Manage Subjects</h1>
-            <p className="subtitle"><Link to="/admin" style={{ color: 'var(--color-parchment-300)' }}>← Back to Dashboard</Link></p>
-          </div>
-          <button className="btn btn-primary" onClick={handleCreate}>+ New Subject</button>
-        </div>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Admin</p>
+        <h1 className="pp-title">Manage Subjects</h1>
+        <p className="pp-sub"><Link to="/admin" className="adm-back-link">← Back to Dashboard</Link></p>
       </div>
 
-      <div className="container">
-        {error && <div className="error-message">⚠️ {error}</div>}
+      <div className="pp-toolbar" style={{ justifyContent: 'space-between' }}>
+        <span className="pp-count">{subjects.length} subjects</span>
+        <button className="btn btn-primary" onClick={handleCreate}>+ New Subject</button>
+      </div>
 
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Icon</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Books</th>
-                <th>Actions</th>
+      {error && <div className="adm-error">⚠️ {error}</div>}
+
+      <div className="pp-panel adm-table-wrap">
+        <table className="adm-table">
+          <thead>
+            <tr>
+              <th>Icon</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Books</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subjects.map(subject => (
+              <tr key={subject._id}>
+                <td style={{ fontSize: '1.5rem' }}>{subject.icon || '📚'}</td>
+                <td className="adm-cell-title">{subject.name}</td>
+                <td className="adm-cell-sub" style={{ maxWidth: '300px' }}>{subject.description || '-'}</td>
+                <td><span className="pp-tag pp-tag-grey">{subject.bookCount || 0}</span></td>
+                <td>
+                  <div className="adm-table-actions">
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleEdit(subject)}>Edit</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(subject._id)}>Delete</button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {subjects.map(subject => (
-                <tr key={subject._id}>
-                  <td style={{ fontSize: '1.5rem' }}>{subject.icon || '📚'}</td>
-                  <td style={{ fontWeight: 'var(--weight-semibold)' }}>{subject.name}</td>
-                  <td style={{ color: 'var(--color-ink-500)', maxWidth: '300px' }}>{subject.description || '-'}</td>
-                  <td><span className="badge badge-ink">{subject.bookCount || 0}</span></td>
-                  <td>
-                    <div className="admin-table-actions">
-                      <button className="btn btn-secondary btn-sm" onClick={() => handleEdit(subject)}>Edit</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(subject._id)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {subjects.length === 0 && (
-                <tr><td colSpan="5" style={{ textAlign: 'center' }}>No subjects found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {subjects.length === 0 && (
+              <tr><td colSpan="5" style={{ textAlign: 'center' }}>No subjects found.</td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {showModal && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
+        <div className="adm-overlay" onClick={() => setShowModal(false)}>
+          <div className="adm-modal" onClick={(e) => e.stopPropagation()}>
             <h2>{editingSubject ? 'Edit Subject' : 'New Subject'}</h2>
             <form onSubmit={handleSubmit}>
-              <div className="admin-form-group">
+              <div className="adm-form-group">
                 <label>Name</label>
                 <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="form-control" />
               </div>
-              <div className="admin-form-group">
+              <div className="adm-form-group">
                 <label>Icon (emoji)</label>
                 <input type="text" value={formData.icon} onChange={e => setFormData({...formData, icon: e.target.value})} className="form-control" />
               </div>
-              <div className="admin-form-group">
+              <div className="adm-form-group">
                 <label>Description</label>
                 <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="form-control" rows="3" />
               </div>
-              <div className="admin-modal-actions">
+              <div className="adm-modal-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting ? 'Saving...' : 'Save Subject'}

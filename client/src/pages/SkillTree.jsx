@@ -49,8 +49,11 @@ function SkillTree() {
   if (!skillTree.nodes || skillTree.nodes.length === 0) {
     return (
       <div className="container">
-        <h1>Skill Tree</h1>
-        <div className="empty-state">
+        <div className="pp-hero">
+          <p className="pp-eyebrow">Skill tree</p>
+          <h1 className="pp-title">Skill Tree</h1>
+        </div>
+        <div className="pp-empty">
           <p>No skill tree available for this subject yet.</p>
           <Link to="/catalogue">
             <button className="btn btn-primary">Browse Catalogue</button>
@@ -78,77 +81,59 @@ function SkillTree() {
   const lockedCount = skillTree.nodes.filter(n => n.state === 'locked').length;
 
   return (
-    <div className="container skill-tree-page">
-      <div className="skill-tree-header">
-        <div>
-          <h1>Skill Tree: {subject?.name || 'Loading...'}</h1>
-          <p className="subtitle">Master skills progressively by completing prerequisites</p>
+    <div className="container">
+      <div className="pp-hero">
+        <p className="pp-eyebrow">Skill tree</p>
+        <h1 className="pp-title">{subject?.name || 'Loading...'}</h1>
+        <p className="pp-sub">Master skills progressively by completing prerequisites.</p>
+      </div>
+
+      <div className="pp-cards">
+        <div className="pp-card pp-mint">
+          <span className="pp-card-label">Complete</span>
+          <span className="pp-card-value">{completeCount}</span>
         </div>
-        <div className="skill-stats">
-          <div className="stat-item">
-            <span className="stat-value">{completeCount}</span>
-            <span className="stat-label">Complete</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{currentCount}</span>
-            <span className="stat-label">Available</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{lockedCount}</span>
-            <span className="stat-label">Locked</span>
-          </div>
+        <div className="pp-card pp-coral">
+          <span className="pp-card-label">Available</span>
+          <span className="pp-card-value">{currentCount}</span>
+        </div>
+        <div className="pp-card pp-violet">
+          <span className="pp-card-label">Locked</span>
+          <span className="pp-card-value">{lockedCount}</span>
         </div>
       </div>
 
-      <div className="legend">
-        <h3>Legend:</h3>
-        <div className="legend-items">
-          <div className="legend-item">
-            <div className="skill-node node-complete"></div>
-            <span>Complete</span>
-          </div>
-          <div className="legend-item">
-            <div className="skill-node node-current"></div>
-            <span>Available</span>
-          </div>
-          <div className="legend-item">
-            <div className="skill-node node-locked"></div>
-            <span>Locked</span>
-          </div>
+      <div className="pp-panel st-legend">
+        <span className="pp-eyebrow" style={{ margin: 0 }}>Legend</span>
+        <div className="st-legend-items">
+          <span className="st-legend-item"><span className="st-dot st-complete"></span>Complete</span>
+          <span className="st-legend-item"><span className="st-dot st-current"></span>Available</span>
+          <span className="st-legend-item"><span className="st-dot st-locked"></span>Locked</span>
         </div>
       </div>
 
-      <div className="skill-tree-container">
+      <div className="pp-panel st-tree">
         {layers.map(layer => (
-          <div key={layer} className="skill-layer">
-            <div className="layer-label">Layer {layer}</div>
-            <div className="layer-nodes">
+          <div key={layer} className="st-layer">
+            <div className="st-layer-label">Layer {layer}</div>
+            <div className="st-layer-nodes">
               {nodesByLayer[layer].map(node => (
                 <div
                   key={node._id}
-                  className={`skill-node-wrapper ${node.state}`}
+                  className={`st-node st-${node.state}`}
                   onClick={() => handleNodeClick(node)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && handleNodeClick(node)}
                 >
-                  <div className={`skill-node node-${node.state}`}>
-                    <div className="node-content">
-                      <div className="node-title">{node.title}</div>
-                      {node.prerequisiteSkillNodeIds && node.prerequisiteSkillNodeIds.length > 0 && (
-                        <div className="node-prereq-count">
-                          {node.prerequisiteSkillNodeIds.length} prereq{node.prerequisiteSkillNodeIds.length > 1 ? 's' : ''}
-                        </div>
-                      )}
-                    </div>
-                    {node.state === 'complete' && <div className="node-check">✓</div>}
-                    {node.state === 'locked' && <div className="node-lock">🔒</div>}
-                  </div>
-                  {/* Draw connections to prerequisites */}
+                  <div className="st-node-title">{node.title}</div>
                   {node.prerequisiteSkillNodeIds && node.prerequisiteSkillNodeIds.length > 0 && (
-                    <div className="node-connections">
-                      {node.prerequisiteSkillNodeIds.map((prereqId, index) => (
-                        <div key={index} className="connection-line"></div>
-                      ))}
+                    <div className="st-node-prereq">
+                      {node.prerequisiteSkillNodeIds.length} prereq{node.prerequisiteSkillNodeIds.length > 1 ? 's' : ''}
                     </div>
                   )}
+                  {node.state === 'complete' && <div className="st-node-badge">✓</div>}
+                  {node.state === 'locked' && <div className="st-node-badge">🔒</div>}
                 </div>
               ))}
             </div>
@@ -158,29 +143,28 @@ function SkillTree() {
 
       {/* Node Detail Modal */}
       {selectedNode && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>×</button>
-            
-            <div className={`modal-header status-${selectedNode.state}`}>
+        <div className="st-overlay" onClick={closeModal}>
+          <div className="st-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="st-modal-close" onClick={closeModal} aria-label="Close">×</button>
+
+            <div className="st-modal-head">
               <h2>{selectedNode.title}</h2>
-              <span className={`status-badge badge-${selectedNode.state}`}>
+              <span className={`pp-tag ${
+                selectedNode.state === 'complete' ? 'pp-tag-mint' :
+                selectedNode.state === 'current' ? 'pp-tag-coral' : 'pp-tag-grey'
+              }`}>
                 {selectedNode.state === 'complete' && '✓ Complete'}
                 {selectedNode.state === 'current' && '🔓 Available'}
                 {selectedNode.state === 'locked' && '🔒 Locked'}
               </span>
             </div>
 
-            {selectedNode.description && (
-              <div className="modal-section">
-                <p>{selectedNode.description}</p>
-              </div>
-            )}
+            {selectedNode.description && <p className="st-modal-desc">{selectedNode.description}</p>}
 
             {selectedNode.prerequisiteSkillNodeIds && selectedNode.prerequisiteSkillNodeIds.length > 0 && (
-              <div className="modal-section">
+              <div className="st-modal-section">
                 <h3>Prerequisites</h3>
-                <ul className="prereq-list">
+                <ul className="st-prereq-list">
                   {selectedNode.prerequisiteSkillNodeIds.map((prereq, index) => (
                     <li key={index}>{prereq.title}</li>
                   ))}
@@ -189,10 +173,10 @@ function SkillTree() {
             )}
 
             {selectedNode.contentType !== 'none' && (
-              <div className="modal-section">
+              <div className="st-modal-section">
                 <h3>Linked Content</h3>
                 {selectedNode.contentType === 'chapter' && selectedNode.chapter && selectedNode.book && (
-                  <div className="linked-content">
+                  <div className="st-linked">
                     <p><strong>Book:</strong> {selectedNode.book.title}</p>
                     <p><strong>Chapter:</strong> {selectedNode.chapter.chapterNumber}. {selectedNode.chapter.title}</p>
                     <Link to={`/book/${selectedNode.book._id}`}>
@@ -207,9 +191,7 @@ function SkillTree() {
             )}
 
             {selectedNode.state === 'locked' && (
-              <div className="modal-section locked-message">
-                <p>🔒 Complete the prerequisites to unlock this skill.</p>
-              </div>
+              <p className="st-locked-msg">🔒 Complete the prerequisites to unlock this skill.</p>
             )}
           </div>
         </div>
