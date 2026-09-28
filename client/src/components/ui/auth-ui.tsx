@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full rounded-xl border border-white/70 bg-white/60 px-3 py-3 text-sm text-foreground shadow-sm shadow-black/5 backdrop-blur-sm transition-shadow placeholder:text-muted-foreground/70 focus-visible:bg-white/80 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:bg-white/10 dark:focus-visible:bg-white/15",
           className
         )}
         ref={ref}
@@ -169,7 +169,7 @@ function SignInForm({ onSignIn }: { onSignIn: (email: string, password: string) 
           <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <PasswordInput name="password" label="Password" required autoComplete="current-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button type="submit" variant="default" className="mt-2" disabled={loading}>
+        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25" disabled={loading}>
           {loading ? "Signing in…" : "Sign In"}
         </Button>
       </div>
@@ -200,7 +200,7 @@ function SignUpForm({ onSignUp }: { onSignUp: (name: string, email: string, pass
           <Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <PasswordInput name="password" label="Password" required minLength={6} autoComplete="new-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button type="submit" variant="default" className="mt-2" disabled={loading}>
+        <Button type="submit" variant="default" className="mt-2 shadow-lg shadow-primary/25" disabled={loading}>
           {loading ? "Creating account…" : "Sign Up"}
         </Button>
       </div>
@@ -217,13 +217,21 @@ interface AuthFormContainerProps {
 
 function AuthFormContainer({ isSignIn, onToggle, onSignIn, onSignUp }: AuthFormContainerProps) {
   return (
-    <div className="mx-auto grid w-[350px] gap-2">
-      {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
-      <div className="text-center text-sm">
-        {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
-        <Button variant="link" className="pl-1 text-foreground" onClick={onToggle}>
-          {isSignIn ? "Sign up" : "Sign in"}
-        </Button>
+    <div className="relative mx-auto w-[350px] sm:w-[380px]">
+      {/* ambient colour blobs that glow through the frosted card */}
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-8">
+        <div className="absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[#f4a9c6]/50 blur-3xl" />
+        <div className="absolute -bottom-12 -right-8 h-52 w-52 rounded-full bg-[#c3b5f0]/50 blur-3xl" />
+        <div className="absolute left-1/3 top-1/2 h-32 w-32 rounded-full bg-[#9fdcd2]/40 blur-3xl" />
+      </div>
+      <div className="relative grid gap-2 rounded-[28px] border border-white/60 bg-white/45 p-8 shadow-[0_24px_70px_-20px_rgba(225,77,122,0.35)] backdrop-blur-2xl dark:border-white/15 dark:bg-white/[0.08] dark:shadow-[0_24px_70px_-20px_rgba(0,0,0,0.6)]">
+        {isSignIn ? <SignInForm onSignIn={onSignIn} /> : <SignUpForm onSignUp={onSignUp} />}
+        <div className="text-center text-sm">
+          {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
+          <Button variant="link" className="pl-1 text-foreground" onClick={onToggle}>
+            {isSignIn ? "Sign up" : "Sign in"}
+          </Button>
+        </div>
       </div>
     </div>
   );
