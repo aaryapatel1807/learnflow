@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import './Dashboard.css';
+import { JourneyHero } from '../components/journey/JourneyHero';
 
 function Dashboard({ user }) {
   const [nextNode, setNextNode] = useState(null);
@@ -106,28 +107,14 @@ function Dashboard({ user }) {
   return (
     <div className="container dashboard-page scholar-shell">
 
-      {/* ── HERO BANNER ─────────────────────────────────────────── */}
-      <div className="hero-banner animate-rise">
-        <div className="hero-left">
-          <span className="hero-greeting label-xs">Welcome back</span>
-          <h1 className="hero-name">{user.name}</h1>
-        </div>
-        <div className="hero-right">
-          <div>
-            <div className="hero-level-display">{level}</div>
-            <div className="hero-level-label">LEVEL</div>
-          </div>
-          <div className="hero-xp-section">
-            <div className="hero-xp-bar">
-              <div
-                className="hero-xp-fill"
-                style={{ width: `${xpPercent}%` }}
-              />
-            </div>
-            <span className="hero-xp-text">{xpInCurrentLevel} / {xpForNextLevel} XP to next level</span>
-          </div>
-        </div>
-      </div>
+      {/* ── 3D JOURNEY HERO ─────────────────────────────────────── */}
+      <JourneyHero
+        user={user}
+        level={level}
+        xpPercent={xpPercent}
+        xpInCurrentLevel={xpInCurrentLevel}
+        xpForNextLevel={xpForNextLevel}
+      />
 
       {/* ── SCHOLAR RAIL ─────────────────────────────────────────── */}
       <div className="scholar-rail-section animate-rise" data-delay="1">
