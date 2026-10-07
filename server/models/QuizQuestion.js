@@ -20,6 +20,11 @@ const quizQuestionSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  explanation: {
+    type: String,
+    default: '',
+    trim: true
+  },
   topic: {
     type: String,
     required: true,

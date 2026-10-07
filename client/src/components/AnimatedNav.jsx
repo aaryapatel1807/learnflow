@@ -16,6 +16,7 @@ const primaryItems = [
 
 const moreItems = [
   { name: "Flashcards", href: "/flashcards" },
+  { name: "Focus timer", href: "/focus" },
   { name: "Notes", href: "/notes" },
   { name: "Bookmarks", href: "/bookmarks" },
   { name: "Achievements", href: "/achievements" },

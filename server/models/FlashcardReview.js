@@ -21,7 +21,23 @@ const flashcardReviewSchema = new mongoose.Schema({
   },
   difficulty: {
     type: Number,
-    default: 0, // 0 = new, increases with successful reviews
+    default: 0, // legacy field (pre-SM-2); kept for backward compatibility
+    min: 0
+  },
+  // SM-2 scheduling state (Anki-style)
+  easiness: {
+    type: Number,
+    default: 2.5, // SM-2 easiness factor, floored at 1.3
+    min: 1.3
+  },
+  interval: {
+    type: Number,
+    default: 0, // current interval in days
+    min: 0
+  },
+  repetitions: {
+    type: Number,
+    default: 0, // consecutive successful recalls (q >= 3)
     min: 0
   },
   reviewCount: {

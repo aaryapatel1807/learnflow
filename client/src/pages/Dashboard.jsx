@@ -29,6 +29,8 @@ function Dashboard({ user }) {
   const [activityData, setActivityData] = useState({});
   const [recommendation, setRecommendation] = useState(null);
   const [loadingRecommendation, setLoadingRecommendation] = useState(true);
+  const [dueFlashcards, setDueFlashcards] = useState(null);
+  const [focusToday, setFocusToday] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -44,6 +46,21 @@ function Dashboard({ user }) {
 
         const calendarResponse = await api.get(`/calendar/${user.id}`);
         setActivityData(calendarResponse.data);
+
+        // "Due today" strip: flashcards awaiting review + focus minutes logged today.
+        try {
+          const dueResponse = await api.get(`/flashcards/due?userId=${user.id}`);
+          setDueFlashcards(dueResponse.data.length);
+        } catch (error) {
+          console.error('Error fetching due flashcards:', error);
+        }
+        try {
+          const studyResponse = await api.get(`/study/stats/${user.id}?days=1`);
+          const todayKey = new Date().toISOString().split('T')[0];
+          setFocusToday(studyResponse.data.perDay?.[todayKey]?.minutes ?? 0);
+        } catch (error) {
+          console.error('Error fetching focus stats:', error);
+        }
 
         try {
           const recommendationResponse = await api.get(`/recommendations/${user.id}`);
@@ -106,6 +123,7 @@ function Dashboard({ user }) {
 
   const quickLinks = [
     { to: '/flashcards',     label: 'Flashcards',     tint: 'tint-rose',   icon: ICONS.cards },
+    { to: '/focus',          label: 'Focus timer',    tint: 'tint-mint',   icon: ICONS.flame },
     { to: '/quizzes',        label: 'Quizzes',        tint: 'tint-violet', icon: ICONS.quiz },
     { to: '/achievements',   label: 'Achievements',   tint: 'tint-amber',  icon: ICONS.trophy },
     { to: '/learning-paths', label: 'Learning Paths', tint: 'tint-sky',    icon: ICONS.path },
@@ -132,6 +150,32 @@ function Dashboard({ user }) {
         <p className="pastel-eyebrow">{todayStr}</p>
         <h1 className="pastel-title">{greeting}, {firstName}.</h1>
       </header>
+
+      {/* ── DUE TODAY ───────────────────────────────────────────────── */}
+      {(dueFlashcards !== null || focusToday !== null) && (
+        <section className="pastel-panel pastel-today animate-rise" data-delay="1" aria-label="Due today">
+          <div className="pastel-panel-head">
+            <h2>Today</h2>
+          </div>
+          <div className="pastel-today-row">
+            {dueFlashcards !== null && dueFlashcards > 0 && (
+              <Link to="/flashcards" className="pastel-today-item">
+                <span className="pastel-today-num">{dueFlashcards}</span>
+                <span className="pastel-today-label">flashcard{dueFlashcards === 1 ? '' : 's'} due</span>
+                <span className="pastel-chev" aria-hidden="true">›</span>
+              </Link>
+            )}
+            {dueFlashcards === 0 && (
+              <span className="pastel-today-item pastel-today-calm">✨ Flashcards all caught up</span>
+            )}
+            <Link to="/focus" className="pastel-today-item">
+              <span className="pastel-today-num">{focusToday ?? 0}<small> min</small></span>
+              <span className="pastel-today-label">focused today</span>
+              <span className="pastel-chev" aria-hidden="true">›</span>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ── GRADIENT STAT CARDS ─────────────────────────────────── */}
       <div className="pastel-cards animate-rise" data-delay="1">

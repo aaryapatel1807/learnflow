@@ -92,7 +92,12 @@ router.post('/submit', async (req, res) => {
       
       gradedAnswers.push({
         questionId: question._id,
+        questionText: question.questionText,
+        options: question.options,
+        topic: question.topic,
         selectedOption: userAnswer ? userAnswer.selectedOption : -1,
+        correctOptionIndex: question.correctOptionIndex,
+        explanation: question.explanation || '',
         isCorrect
       });
     });

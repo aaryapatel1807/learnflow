@@ -9,6 +9,7 @@ function Notes() {
   const [loading, setLoading] = useState(true);
   const [editingNote, setEditingNote] = useState(null);
   const [editText, setEditText] = useState('');
+  const [query, setQuery] = useState('');
   const user = getUser();
 
   useEffect(() => { fetchNotes(); }, []);
@@ -42,6 +43,22 @@ function Notes() {
 
   const subjects = Object.keys(groupedNotes);
 
+  // Client-side search across note text, book title and chapter title.
+  const q = query.trim().toLowerCase();
+  const visibleSubjects = q
+    ? subjects
+        .map((subject) => ({
+          subject,
+          notes: groupedNotes[subject].filter((n) =>
+            [n.text, n.contentDetails?.bookTitle, n.contentDetails?.title]
+              .filter(Boolean)
+              .some((t) => t.toLowerCase().includes(q))
+          ),
+        }))
+        .filter((g) => g.notes.length > 0)
+    : subjects.map((subject) => ({ subject, notes: groupedNotes[subject] }));
+  const totalVisible = visibleSubjects.reduce((s, g) => s + g.notes.length, 0);
+
   if (subjects.length === 0) {
     return (
       <div className="container">
@@ -65,21 +82,36 @@ function Notes() {
         <p className="pp-sub">Everything you've pinned while reading, grouped by subject.</p>
       </div>
 
-      <div className="pp-toolbar" style={{ justifyContent: 'flex-end' }}>
+      <div className="pp-toolbar" style={{ justifyContent: 'space-between' }}>
+        <input
+          type="search"
+          className="pp-search"
+          placeholder="Search notes…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search notes"
+          style={{ maxWidth: '280px' }}
+        />
         <Link to="/catalogue"><button className="btn btn-secondary btn-sm">+ Add more notes</button></Link>
       </div>
 
-      {subjects.map(subject => (
+      {q && (
+        <p className="pp-count" style={{ margin: '4px 0 12px' }}>
+          {totalVisible} {totalVisible === 1 ? 'match' : 'matches'} for “{query.trim()}”
+        </p>
+      )}
+
+      {visibleSubjects.map(({ subject, notes }) => (
         <div key={subject}>
           <div className="pp-section-head">
             <h2 className="pp-section-title">{subject}</h2>
             <span className="pp-count">
-              {groupedNotes[subject].length} {groupedNotes[subject].length === 1 ? 'note' : 'notes'}
+              {notes.length} {notes.length === 1 ? 'note' : 'notes'}
             </span>
           </div>
 
           <div className="pp-rows">
-          {groupedNotes[subject].map(note => (
+          {notes.map(note => (
             <div key={note._id} className="pp-row">
               <div className="pp-row-main">
                 <div className="pp-tags" style={{ marginBottom: '6px' }}>

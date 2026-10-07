@@ -24,6 +24,11 @@ const quizSchema = new mongoose.Schema({
     type: String,
     enum: ['Beginner', 'Intermediate', 'Advanced'],
     default: 'Beginner'
+  },
+  timeLimitMinutes: {
+    type: Number,
+    default: null, // null = untimed
+    min: 1
   }
 }, {
   timestamps: true

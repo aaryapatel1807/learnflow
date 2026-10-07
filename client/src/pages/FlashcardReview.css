@@ -118,3 +118,20 @@
 
 [data-theme="dark"] .fc-text { color: #f5eef4; }
 [data-theme="dark"] .fc-hint-text { color: #b9a8bd; }
+
+/* ---- grading feedback ---- */
+.fc-buttons .btn { position: relative; }
+.fc-buttons kbd {
+  margin-left: 8px;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+}
+.fc-interval-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--pp-muted, #8a7f96);
+  margin-top: 10px;
+}

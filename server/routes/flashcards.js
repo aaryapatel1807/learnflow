@@ -6,35 +6,59 @@ const ActivityLog = require('../models/ActivityLog');
 
 const router = express.Router();
 
-// Helper: Calculate next review date based on difficulty rating
-function calculateNextReview(difficulty, rating) {
-  const now = new Date();
-  let daysToAdd = 1;
-  
-  // Simple spaced repetition algorithm
-  switch (rating) {
-    case 'Again': // Reset to 1 day
-      daysToAdd = 1;
-      difficulty = Math.max(0, difficulty - 1);
-      break;
-    case 'Hard': // Short interval
-      daysToAdd = Math.max(1, difficulty * 1.2);
-      break;
-    case 'Good': // Normal interval
-      daysToAdd = Math.max(1, difficulty * 2.5);
-      difficulty += 1;
-      break;
-    case 'Easy': // Long interval
-      daysToAdd = Math.max(1, difficulty * 4);
-      difficulty += 2;
-      break;
-    default:
-      daysToAdd = 1;
+// SM-2 spaced-repetition scheduler (Anki-style), reimplemented from the
+// published algorithm. Quality q in 0..5.
+// Ratings map: Again -> 0, Hard -> 3, Good -> 4, Easy -> 5.
+const RATING_QUALITY = { Again: 0, Hard: 3, Good: 4, Easy: 5 };
+
+function sm2NextReview(prev, rating) {
+  const q = RATING_QUALITY[rating];
+  if (q === undefined) throw new Error('Invalid rating');
+
+  // Lazy-migrate legacy records: seed SM-2 state from old fields.
+  let { easiness = 2.5, interval = 0, repetitions = 0 } = prev || {};
+  if (prev && prev.repetitions === undefined && prev.reviewCount > 0) {
+    repetitions = prev.reviewCount;
+    interval = Math.max(1, prev.difficulty || 1);
   }
-  
-  const nextReview = new Date(now);
-  nextReview.setDate(nextReview.getDate() + Math.ceil(daysToAdd));
-  
+
+  let nextInterval;
+  let nextRepetitions = repetitions;
+
+  if (q < 3) {
+    // Failed recall: restart the repetition chain. 'Again' relearns tomorrow.
+    nextRepetitions = 0;
+    nextInterval = 1;
+  } else {
+    if (repetitions === 0) nextInterval = 1;
+    else if (repetitions === 1) nextInterval = 6;
+    else nextInterval = Math.round(interval * easiness);
+    nextRepetitions = repetitions + 1;
+  }
+
+  // Easiness factor update (only meaningful on recall, but SM-2 applies it
+  // for every graded review; floor at 1.3).
+  let nextEasiness = easiness + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+  nextEasiness = Math.max(1.3, Math.round(nextEasiness * 100) / 100);
+
+  const nextReview = new Date();
+  nextReview.setDate(nextReview.getDate() + nextInterval);
+
+  return {
+    nextReview,
+    nextEasiness,
+    nextInterval,
+    nextRepetitions,
+    quality: q,
+  };
+}
+
+// Legacy alias kept for any external callers.
+function calculateNextReview(difficulty, rating) {
+  const { nextReview } = sm2NextReview(
+    { easiness: 2.5, interval: Math.max(1, difficulty || 1), repetitions: difficulty > 0 ? 1 : 0 },
+    rating
+  );
   return { nextReview, newDifficulty: difficulty };
 }
 
@@ -113,6 +137,9 @@ router.get('/due', async (req, res) => {
             lastReviewed: null,
             nextReview: now,
             difficulty: 0,
+            easiness: 2.5,
+            interval: 0,
+            repetitions: 0,
             reviewCount: 0
           }
         });
@@ -124,6 +151,9 @@ router.get('/due', async (req, res) => {
             lastReviewed: review.lastReviewed,
             nextReview: review.nextReview,
             difficulty: review.difficulty,
+            easiness: review.easiness ?? 2.5,
+            interval: review.interval ?? 0,
+            repetitions: review.repetitions ?? 0,
             reviewCount: review.reviewCount
           }
         });
@@ -152,25 +182,32 @@ router.post('/review', async (req, res) => {
     
     // Find or create review record
     let review = await FlashcardReview.findOne({ user: userId, flashcard: flashcardId });
-    
+
     if (!review) {
       review = new FlashcardReview({
         user: userId,
         flashcard: flashcardId,
         difficulty: 0,
+        easiness: 2.5,
+        interval: 0,
+        repetitions: 0,
         reviewCount: 0
       });
     }
-    
-    // Calculate next review date
-    const { nextReview, newDifficulty } = calculateNextReview(review.difficulty, rating);
-    
+
+    // SM-2 scheduling
+    const { nextReview, nextEasiness, nextInterval, nextRepetitions } =
+      sm2NextReview(review.toObject(), rating);
+
     // Update review record
     review.lastReviewed = new Date();
     review.nextReview = nextReview;
-    review.difficulty = newDifficulty;
+    review.easiness = nextEasiness;
+    review.interval = nextInterval;
+    review.repetitions = nextRepetitions;
+    review.difficulty = nextRepetitions; // keep legacy field roughly in sync
     review.reviewCount += 1;
-    
+
     await review.save();
     
     // Update user streak
@@ -184,6 +221,8 @@ router.post('/review', async (req, res) => {
     res.json({
       message: 'Review recorded',
       nextReview: review.nextReview,
+      nextReviewInDays: nextInterval,
+      easiness: nextEasiness,
       reviewCount: review.reviewCount,
       xpEarned: 5
     });

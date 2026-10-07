@@ -19,6 +19,7 @@ import { isAuthenticated, getUser, logout } from './utils/auth';
 import Notes from './pages/Notes';
 import Bookmarks from './pages/Bookmarks';
 import SkillTree from './pages/SkillTree';
+import FocusTimer from './pages/FocusTimer';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubjects from './pages/AdminSubjects';
 import AdminBooks from './pages/AdminBooks';
@@ -72,6 +73,7 @@ function App() {
         <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
         <Route path="/bookmarks" element={<ProtectedRoute><Bookmarks /></ProtectedRoute>} />
         <Route path="/skill-tree/:subjectId" element={<ProtectedRoute><SkillTree /></ProtectedRoute>} />
+        <Route path="/focus" element={<ProtectedRoute><FocusTimer /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/subjects" element={<AdminRoute><AdminSubjects /></AdminRoute>} />
         <Route path="/admin/books" element={<AdminRoute><AdminBooks /></AdminRoute>} />

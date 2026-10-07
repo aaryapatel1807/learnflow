@@ -1,0 +1,106 @@
+/* FocusTimer — pastel Pomodoro page */
+
+.focus-page { padding-bottom: 96px; }
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .focus-grid { grid-template-columns: 1fr; }
+}
+
+.focus-timer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.focus-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.focus-custom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--pp-muted, #8a7f96);
+}
+.focus-custom input {
+  width: 90px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(130, 105, 145, 0.25);
+  background: rgba(255, 255, 255, 0.7);
+  font: inherit;
+}
+.focus-custom input:disabled { opacity: 0.55; }
+
+.focus-ring-wrap { position: relative; width: 220px; height: 220px; }
+.focus-ring { width: 100%; height: 100%; }
+.focus-ring-track {
+  fill: none;
+  stroke: rgba(130, 105, 145, 0.18);
+  stroke-width: 14;
+}
+.focus-ring-fill {
+  fill: none;
+  stroke: url(#focusGrad);
+  stroke: #e0507a;
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s linear;
+}
+.focus-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.focus-time {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.focus-kind {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--pp-muted, #8a7f96);
+}
+
+.focus-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+.focus-result { text-align: center; width: 100%; }
+.focus-result h3 { margin: 0 0 6px; }
+.focus-result p { margin: 0; }
+
+.focus-subject {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+.focus-subject select {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(130, 105, 145, 0.25);
+  background: rgba(255, 255, 255, 0.7);
+  font: inherit;
+}
+
+.focus-stats-card .pp-cards { margin: 14px 0; }
+
+.focus-tip h3 { font-size: 1rem; margin: 0 0 8px; }
+.focus-tip ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.92rem; }

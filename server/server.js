@@ -19,6 +19,7 @@ const bookmarksRoutes = require('./routes/bookmarks');
 const calendarRoutes = require('./routes/calendar');
 const recommendationsRoutes = require('./routes/recommendations');
 const skillTreeRoutes = require('./routes/skillTree');
+const studyRoutes = require('./routes/study');
 const adminRoutes = require('./routes/admin');
 
 // Import middleware
@@ -51,6 +52,7 @@ app.use('/api/bookmarks', bookmarksRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/skill-tree', skillTreeRoutes);
+app.use('/api/study', studyRoutes);
 
 // Admin routes (protected with authenticateToken + isAdmin middleware)
 app.use('/api/admin', adminRoutes);
