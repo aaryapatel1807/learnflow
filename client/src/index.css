@@ -3,6 +3,7 @@
 @import './styles/glass.css';
 @import './styles/pastel.css';
 @import './styles/pastel-pages.css';
+@import './styles/pastel-3d.css';
 
 @import "tailwindcss";
 @config "../tailwind.config.js";
