@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import StudyHeatmap from '../components/StudyHeatmap';
 import './Dashboard.css';
 
 /* Minimal line icons (stroke = currentColor) */
@@ -31,6 +32,7 @@ function Dashboard({ user }) {
   const [loadingRecommendation, setLoadingRecommendation] = useState(true);
   const [dueFlashcards, setDueFlashcards] = useState(null);
   const [focusToday, setFocusToday] = useState(null);
+  const [focusByDay, setFocusByDay] = useState({});
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -60,6 +62,17 @@ function Dashboard({ user }) {
           setFocusToday(studyResponse.data.perDay?.[todayKey]?.minutes ?? 0);
         } catch (error) {
           console.error('Error fetching focus stats:', error);
+        }
+        // 16-week focus history for the heatmap.
+        try {
+          const heatResponse = await api.get(`/study/stats/${user.id}?days=112`);
+          const byDay = {};
+          for (const [day, v] of Object.entries(heatResponse.data.perDay || {})) {
+            byDay[day] = v.minutes;
+          }
+          setFocusByDay(byDay);
+        } catch (error) {
+          console.error('Error fetching heatmap focus stats:', error);
         }
 
         try {
@@ -271,6 +284,11 @@ function Dashboard({ user }) {
           )}
         </section>
       </div>
+
+      {/* ── HEATMAP ─────────────────────────────────────────────────── */}
+      <section className="pastel-panel animate-rise" data-delay="3" aria-label="Study activity heatmap">
+        <StudyHeatmap activity={activityData} focus={focusByDay} weeks={16} />
+      </section>
 
       {/* ── QUICK LINKS ─────────────────────────────────────────── */}
       <div className="pastel-grid pastel-grid-2 animate-rise" data-delay="3">

@@ -1,0 +1,43 @@
+/* StudyHeatmap — GitHub-style activity grid in the pastel palette */
+
+.hm-wrap { width: 100%; }
+.hm-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.hm-head h3 { margin: 0; font-size: 1rem; }
+
+.hm-scroll { overflow-x: auto; padding-bottom: 4px; }
+.hm-months { display: flex; margin-bottom: 4px; }
+.hm-month {
+  width: 14px; /* 11px cell + 3px gap, matches .hm-col */
+  flex: 0 0 14px;
+  font-size: 0.68rem;
+  color: var(--pp-muted, #8a7f96);
+  white-space: nowrap;
+  overflow: visible;
+}
+.hm-grid { display: flex; gap: 3px; width: max-content; }
+.hm-col { display: flex; flex-direction: column; gap: 3px; }
+.hm-cell {
+  width: 11px; height: 11px; border-radius: 3px;
+  background: rgba(130, 105, 145, 0.12);
+}
+.hm-l0 { background: rgba(130, 105, 145, 0.12); }
+.hm-l1 { background: #cdeede; }
+.hm-l2 { background: #9fe3c8; }
+.hm-l3 { background: #5fd3ab; }
+.hm-l4 { background: #2bbfa9; box-shadow: 0 0 6px rgba(43, 191, 169, 0.55); }
+.hm-future { background: transparent; }
+.hm-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.72rem; color: var(--pp-muted, #8a7f96); }
+.hm-legend-cell { display: inline-block; }
+
+[data-theme="dark"] .hm-l0 { background: rgba(255, 255, 255, 0.07); }
+[data-theme="dark"] .hm-l1 { background: #134e3f; }
+[data-theme="dark"] .hm-l2 { background: #177a5c; }
+[data-theme="dark"] .hm-l3 { background: #1fa87e; }
+[data-theme="dark"] .hm-l4 { background: #2bd9b4; box-shadow: 0 0 8px rgba(43, 217, 180, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-cell { transition: none; }
+}

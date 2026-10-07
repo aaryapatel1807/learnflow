@@ -17,6 +17,44 @@ function formatTime(totalSeconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+/**
+ * Drift-free ticker. Prefers a Web Worker (keeps ticking when the tab is
+ * backgrounded — pattern from tomyrioss/pomodoro-app) and falls back to
+ * setInterval. The caller owns the end-time; onTick recomputes from the
+ * wall clock so no drift can accumulate either way.
+ */
+function useTicker(onTick) {
+  const workerRef = useRef(null);
+  const intervalRef = useRef(null);
+  const cbRef = useRef(onTick);
+  cbRef.current = onTick;
+
+  const start = () => {
+    stop();
+    try {
+      const w = new Worker('/focus-worker.js');
+      w.onmessage = () => cbRef.current();
+      w.postMessage({ cmd: 'start', ms: 250 });
+      workerRef.current = w;
+    } catch (e) {
+      intervalRef.current = setInterval(() => cbRef.current(), 250);
+    }
+  };
+  const stop = () => {
+    if (workerRef.current) {
+      workerRef.current.postMessage({ cmd: 'stop' });
+      workerRef.current.terminate();
+      workerRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+  useEffect(() => stop, []);
+  return { start, stop };
+}
+
 function FocusTimer() {
   const user = getUser();
   const navigate = useNavigate();
@@ -31,11 +69,17 @@ function FocusTimer() {
   const [lastResult, setLastResult] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [subjectId, setSubjectId] = useState('');
-  const intervalRef = useRef(null);
   const endAtRef = useRef(null);
+  const completeRef = useRef();
+
+  const tick = () => {
+    const left = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000));
+    setSecondsLeft(left);
+    if (left <= 0) completeRef.current(true);
+  };
+  const ticker = useTicker(tick);
 
   useEffect(() => { fetchStats(); fetchSubjects(); }, []);
-  useEffect(() => () => clearInterval(intervalRef.current), []);
 
   const fetchStats = async () => {
     try {
@@ -74,30 +118,22 @@ function FocusTimer() {
     endAtRef.current = Date.now() + minutes * 60 * 1000;
     setRunning(true);
     setLastResult(null);
-    intervalRef.current = setInterval(() => {
-      const left = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000));
-      setSecondsLeft(left);
-      if (left <= 0) completeTimer(true);
-    }, 250);
+    ticker.start();
   };
 
   const pauseTimer = () => {
-    clearInterval(intervalRef.current);
+    ticker.stop();
     setRunning(false);
   };
 
   const resumeTimer = () => {
     endAtRef.current = Date.now() + secondsLeft * 1000;
     setRunning(true);
-    intervalRef.current = setInterval(() => {
-      const left = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000));
-      setSecondsLeft(left);
-      if (left <= 0) completeTimer(true);
-    }, 250);
+    ticker.start();
   };
 
   const completeTimer = async (natural = false) => {
-    clearInterval(intervalRef.current);
+    ticker.stop();
     setRunning(false);
     if (!sessionId) { setSecondsLeft(preset.minutes * 60); return; }
     const planned = customMinutes ? Math.max(1, Math.min(180, parseInt(customMinutes, 10) || 25)) : minutesFor(preset);
@@ -116,9 +152,10 @@ function FocusTimer() {
     setSecondsLeft(planned * 60);
     setCustomMinutes('');
   };
+  completeRef.current = completeTimer;
 
   const abandonTimer = async () => {
-    clearInterval(intervalRef.current);
+    ticker.stop();
     setRunning(false);
     if (sessionId) {
       try { await api.post(`/study/sessions/${sessionId}/abandon`, { userId: user.id }); }

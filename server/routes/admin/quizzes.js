@@ -65,7 +65,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/admin/quizzes - Create a new quiz
 router.post('/', async (req, res) => {
   try {
-    const { title, description, topic, subject, difficulty } = req.body;
+    const { title, description, topic, subject, difficulty, timeLimitMinutes } = req.body;
 
     if (!title || !topic || !subject) {
       return res.status(400).json({
@@ -88,7 +88,8 @@ router.post('/', async (req, res) => {
       description: description || '',
       topic,
       subject,
-      difficulty: difficulty || 'Beginner'
+      difficulty: difficulty || 'Beginner',
+      timeLimitMinutes: timeLimitMinutes || null
     });
 
     const populatedQuiz = await Quiz.findById(quiz._id).populate('subject', 'name');
@@ -110,7 +111,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, topic, subject, difficulty } = req.body;
+    const { title, description, topic, subject, difficulty, timeLimitMinutes } = req.body;
 
     if (!title || !topic || !subject) {
       return res.status(400).json({
@@ -130,7 +131,7 @@ router.put('/:id', async (req, res) => {
 
     const quiz = await Quiz.findByIdAndUpdate(
       id,
-      { title, description, topic, subject, difficulty },
+      { title, description, topic, subject, difficulty, timeLimitMinutes: timeLimitMinutes || null },
       { new: true, runValidators: true }
     ).populate('subject', 'name');
 
@@ -190,7 +191,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/:quizId/questions', async (req, res) => {
   try {
     const { quizId } = req.params;
-    const { questionText, options, correctOptionIndex, topic, order } = req.body;
+    const { questionText, options, correctOptionIndex, topic, order, explanation } = req.body;
 
     if (!questionText || !options || !Array.isArray(options) || options.length < 2) {
       return res.status(400).json({
@@ -227,7 +228,8 @@ router.post('/:quizId/questions', async (req, res) => {
       options,
       correctOptionIndex,
       topic,
-      order: order || 0
+      order: order || 0,
+      explanation: explanation || ''
     });
 
     res.status(201).json({
@@ -247,7 +249,7 @@ router.post('/:quizId/questions', async (req, res) => {
 router.put('/:quizId/questions/:questionId', async (req, res) => {
   try {
     const { questionId } = req.params;
-    const { questionText, options, correctOptionIndex, topic, order } = req.body;
+    const { questionText, options, correctOptionIndex, topic, order, explanation } = req.body;
 
     if (!questionText || !options || !Array.isArray(options) || options.length < 2) {
       return res.status(400).json({
@@ -272,7 +274,7 @@ router.put('/:quizId/questions/:questionId', async (req, res) => {
 
     const question = await QuizQuestion.findByIdAndUpdate(
       questionId,
-      { questionText, options, correctOptionIndex, topic, order },
+      { questionText, options, correctOptionIndex, topic, order, explanation: explanation || '' },
       { new: true, runValidators: true }
     );
 
