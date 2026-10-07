@@ -25,6 +25,14 @@ A comprehensive MERN-stack educational platform with personalized learning, prog
 - ✅ Chapter completion marking
 - ✅ Progress reset functionality
 
+### Study Features (Oct 2026)
+- ✅ SM-2 spaced repetition for flashcards (Anki-style easiness/interval/repetitions, lazy migration from legacy scheduler)
+- ✅ Focus timer (Pomodoro presets 25/50/5/15 + custom, pause/resume, Web-Worker ticker immune to background-tab throttling, XP for completed focus sessions)
+- ✅ Quiz upgrades: per-attempt question shuffle, optional per-quiz time limit with auto-submit, answer-review screen with explanations
+- ✅ Flashcard review: keyboard shortcuts (Space to flip, 1–4 to grade), SM-2 interval feedback, end-of-session summary
+- ✅ Dashboard: "Today" strip (due flashcards, focus minutes) + 16-week GitHub-style study heatmap
+- ✅ Notes: instant client-side search across text, book and chapter titles
+
 ### API Enhancements
 - ✅ Comprehensive input validation middleware
 - ✅ Error handling with proper HTTP status codes
@@ -100,6 +108,21 @@ Copy `.env.example` to `server/.env` and configure:
 - `POST /api/progress` - Update or create progress
 - `POST /api/progress/complete-chapter` - Mark chapter as complete
 - `DELETE /api/progress/:userId/book/:bookId` - Reset progress for a book
+
+### Flashcards (SM-2 spaced repetition)
+- `GET /api/flashcards/due?userId=` - Cards due for review (with SM-2 state)
+- `POST /api/flashcards/review` - Grade a card (`Again|Hard|Good|Easy`); returns `nextReviewInDays`, easiness factor, XP
+
+### Study Sessions (Focus timer)
+- `POST /api/study/sessions` - Start a session (`focus|short-break|long-break`, planned minutes, optional subject)
+- `POST /api/study/sessions/:id/complete` - Complete; awards XP for focus ≥ 5 min
+- `POST /api/study/sessions/:id/abandon` - Abandon a running session
+- `GET /api/study/stats/:userId?days=7` - Focus minutes/sessions per day
+
+### Quizzes
+- `GET /api/quizzes` - List quizzes (with question counts)
+- `GET /api/quizzes/:id` - Quiz with questions (answers never leaked; includes `timeLimitMinutes`)
+- `POST /api/quiz/submit` - Submit; returns score, XP, per-answer review with explanations
 
 ### System
 - `GET /api/health` - Health check endpoint
