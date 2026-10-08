@@ -3,6 +3,8 @@ const Quiz = require('../models/Quiz');
 const QuizQuestion = require('../models/QuizQuestion');
 const QuizSubmission = require('../models/QuizSubmission');
 const User = require('../models/User');
+const Flashcard = require('../models/Flashcard');
+const FlashcardReview = require('../models/FlashcardReview');
 const { updateUserStreak } = require('./flashcards');
 
 const router = express.Router();
@@ -115,7 +117,70 @@ router.post('/submit', async (req, res) => {
     });
     
     await submission.save();
-    
+
+    // Missed questions enter the SRS review queue (getgood pattern): each
+    // wrong answer becomes a reviewable flashcard linked to its question.
+    // Cards are keyed by 'quizmiss:<userId>:<questionId>' so repeat misses
+    // never duplicate — they just resurface the existing card.
+    let srsQueued = 0;
+    try {
+      const quiz = await Quiz.findById(quizId).lean();
+      if (quiz) {
+        for (const g of gradedAnswers) {
+          if (g.isCorrect) continue;
+          const sourceKey = `quizmiss:${userId}:${g.questionId}`;
+          let card = await Flashcard.findOne({ sourceKey });
+          if (!card) {
+            const optionLetters = g.options.map((_, i) =>
+              String.fromCharCode(65 + i)
+            );
+            const front =
+              `${g.questionText}\n\n` +
+              g.options.map((o, i) => `${optionLetters[i]}. ${o}`).join('\n');
+            const correctText = g.options[g.correctOptionIndex] ?? '';
+            const back =
+              `✓ ${optionLetters[g.correctOptionIndex] ?? ''}. ${correctText}` +
+              (g.explanation ? `\n\n${g.explanation}` : '');
+            card = new Flashcard({
+              front,
+              back,
+              topic: g.topic || quiz.topic || 'General',
+              subject: quiz.subject,
+              cardType: 'basic',
+              sourceType: 'quiz-miss',
+              sourceRef: g.questionId,
+              sourceKey,
+              meta: {
+                quizId: quiz._id,
+                quizTitle: quiz.title,
+                questionId: g.questionId,
+                options: g.options,
+                selectedOptionIndex: g.selectedOption,
+                correctOptionIndex: g.correctOptionIndex,
+              },
+            });
+            await card.save();
+            srsQueued += 1;
+          } else {
+            // Repeat miss: resurface the card instead of duplicating it.
+            await FlashcardReview.updateOne(
+              { user: userId, flashcard: card._id },
+              {
+                $set: {
+                  nextReview: new Date(),
+                  repetitions: 0,
+                  interval: 0,
+                },
+              }
+            );
+          }
+        }
+      }
+    } catch (srsError) {
+      // SRS queueing must never break quiz submission.
+      console.error('Quiz-miss SRS queue error:', srsError);
+    }
+
     // Update user streak
     await updateUserStreak(userId);
     
@@ -154,6 +219,7 @@ router.post('/submit', async (req, res) => {
       totalQuestions: questions.length,
       xpEarned,
       recommendation,
+      srsQueued,
       answers: gradedAnswers
     });
   } catch (error) {
