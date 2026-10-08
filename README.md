@@ -32,6 +32,8 @@ A comprehensive MERN-stack educational platform with personalized learning, prog
 - ✅ Flashcard review: keyboard shortcuts (Space to flip, 1–4 to grade), SM-2 interval feedback, end-of-session summary
 - ✅ Dashboard: "Today" strip (due flashcards, focus minutes) + 16-week GitHub-style study heatmap
 - ✅ Notes: instant client-side search across text, book and chapter titles
+- ✅ Cloze deletion cards: write `{{c1::answer}}` / `{{c1::answer::hint}}` in notes, generate one card per cloze ordinal (Anki-style), review with styled blanks
+- ✅ Missed quiz questions auto-enter the flashcard review queue (no duplicates; repeat misses resurface the card)
 
 ### API Enhancements
 - ✅ Comprehensive input validation middleware
@@ -112,6 +114,8 @@ Copy `.env.example` to `server/.env` and configure:
 ### Flashcards (SM-2 spaced repetition)
 - `GET /api/flashcards/due?userId=` - Cards due for review (with SM-2 state)
 - `POST /api/flashcards/review` - Grade a card (`Again|Hard|Good|Easy`); returns `nextReviewInDays`, easiness factor, XP
+- `POST /api/flashcards/from-note` - Generate cloze deletion cards from a note's `{{c1::...}}` markup (one card per ordinal, idempotent)
+- Wrong quiz answers auto-create `quiz-miss` review cards on `POST /api/quiz/submit` (returns `srsQueued`)
 
 ### Study Sessions (Focus timer)
 - `POST /api/study/sessions` - Start a session (`focus|short-break|long-break`, planned minutes, optional subject)
