@@ -3,6 +3,15 @@ const Flashcard = require('../models/Flashcard');
 const FlashcardReview = require('../models/FlashcardReview');
 const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
+const Note = require('../models/Note');
+const Chapter = require('../models/Chapter');
+const Subject = require('../models/Subject');
+const {
+  hasCloze,
+  distinctOrdinals,
+  renderClozeFront,
+  renderClozeBack,
+} = require('../utils/cloze');
 
 const router = express.Router();
 
@@ -239,6 +248,92 @@ router.get('/', async (req, res) => {
     res.json(flashcards);
   } catch (error) {
     console.error('Get flashcards error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/flashcards/from-note - Generate cloze deletion cards from a
+// note's {{c1::...}} markup. One card per distinct cloze ordinal (Anki
+// behaviour): the card for ordinal N blanks out every cN span and reveals
+// the rest. Re-running is idempotent — cards are keyed by
+// 'cloze:<noteId>:<ordinal>' and never duplicated.
+router.post('/from-note', async (req, res) => {
+  try {
+    const { userId, noteId } = req.body;
+
+    if (!userId || !noteId) {
+      return res.status(400).json({ message: 'userId and noteId are required' });
+    }
+
+    const note = await Note.findById(noteId);
+    if (!note) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+    if (note.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Not your note' });
+    }
+
+    if (!hasCloze(note.text)) {
+      return res.status(400).json({
+        message: 'No cloze markup found. Use {{c1::answer}} in your note text.',
+      });
+    }
+
+    // Resolve the note's subject via chapter -> book -> subject.
+    let subjectId = null;
+    let topic = 'General';
+    if (note.contentType === 'chapter') {
+      const chapter = await Chapter.findById(note.contentId).populate('book').lean();
+      if (chapter && chapter.book) {
+        subjectId = chapter.book.subject;
+        topic = chapter.title || 'General';
+      }
+    }
+    if (!subjectId) {
+      return res.status(400).json({
+        message: 'Could not determine the subject for this note.',
+      });
+    }
+
+    const ordinals = distinctOrdinals(note.text);
+    let created = 0;
+    let skipped = 0;
+    const cards = [];
+
+    for (const ordinal of ordinals) {
+      const sourceKey = `cloze:${noteId}:${ordinal}`;
+      const existing = await Flashcard.findOne({ sourceKey });
+      if (existing) {
+        skipped += 1;
+        cards.push(existing);
+        continue;
+      }
+
+      const card = new Flashcard({
+        front: renderClozeFront(note.text, ordinal),
+        back: renderClozeBack(note.text),
+        topic,
+        subject: subjectId,
+        cardType: 'cloze',
+        clozeText: note.text,
+        clozeOrdinal: ordinal,
+        sourceType: 'note-cloze',
+        sourceRef: note._id,
+        sourceKey,
+      });
+      await card.save();
+      created += 1;
+      cards.push(card);
+    }
+
+    res.status(201).json({
+      message: `Created ${created} cloze card${created === 1 ? '' : 's'}${skipped ? ` (${skipped} already existed)` : ''}`,
+      created,
+      skipped,
+      cards,
+    });
+  } catch (error) {
+    console.error('Generate cloze cards error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
