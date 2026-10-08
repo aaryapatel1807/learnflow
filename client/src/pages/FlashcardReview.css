@@ -135,3 +135,54 @@
   color: var(--pp-muted, #8a7f96);
   margin-top: 10px;
 }
+
+/* ---- cloze deletion cards ---- */
+.fc-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.fc-source-tag {
+  background: linear-gradient(135deg, #e6d9fb, #d3c2f5);
+  color: #5b3fa8;
+  border: 1px solid #c4aef0;
+}
+[data-theme="dark"] .fc-source-tag {
+  background: rgba(139, 109, 224, 0.18);
+  color: #c9b3f5;
+  border-color: rgba(139, 109, 224, 0.4);
+}
+.cloze-blank {
+  display: inline-block;
+  min-width: 3.2em;
+  padding: 1px 10px;
+  margin: 0 2px;
+  border-radius: 999px;
+  border: 2px dashed #b79df0;
+  background: linear-gradient(135deg, #f3ecff, #e9dcfb);
+  color: #6a4bbd;
+  font-weight: 600;
+  text-align: center;
+  vertical-align: baseline;
+}
+[data-theme="dark"] .cloze-blank {
+  background: rgba(139, 109, 224, 0.16);
+  border-color: #8b6de0;
+  color: #d3c2f5;
+}
+.cloze-revealed { color: inherit; }
+.cloze-answer {
+  padding: 1px 8px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #d9f5e5, #bfe9cf);
+  color: #1d6b3f;
+  font-weight: 700;
+  border: 1px solid #9fdcb8;
+}
+[data-theme="dark"] .cloze-answer {
+  background: rgba(52, 168, 108, 0.2);
+  color: #9fe8bd;
+  border-color: rgba(52, 168, 108, 0.45);
+}
+.fc-miss-context {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--pp-muted, #8a7f96);
+  font-style: italic;
+}

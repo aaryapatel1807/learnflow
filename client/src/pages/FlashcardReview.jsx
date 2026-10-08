@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { getUser } from '../utils/auth';
+import { clozeSegments } from '../utils/cloze';
 import './FlashcardReview.css';
 
 const GRADES = [
@@ -16,6 +17,37 @@ function intervalLabel(days) {
   if (days < 30) return `in ${days} days`;
   const months = Math.round(days / 30);
   return months === 1 ? 'in ~1 month' : `in ~${months} months`;
+}
+
+// Renders a cloze card's text with styled blanks (front) or highlighted
+// answers (back). Falls back to plain text when there is no cloze markup.
+function ClozeText({ text, ordinal, side }) {
+  const segments = clozeSegments(text || '', ordinal, side);
+  return (
+    <>
+      {segments.map((s, i) => {
+        if (s.kind === 'blank') {
+          return (
+            <span key={i} className="cloze-blank" title={s.hint ? `Hint: ${s.hint}` : 'Fill in the blank'}>
+              {s.hint || '…'}
+            </span>
+          );
+        }
+        if (s.kind === 'revealed') {
+          return (
+            <span key={i} className={side === 'back' && s.ordinal === ordinal ? 'cloze-answer' : 'cloze-revealed'}>
+              {s.value}
+            </span>
+          );
+        }
+        return <span key={i}>{s.value}</span>;
+      })}
+    </>
+  );
+}
+
+function optionLetter(i) {
+  return String.fromCharCode(65 + i);
 }
 
 function FlashcardReview() {
@@ -135,6 +167,10 @@ function FlashcardReview() {
   }
 
   const currentCard = dueCards[currentIndex];
+  const isCloze = currentCard.cardType === 'cloze' && currentCard.clozeText;
+  const isQuizMiss = currentCard.sourceType === 'quiz-miss';
+  const missMeta = currentCard.meta || {};
+  const sourceTag = isQuizMiss ? 'Quiz miss' : currentCard.sourceType === 'note-cloze' ? 'Cloze' : null;
 
   return (
     <div className="container fc-review">
@@ -161,13 +197,33 @@ function FlashcardReview() {
           onKeyDown={(e) => e.key === 'Enter' && toggleFlip()}
         >
           <div className="fc-face fc-front">
-            {currentCard.topic && <div className="pp-tag pp-tag-coral fc-topic">{currentCard.topic}</div>}
-            <div className="fc-text">{currentCard.front}</div>
+            <div className="fc-tags">
+              {currentCard.topic && <div className="pp-tag pp-tag-coral fc-topic">{currentCard.topic}</div>}
+              {sourceTag && <div className="pp-tag fc-source-tag">{sourceTag}</div>}
+            </div>
+            <div className="fc-text" style={{ whiteSpace: 'pre-line' }}>
+              {isCloze
+                ? <ClozeText text={currentCard.clozeText} ordinal={currentCard.clozeOrdinal} side="front" />
+                : currentCard.front}
+            </div>
+            {isQuizMiss && missMeta.selectedOptionIndex != null && (
+              <div className="fc-miss-context">
+                You answered {optionLetter(missMeta.selectedOptionIndex)}
+                {missMeta.quizTitle ? ` · ${missMeta.quizTitle}` : ''}
+              </div>
+            )}
             <div className="fc-hint">Click or press Space to reveal answer</div>
           </div>
           <div className="fc-face fc-back">
-            {currentCard.topic && <div className="pp-tag fc-topic">{currentCard.topic}</div>}
-            <div className="fc-text">{currentCard.back}</div>
+            <div className="fc-tags">
+              {currentCard.topic && <div className="pp-tag fc-topic">{currentCard.topic}</div>}
+              {sourceTag && <div className="pp-tag fc-source-tag">{sourceTag}</div>}
+            </div>
+            <div className="fc-text" style={{ whiteSpace: 'pre-line' }}>
+              {isCloze
+                ? <ClozeText text={currentCard.clozeText} ordinal={currentCard.clozeOrdinal} side="back" />
+                : currentCard.back}
+            </div>
           </div>
         </div>
       </div>

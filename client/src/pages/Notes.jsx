@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { getUser } from '../utils/auth';
+import { hasCloze } from '../utils/cloze';
 import './Notes.css';
 
 function Notes() {
@@ -10,6 +11,7 @@ function Notes() {
   const [editingNote, setEditingNote] = useState(null);
   const [editText, setEditText] = useState('');
   const [query, setQuery] = useState('');
+  const [clozeStatus, setClozeStatus] = useState({}); // noteId -> { busy, message }
   const user = getUser();
 
   useEffect(() => { fetchNotes(); }, []);
@@ -35,6 +37,25 @@ function Notes() {
     if (!window.confirm('Delete this note?')) return;
     try { await api.delete(`/notes/${noteId}`); fetchNotes(); }
     catch (error) { console.error('Error deleting note:', error); }
+  };
+
+  const handleMakeClozeCards = async (noteId) => {
+    setClozeStatus((s) => ({ ...s, [noteId]: { busy: true, message: '' } }));
+    try {
+      const res = await api.post('/flashcards/from-note', { userId: user.id, noteId });
+      setClozeStatus((s) => ({
+        ...s,
+        [noteId]: { busy: false, message: res.data.message || 'Cards created!' },
+      }));
+    } catch (error) {
+      setClozeStatus((s) => ({
+        ...s,
+        [noteId]: {
+          busy: false,
+          message: error.response?.data?.message || 'Could not create cards.',
+        },
+      }));
+    }
   };
 
   if (loading) {
@@ -134,6 +155,9 @@ function Notes() {
                       rows="4"
                       autoFocus
                     />
+                    <p className="pp-hint" style={{ margin: '6px 0 0' }}>
+                      Tip: write {'{{c1::answer}}'} to turn text into cloze deletion cards.
+                    </p>
                     <div className="note-edit-actions">
                       <button onClick={() => handleSaveEdit(note._id)} className="btn btn-primary btn-sm">Save</button>
                       <button onClick={handleCancelEdit} className="btn btn-secondary btn-sm">Cancel</button>
@@ -145,9 +169,22 @@ function Notes() {
               </div>
               {editingNote !== note._id && (
                 <div className="note-row-actions">
+                  {hasCloze(note.text) && (
+                    <button
+                      onClick={() => handleMakeClozeCards(note._id)}
+                      className="btn btn-primary btn-sm"
+                      title="Generate cloze deletion flashcards from this note"
+                      disabled={clozeStatus[note._id]?.busy}
+                    >
+                      {clozeStatus[note._id]?.busy ? 'Making…' : 'Make cloze cards'}
+                    </button>
+                  )}
                   <button onClick={() => handleEdit(note)} className="btn btn-secondary btn-sm" title="Edit">Edit</button>
                   <button onClick={() => handleDelete(note._id)} className="btn btn-danger btn-sm" title="Delete">Delete</button>
                 </div>
+              )}
+              {clozeStatus[note._id]?.message && (
+                <p className="pp-hint" style={{ margin: '6px 0 0' }}>{clozeStatus[note._id].message}</p>
               )}
             </div>
           ))}

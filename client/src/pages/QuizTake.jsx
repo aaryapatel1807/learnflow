@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { getUser } from '../utils/auth';
 import './QuizTake.css';
@@ -168,6 +168,12 @@ function QuizTake() {
           <div className="pp-panel qt-reco">
             <h2>📝 Recommendation</h2>
             <p>{result.recommendation}</p>
+            {result.srsQueued > 0 && (
+              <p className="pp-hint" style={{ marginTop: '8px' }}>
+                🔁 {result.srsQueued} missed question{result.srsQueued === 1 ? '' : 's'} added to
+                your flashcard review queue — <Link to="/flashcards">review them now</Link>.
+              </p>
+            )}
           </div>
 
           <div className="qt-actions">
