@@ -23,7 +23,7 @@ const studyRoutes = require('./routes/study');
 const adminRoutes = require('./routes/admin');
 
 // Import middleware
-const { authenticateToken } = require('./middleware/auth');
+const { authenticateToken, scopeToUser } = require('./middleware/auth');
 
 const app = express();
 
@@ -37,22 +37,27 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Public routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', authRoutes); // User stats endpoint
+app.use('/api/users', authRoutes); // User stats endpoint (guarded inside the router)
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/chapters', chapterRoutes);
-app.use('/api/learning-paths', learningPathRoutes);
-app.use('/api/roadmaps', roadmapRoutes);
-app.use('/api/flashcards', flashcardRoutes);
-app.use('/api/quizzes', quizRoutes);
-app.use('/api/quiz', quizRoutes);
-app.use('/api/achievements', achievementRoutes);
-app.use('/api/notes', notesRoutes);
-app.use('/api/bookmarks', bookmarksRoutes);
-app.use('/api/calendar', calendarRoutes);
-app.use('/api/recommendations', recommendationsRoutes);
-app.use('/api/skill-tree', skillTreeRoutes);
-app.use('/api/study', studyRoutes);
+
+// Everything below reads or writes a specific user's data. It requires a valid
+// token, and scopeToUser pins any body/query userId to the token's user so one
+// account can't act on another (these routes were fully unauthenticated).
+const userScoped = [authenticateToken, scopeToUser];
+app.use('/api/learning-paths', userScoped, learningPathRoutes);
+app.use('/api/roadmaps', userScoped, roadmapRoutes);
+app.use('/api/flashcards', userScoped, flashcardRoutes);
+app.use('/api/quizzes', userScoped, quizRoutes);
+app.use('/api/quiz', userScoped, quizRoutes);
+app.use('/api/achievements', userScoped, achievementRoutes);
+app.use('/api/notes', userScoped, notesRoutes);
+app.use('/api/bookmarks', userScoped, bookmarksRoutes);
+app.use('/api/calendar', userScoped, calendarRoutes);
+app.use('/api/recommendations', userScoped, recommendationsRoutes);
+app.use('/api/skill-tree', userScoped, skillTreeRoutes);
+app.use('/api/study', userScoped, studyRoutes);
 
 // Admin routes (protected with authenticateToken + isAdmin middleware)
 app.use('/api/admin', adminRoutes);

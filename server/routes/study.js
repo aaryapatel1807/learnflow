@@ -1,9 +1,12 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const StudySession = require('../models/StudySession');
 const User = require('../models/User');
 const { updateUserStreak } = require('./flashcards');
+const { checkAndUnlockAchievements } = require('./achievements');
 
 const router = express.Router();
+guardUserParam(router);
 
 // XP: 2 XP per 5 completed focus minutes (a 25-min Pomodoro = 10 XP).
 function xpForFocus(minutes) {
@@ -14,8 +17,9 @@ function xpForFocus(minutes) {
 router.post('/sessions', async (req, res) => {
   try {
     const { userId, kind = 'focus', plannedMinutes, subjectId, label } = req.body;
-    if (!userId || !plannedMinutes) {
-      return res.status(400).json({ message: 'userId and plannedMinutes are required' });
+    const planned = Number(plannedMinutes);
+    if (!userId || !Number.isFinite(planned) || planned < 1 || planned > 180) {
+      return res.status(400).json({ message: 'plannedMinutes must be a number between 1 and 180' });
     }
     if (!['focus', 'short-break', 'long-break'].includes(kind)) {
       return res.status(400).json({ message: 'Invalid session kind' });
@@ -30,7 +34,7 @@ router.post('/sessions', async (req, res) => {
     const session = new StudySession({
       user: userId,
       kind,
-      plannedMinutes,
+      plannedMinutes: planned,
       subject: subjectId || null,
       label: label || ''
     });
@@ -55,7 +59,12 @@ router.post('/sessions/:id/complete', async (req, res) => {
       return res.status(400).json({ message: 'Session is not running' });
     }
 
-    const minutes = Math.max(0, Math.min(actualMinutes ?? session.plannedMinutes, session.plannedMinutes));
+    // Never credit more time than has really passed since the session started
+    // (+1 min grace for rounding). Without this a client could start a long
+    // session and "complete" it instantly for full XP.
+    const elapsedMinutes = Math.floor((Date.now() - session.startedAt.getTime()) / 60000) + 1;
+    const requested = Number(actualMinutes ?? session.plannedMinutes);
+    const minutes = Math.max(0, Math.min(Number.isFinite(requested) ? requested : 0, session.plannedMinutes, elapsedMinutes));
     session.actualMinutes = minutes;
     session.status = 'completed';
     session.endedAt = new Date();
@@ -73,7 +82,9 @@ router.post('/sessions/:id/complete', async (req, res) => {
     session.xpAwarded = xp;
     await session.save();
 
-    res.json({ session, xpEarned: xp });
+    const newAchievements = xp > 0 ? await checkAndUnlockAchievements(userId, 'focus_session') : [];
+
+    res.json({ session, xpEarned: xp, newAchievements });
   } catch (error) {
     console.error('Complete study session error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -110,6 +121,9 @@ router.get('/stats/:userId', async (req, res) => {
     since.setDate(since.getDate() - (days - 1));
     since.setHours(0, 0, 0, 0);
 
+    // Client passes Date#getTimezoneOffset() so "today" is the user's day, not UTC's.
+    const tzOffset = Number.parseInt(req.query.tzOffset, 10) || 0;
+
     const sessions = await StudySession.find({
       user: req.params.userId,
       status: 'completed',
@@ -121,7 +135,7 @@ router.get('/stats/:userId', async (req, res) => {
     let totalMinutes = 0;
     let totalSessions = 0;
     for (const s of sessions) {
-      const key = new Date(s.startedAt).toISOString().split('T')[0];
+      const key = new Date(new Date(s.startedAt).getTime() - tzOffset * 60000).toISOString().split('T')[0];
       perDay[key] = perDay[key] || { minutes: 0, sessions: 0 };
       perDay[key].minutes += s.actualMinutes;
       perDay[key].sessions += 1;

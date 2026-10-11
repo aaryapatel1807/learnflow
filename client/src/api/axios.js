@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthToken } from '../utils/auth';
+import { getAuthToken, logout } from '../utils/auth';
 
 const api = axios.create({
   baseURL: '/api'
@@ -15,6 +15,23 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// An expired/invalid JWT should send the user back to login instead of
+// leaving every page silently failing.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const url = error.config?.url || '';
+    const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register');
+    if (status === 401 && !isAuthCall && getAuthToken()) {
+      logout();
+      window.dispatchEvent(new Event('learnflow:logout'));
+      if (window.location.pathname !== '/login') window.location.assign('/login');
+    }
     return Promise.reject(error);
   }
 );

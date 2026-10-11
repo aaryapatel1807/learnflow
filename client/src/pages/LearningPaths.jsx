@@ -48,7 +48,7 @@ function LearningPaths() {
               <div className="pp-tags">
                 {path.subject && <span className="pp-tag pp-tag-blue">{path.subject.name}</span>}
                 {path.difficulty && <span className="pp-tag pp-tag-coral">{path.difficulty}</span>}
-                {path.nodeCount && <span className="pp-tag pp-tag-grey">{path.nodeCount} steps</span>}
+                {path.nodeCount > 0 && <span className="pp-tag pp-tag-grey">{path.nodeCount} steps</span>}
                 {path.estimatedDuration && (
                   <span className="pp-tag pp-tag-grey">{path.estimatedDuration}</span>
                 )}

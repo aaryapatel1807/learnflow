@@ -26,25 +26,31 @@ import AdminBooks from './pages/AdminBooks';
 import { RoadmapView } from './pages/RoadmapView';
 import { PortfolioView } from './pages/PortfolioView';
 
+// Defined at module level so their identity is stable across renders.
+// (Declared inside App they were re-created on every render, which remounted
+// the whole page — and refetched its data — each time App's state changed.)
+const ProtectedRoute = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+};
+
+const AdminRoute = ({ children }) => {
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  const currentUser = getUser();
+  if (currentUser?.role !== 'admin') return <Navigate to="/" replace />;
+  return children;
+};
+
 function App() {
-  const [user, setUser] = useState(null);
+  // Read the stored user synchronously. Starting at null made pages that
+  // receive `user` (e.g. BookReader) crash with `user.id` on a hard refresh.
+  const [user, setUser] = useState(() => (isAuthenticated() ? getUser() : null));
 
+  // Keep in sync if the token is cleared elsewhere (e.g. a 401 in axios).
   useEffect(() => {
-    if (isAuthenticated()) {
-      setUser(getUser());
-    }
+    const onLogout = () => setUser(null);
+    window.addEventListener('learnflow:logout', onLogout);
+    return () => window.removeEventListener('learnflow:logout', onLogout);
   }, []);
-
-  const ProtectedRoute = ({ children }) => {
-    return isAuthenticated() ? children : <Navigate to="/login" />;
-  };
-
-  const AdminRoute = ({ children }) => {
-    if (!isAuthenticated()) return <Navigate to="/login" />;
-    const currentUser = getUser();
-    if (currentUser?.role !== 'admin') return <Navigate to="/" />;
-    return children;
-  };
 
   const handleLogout = () => {
     logout();

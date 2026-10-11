@@ -126,7 +126,43 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+/**
+ * For user-scoped routes that still accept a userId in the body/query:
+ * never trust it. Non-admins are always pinned to the id in their own JWT,
+ * so a client can't read or write another user's data by changing the id.
+ */
+const scopeToUser = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  }
+  if (req.user.role !== 'admin') {
+    if (req.body && typeof req.body === 'object' && req.method !== 'GET') {
+      req.body.userId = req.user.id;
+    }
+    if (req.query && req.query.userId !== undefined) {
+      req.query.userId = req.user.id;
+    }
+  }
+  next();
+};
+
+/**
+ * Registers a router.param handler so every `/:userId` route on the router
+ * only serves the owner (or an admin).
+ */
+const guardUserParam = (router) => {
+  router.param('userId', (req, res, next, userId) => {
+    if (req.user && (req.user.role === 'admin' || req.user.id === userId)) return next();
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. You can only access your own resources.'
+    });
+  });
+};
+
 module.exports = {
+  scopeToUser,
+  guardUserParam,
   authenticateToken,
   authorizeRoles,
   authorizeUserOrAdmin,

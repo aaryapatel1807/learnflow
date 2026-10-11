@@ -47,7 +47,7 @@ function Quizzes() {
               <div className="pp-tags">
                 {quiz.topic && <span className="pp-tag pp-tag-blue">{quiz.topic}</span>}
                 {quiz.difficulty && <span className="pp-tag pp-tag-coral">{quiz.difficulty}</span>}
-                {quiz.questionCount && (
+                {quiz.questionCount > 0 && (
                   <span className="pp-tag pp-tag-grey">{quiz.questionCount} questions</span>
                 )}
               </div>

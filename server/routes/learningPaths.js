@@ -3,6 +3,7 @@ const LearningPath = require('../models/LearningPath');
 const LearningPathNode = require('../models/LearningPathNode');
 const Progress = require('../models/Progress');
 const Chapter = require('../models/Chapter');
+const { idOf } = require('../utils/ids');
 
 const router = express.Router();
 
@@ -95,16 +96,16 @@ router.get('/:id', async (req, res) => {
               let prereqComplete = false;
               if (prereqNodeFull.contentType === 'book' && prereqNodeFull.book) {
                 const chapters = await Chapter.find({ book: prereqNodeFull.book });
-                const bookProgress = completedMap.get(`book-${prereqNodeFull.book}`);
+                const bookProgress = completedMap.get(`book-${idOf(prereqNodeFull.book)}`);
                 if (bookProgress && chapters.length > 0) {
                   prereqComplete = chapters.every(ch => 
                     bookProgress.completedChapters.includes(ch._id.toString())
                   );
                 }
               } else if (prereqNodeFull.contentType === 'chapter' && prereqNodeFull.chapter && prereqNodeFull.book) {
-                const bookProgress = completedMap.get(`book-${prereqNodeFull.book}`);
+                const bookProgress = completedMap.get(`book-${idOf(prereqNodeFull.book)}`);
                 if (bookProgress) {
-                  prereqComplete = bookProgress.completedChapters.includes(prereqNodeFull.chapter.toString());
+                  prereqComplete = bookProgress.completedChapters.includes(idOf(prereqNodeFull.chapter));
                 }
               }
               

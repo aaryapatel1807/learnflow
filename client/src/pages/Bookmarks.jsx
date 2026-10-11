@@ -62,32 +62,35 @@ function Bookmarks() {
     );
   }
 
-  const getTargetUrl = (bookmark) => {
-    switch (bookmark.contentType) {
-      case 'book': return `/book/${bookmark.contentId._id}`;
-      case 'chapter': return `/book/${bookmark.contentId.bookId}?chapter=${bookmark.contentId.chapterNumber}`;
+  // The API returns items grouped by type, with the content's own fields at the
+  // top level: { bookmarkId, createdAt, _id (content id), title, ... }. The type
+  // is the group key, so it is passed in rather than read off the item.
+  const getTargetUrl = (type, b) => {
+    switch (type) {
+      case 'book': return `/book/${b._id}`;
+      case 'chapter': return `/book/${b.bookId}?chapter=${b.chapterNumber}`;
       case 'flashcard': return `/flashcards`;
-      case 'roadmapNode': return `/roadmap/${bookmark.contentId.roadmapId}`;
+      case 'roadmapNode': return b.roadmapId ? `/roadmap/${b.roadmapId}` : '/roadmaps';
       default: return '#';
     }
   };
 
-  const getTitle = (bookmark) => {
-    switch (bookmark.contentType) {
-      case 'book': return bookmark.contentId.title;
-      case 'chapter': return `Chapter ${bookmark.contentId.chapterNumber}: ${bookmark.contentId.title}`;
-      case 'flashcard': return bookmark.contentId.front.substring(0, 50) + '...';
-      case 'roadmapNode': return bookmark.contentId.title;
+  const getTitle = (type, b) => {
+    switch (type) {
+      case 'book': return b.title;
+      case 'chapter': return `Chapter ${b.chapterNumber}: ${b.title}`;
+      case 'flashcard': return (b.front || '').length > 50 ? `${b.front.substring(0, 50)}…` : (b.front || 'Flashcard');
+      case 'roadmapNode': return b.title;
       default: return 'Saved Item';
     }
   };
 
-  const getMeta = (bookmark) => {
-    switch (bookmark.contentType) {
-      case 'book': return `By ${bookmark.contentId.author}`;
-      case 'chapter': return `Book ID: ${bookmark.contentId.bookId}`;
-      case 'flashcard': return `Topic: ${bookmark.contentId.topic}`;
-      case 'roadmapNode': return `Phase: ${bookmark.contentId.phase}`;
+  const getMeta = (type, b) => {
+    switch (type) {
+      case 'book': return `By ${b.author}`;
+      case 'chapter': return b.bookTitle ? `From ${b.bookTitle}` : '';
+      case 'flashcard': return `Topic: ${b.topic}`;
+      case 'roadmapNode': return [b.roadmapTitle, b.phase && `Phase: ${b.phase}`].filter(Boolean).join(' · ');
       default: return '';
     }
   };
@@ -118,17 +121,17 @@ function Bookmarks() {
             </div>
             <div className="pp-grid">
               {items.map(bookmark => (
-                <Link key={bookmark._id} to={getTargetUrl(bookmark)} className="pp-card-item bkm-card">
+                <Link key={bookmark.bookmarkId} to={getTargetUrl(key, bookmark)} className="pp-card-item bkm-card">
                   <button
                     className="bkm-remove"
-                    onClick={(e) => handleRemoveBookmark(e, bookmark._id)}
+                    onClick={(e) => handleRemoveBookmark(e, bookmark.bookmarkId)}
                     title="Remove bookmark"
                     aria-label="Remove bookmark"
                   >
                     ×
                   </button>
-                  <h3>{getTitle(bookmark)}</h3>
-                  <p>{getMeta(bookmark)}</p>
+                  <h3>{getTitle(key, bookmark)}</h3>
+                  <p>{getMeta(key, bookmark)}</p>
                   <div className="pp-card-actions">
                     <span className="pp-count">
                       Added {new Date(bookmark.createdAt).toLocaleDateString()}

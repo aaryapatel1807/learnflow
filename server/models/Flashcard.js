@@ -54,11 +54,14 @@ const flashcardSchema = new mongoose.Schema({
   // Deduplication key, e.g. 'cloze:<noteId>:<ordinal>' or
   // 'quizmiss:<userId>:<questionId>'. Unique + sparse so repeat generation
   // never creates duplicate cards.
+  // NOTE: default must be undefined, not null. A sparse index still indexes
+  // explicit nulls, so a null default makes the second ordinary card collide on
+  // the unique index (E11000).
   sourceKey: {
     type: String,
     unique: true,
     sparse: true,
-    default: null
+    default: undefined
   },
   // Free-form context (e.g. quiz-miss: { quizId, quizTitle, questionId,
   // options, selectedOptionIndex, correctOptionIndex }).

@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { authenticateToken, authorizeUserOrAdmin } = require('../middleware/auth');
 const { 
   validateRequiredFields, 
   validateEmail, 
@@ -135,14 +136,13 @@ router.post(
 );
 
 // Get current user profile
-router.get('/me', async (req, res) => {
+router.get('/me', authenticateToken, async (req, res) => {
   try {
-    // Note: This route should be protected with authenticateToken middleware
-    // when called from server.js
-    res.json({
-      success: true,
-      message: 'User profile endpoint - protect with authenticateToken middleware'
-    });
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({ success: true, user });
   } catch (error) {
     console.error('Get user profile error:', error);
     res.status(500).json({ 
@@ -153,7 +153,7 @@ router.get('/me', async (req, res) => {
 });
 
 // Get user stats (XP, streak, etc.)
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', authenticateToken, authorizeUserOrAdmin('userId'), async (req, res) => {
   try {
     const { userId } = req.params;
     

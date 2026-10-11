@@ -1,10 +1,12 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const Note = require('../models/Note');
 const Chapter = require('../models/Chapter');
 const Book = require('../models/Book');
 const Subject = require('../models/Subject');
 
 const router = express.Router();
+guardUserParam(router);
 
 // Create a note
 router.post('/', async (req, res) => {
@@ -116,11 +118,9 @@ router.put('/:noteId', async (req, res) => {
       });
     }
 
-    const note = await Note.findByIdAndUpdate(
-      noteId,
-      { text },
-      { new: true }
-    );
+    const filter = { _id: noteId };
+    if (req.user.role !== 'admin') filter.userId = req.user.id;
+    const note = await Note.findOneAndUpdate(filter, { text }, { new: true });
 
     if (!note) {
       return res.status(404).json({
@@ -144,7 +144,9 @@ router.delete('/:noteId', async (req, res) => {
   try {
     const { noteId } = req.params;
 
-    const note = await Note.findByIdAndDelete(noteId);
+    const filter = { _id: noteId };
+    if (req.user.role !== 'admin') filter.userId = req.user.id;
+    const note = await Note.findOneAndDelete(filter);
 
     if (!note) {
       return res.status(404).json({
