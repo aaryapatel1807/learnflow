@@ -17,6 +17,8 @@ function BookReader({ user }) {
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [chapterContent, setChapterContent] = useState('');
+  const [contentLoading, setContentLoading] = useState(false);
 
   useEffect(() => {
     const fetchBookAndProgress = async () => {
@@ -26,25 +28,31 @@ function BookReader({ user }) {
           api.get(`/progress/${user.id}`)
         ]);
 
-        setBook(bookRes.data);
-        setChapters(bookRes.data.chapters);
+        // The API wraps its payload as { success, data } — unwrap before use.
+        // (Using the wrapper directly left `chapters` undefined, crashing the page.)
+        const bookData = bookRes.data?.data || {};
+        const chapterList = bookData.chapters || [];
+        setBook(bookData);
+        setChapters(chapterList);
 
         // The API wraps its payload as { success, data: [...] } — it is not a bare array.
         const allProgress = Array.isArray(progressRes.data?.data) ? progressRes.data.data : [];
         const bookProgress = allProgress.find(p => p.book?._id === bookId);
+        let startIndex = 0;
         if (bookProgress) {
           setProgress(bookProgress);
-          const chapterIndex = bookRes.data.chapters.findIndex(ch => ch._id === bookProgress.chapter?._id);
-          if (chapterIndex >= 0) setCurrentChapterIndex(chapterIndex);
+          const chapterIndex = chapterList.findIndex(ch => ch._id === bookProgress.chapter?._id);
+          if (chapterIndex >= 0) startIndex = chapterIndex;
           setCurrentPage(bookProgress.lastPageRead || 1);
         }
 
         // Deep link from Bookmarks: /book/:id?chapter=3
         const wanted = Number(searchParams.get('chapter'));
         if (wanted) {
-          const idx = bookRes.data.chapters.findIndex(ch => ch.chapterNumber === wanted);
-          if (idx >= 0) { setCurrentChapterIndex(idx); setCurrentPage(1); }
+          const idx = chapterList.findIndex(ch => ch.chapterNumber === wanted);
+          if (idx >= 0) { startIndex = idx; setCurrentPage(1); }
         }
+        setCurrentChapterIndex(startIndex);
       } catch (error) {
         console.error('Error fetching book:', error);
       } finally {
@@ -53,6 +61,20 @@ function BookReader({ user }) {
     };
     fetchBookAndProgress();
   }, [bookId, user?.id]);
+
+  // Chapter list responses exclude full text (select('-content')); fetch it per chapter.
+  useEffect(() => {
+    const chapter = chapters[currentChapterIndex];
+    if (!chapter?._id) return;
+    if (chapter.content) { setChapterContent(chapter.content); return; }
+    let cancelled = false;
+    setContentLoading(true);
+    api.get(`/chapters/${chapter._id}`)
+      .then(res => { if (!cancelled) setChapterContent(res.data?.data?.content || ''); })
+      .catch(err => console.error('Error fetching chapter content:', err))
+      .finally(() => { if (!cancelled) setContentLoading(false); });
+    return () => { cancelled = true; };
+  }, [chapters, currentChapterIndex]);
 
   const updateProgress = async (chapterIndex, page, isComplete = false) => {
     try {
@@ -168,7 +190,11 @@ function BookReader({ user }) {
         </div>
 
         <div className="pp-panel br-content">
-          <div className="br-chapter-text" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((currentChapter.content || '').replace(/\n/g, '<br>')) }} />
+          {contentLoading ? (
+            <div className="loading-state"><div className="spinner" /><span>Loading chapter…</span></div>
+          ) : (
+            <div className="br-chapter-text" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((chapterContent || '').replace(/\n/g, '<br>')) }} />
+          )}
         </div>
 
         <div className="br-note">
