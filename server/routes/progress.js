@@ -269,6 +269,7 @@ router.post('/complete-chapter',
       }
 
       let progress = await Progress.findOne({ user: userId, book: bookId });
+      let newlyCompleted = false;
 
       // Create progress record if it doesn't exist
       if (!progress) {
@@ -279,6 +280,7 @@ router.post('/complete-chapter',
           lastPageRead: chapter.pages,
           completedChapters: [chapterId]
         });
+        newlyCompleted = true;
       } else {
         // Update existing progress
         progress.chapter = chapterId;
@@ -287,21 +289,20 @@ router.post('/complete-chapter',
         // Add chapter to completed chapters if not already there
         if (!progress.completedChapters.includes(chapterId)) {
           progress.completedChapters.push(chapterId);
+          newlyCompleted = true;
         }
       }
 
       await progress.save();
 
-      // Award XP and update streak for chapter completion
-      const user = await User.findById(userId);
-      user.xp += 10; // 10 XP for completing a chapter
-      await user.save();
-      
-      // Update streak
-      await updateUserStreak(userId);
-      
-      // Check achievements (including learning path completion)
-      await checkAndUnlockAchievements(userId, 'chapter_complete');
+      // XP / streak / achievements only the first time a chapter is completed
+      // (this used to pay 10 XP on every call, so it could be farmed).
+      let newAchievements = [];
+      if (newlyCompleted) {
+        await User.updateOne({ _id: userId }, { $inc: { xp: 10 } });
+        await updateUserStreak(userId);
+        newAchievements = await checkAndUnlockAchievements(userId, 'chapter_complete');
+      }
 
       // Populate for response
       await progress.populate('book', 'title author');
@@ -311,7 +312,8 @@ router.post('/complete-chapter',
         success: true,
         data: progress,
         message: `Chapter "${chapter.title}" marked as complete`,
-        xpEarned: 10
+        xpEarned: newlyCompleted ? 10 : 0,
+        newAchievements
       });
     } catch (error) {
       console.error('Complete chapter error:', error);

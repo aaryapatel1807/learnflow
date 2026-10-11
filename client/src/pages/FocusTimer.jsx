@@ -83,8 +83,9 @@ function FocusTimer() {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get(`/study/stats/${user.id}?days=7`);
-      const today = new Date().toISOString().split('T')[0];
+      const res = await api.get(`/study/stats/${user.id}?days=7&tzOffset=${new Date().getTimezoneOffset()}`);
+      const n = new Date();
+      const today = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
       const todayStats = res.data.perDay?.[today] || { minutes: 0, sessions: 0 };
       setFocusMinutesToday(todayStats.minutes);
       setCompletedToday(todayStats.sessions);

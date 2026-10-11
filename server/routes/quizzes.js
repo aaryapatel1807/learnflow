@@ -1,4 +1,5 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const Quiz = require('../models/Quiz');
 const QuizQuestion = require('../models/QuizQuestion');
 const QuizSubmission = require('../models/QuizSubmission');
@@ -6,8 +7,11 @@ const User = require('../models/User');
 const Flashcard = require('../models/Flashcard');
 const FlashcardReview = require('../models/FlashcardReview');
 const { updateUserStreak } = require('./flashcards');
+const { checkAndUnlockAchievements } = require('./achievements');
+const mongoose = require('mongoose');
 
 const router = express.Router();
+guardUserParam(router);
 
 // GET /api/quizzes - Get all quizzes
 router.get('/', async (req, res) => {
@@ -66,9 +70,21 @@ router.post('/submit', async (req, res) => {
   try {
     const { userId, quizId, answers } = req.body;
     
-    if (!userId || !quizId || !answers) {
-      return res.status(400).json({ message: 'userId, quizId, and answers are required' });
+    if (!userId || !quizId || !Array.isArray(answers)) {
+      return res.status(400).json({ message: 'userId, quizId, and an answers array are required' });
     }
+    if (!mongoose.isValidObjectId(quizId)) {
+      return res.status(400).json({ message: 'Invalid quizId' });
+    }
+
+    // XP is only paid once per quiz per 24h. Submitting returns the correct
+    // answers, so repeat attempts are free to retake for practice but can't be
+    // looped for unlimited XP.
+    const recentAttempt = await QuizSubmission.exists({
+      user: userId,
+      quiz: quizId,
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    });
     
     // Get quiz questions with correct answers
     const questions = await QuizQuestion.find({ quiz: quizId });
@@ -185,15 +201,16 @@ router.post('/submit', async (req, res) => {
     await updateUserStreak(userId);
     
     // Award XP
-    const user = await User.findById(userId);
-    let xpEarned = 30; // Base XP for completing quiz
-    
-    if (score === 100) {
-      xpEarned += 50; // Bonus for perfect score
+    let xpEarned = 0;
+    if (!recentAttempt) {
+      xpEarned = 30; // Base XP for completing quiz
+      if (score === 100) {
+        xpEarned += 50; // Bonus for perfect score
+      }
+      await User.updateOne({ _id: userId }, { $inc: { xp: xpEarned } });
     }
-    
-    user.xp += xpEarned;
-    await user.save();
+
+    const newAchievements = await checkAndUnlockAchievements(userId, 'quiz_submit');
     
     // Generate rule-based recommendation
     let recommendation = 'Great job!';
@@ -218,6 +235,8 @@ router.post('/submit', async (req, res) => {
       correctAnswers: correctCount,
       totalQuestions: questions.length,
       xpEarned,
+      xpCapped: !!recentAttempt,
+      newAchievements,
       recommendation,
       srsQueued,
       answers: gradedAnswers

@@ -1,17 +1,20 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const LearningPath = require('../models/LearningPath');
 const LearningPathNode = require('../models/LearningPathNode');
 const Progress = require('../models/Progress');
 const Chapter = require('../models/Chapter');
+const { idOf } = require('../utils/ids');
 
 const router = express.Router();
+guardUserParam(router);
 
 // Helper: Check if a node is complete
 async function isNodeComplete(node, completedMap) {
   if (node.contentType === 'book' && node.book) {
     // For book nodes, check if all chapters are completed
     const chapters = await Chapter.find({ book: node.book });
-    const bookProgress = completedMap.get(`book-${node.book}`);
+    const bookProgress = completedMap.get(`book-${idOf(node.book)}`);
     if (bookProgress && chapters.length > 0) {
       return chapters.every(ch => 
         bookProgress.completedChapters.includes(ch._id.toString())
@@ -20,9 +23,9 @@ async function isNodeComplete(node, completedMap) {
     return false;
   } else if (node.contentType === 'chapter' && node.chapter && node.book) {
     // For chapter nodes, check if this specific chapter is completed
-    const bookProgress = completedMap.get(`book-${node.book}`);
+    const bookProgress = completedMap.get(`book-${idOf(node.book)}`);
     if (bookProgress) {
-      return bookProgress.completedChapters.includes(node.chapter.toString());
+      return bookProgress.completedChapters.includes(idOf(node.chapter));
     }
     return false;
   }

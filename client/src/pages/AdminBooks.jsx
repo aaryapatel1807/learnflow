@@ -17,7 +17,7 @@ function AdminBooks() {
 
   const fetchBooks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/books', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+      const response = await fetch('/api/admin/books', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
       const data = await response.json();
       if (response.status === 403) { setError('Access denied.'); setTimeout(() => navigate('/'), 2000); return; }
       if (!response.ok) throw new Error(data.message);
@@ -27,7 +27,7 @@ function AdminBooks() {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/subjects', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+      const response = await fetch('/api/admin/subjects', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
       if (response.ok) setSubjects(await response.json());
     } catch (err) { console.error(err); }
   };
@@ -38,7 +38,7 @@ function AdminBooks() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setSubmitting(true); setError('');
     try {
-      const url = editingBook ? `http://localhost:5000/api/admin/books/${editingBook._id}` : 'http://localhost:5000/api/admin/books';
+      const url = editingBook ? `/api/admin/books/${editingBook._id}` : '/api/admin/books';
       const response = await fetch(url, { method: editingBook ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: JSON.stringify(formData) });
       if (!response.ok) throw new Error('Failed to save book');
       setShowModal(false); fetchBooks();
@@ -48,7 +48,7 @@ function AdminBooks() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete book?')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/books/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+      const response = await fetch(`/api/admin/books/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
       if (!response.ok) throw new Error('Failed to delete');
       fetchBooks();
     } catch (err) { setError(err.message); }

@@ -1,11 +1,13 @@
 ﻿import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import api from '../api/axios';
 import './BookReader.css';
 
 function BookReader({ user }) {
   const { bookId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [book, setBook] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -27,12 +29,21 @@ function BookReader({ user }) {
         setBook(bookRes.data);
         setChapters(bookRes.data.chapters);
 
-        const bookProgress = progressRes.data.find(p => p.book._id === bookId);
+        // The API wraps its payload as { success, data: [...] } — it is not a bare array.
+        const allProgress = Array.isArray(progressRes.data?.data) ? progressRes.data.data : [];
+        const bookProgress = allProgress.find(p => p.book?._id === bookId);
         if (bookProgress) {
           setProgress(bookProgress);
           const chapterIndex = bookRes.data.chapters.findIndex(ch => ch._id === bookProgress.chapter?._id);
           if (chapterIndex >= 0) setCurrentChapterIndex(chapterIndex);
           setCurrentPage(bookProgress.lastPageRead || 1);
+        }
+
+        // Deep link from Bookmarks: /book/:id?chapter=3
+        const wanted = Number(searchParams.get('chapter'));
+        if (wanted) {
+          const idx = bookRes.data.chapters.findIndex(ch => ch.chapterNumber === wanted);
+          if (idx >= 0) { setCurrentChapterIndex(idx); setCurrentPage(1); }
         }
       } catch (error) {
         console.error('Error fetching book:', error);
@@ -41,14 +52,16 @@ function BookReader({ user }) {
       }
     };
     fetchBookAndProgress();
-  }, [bookId, user.id]);
+  }, [bookId, user?.id]);
 
   const updateProgress = async (chapterIndex, page, isComplete = false) => {
     try {
       const response = await api.post('/progress', {
         userId: user.id, bookId: bookId, chapterId: chapters[chapterIndex]._id, lastPageRead: page, isChapterComplete: isComplete
       });
-      setProgress(response.data);
+      // Unwrap { success, data } — storing the wrapper left `progress.completedChapters`
+      // undefined, so "Mark Chapter Complete" never visibly completed anything.
+      setProgress(response.data.data);
     } catch (error) { console.error('Error updating progress:', error); }
   };
 
@@ -88,6 +101,16 @@ function BookReader({ user }) {
   if (!book) return <div className="container">Book not found</div>;
 
   const currentChapter = chapters[currentChapterIndex];
+  if (!currentChapter) {
+    return (
+      <div className="container">
+        <div className="pp-empty">
+          <p>This book doesn't have any chapters yet.</p>
+          <button onClick={() => navigate('/catalogue')} className="btn btn-primary">Back to catalogue</button>
+        </div>
+      </div>
+    );
+  }
   const isChapterComplete = progress?.completedChapters?.some(ch => ch._id === currentChapter._id);
 
   return (
@@ -145,7 +168,7 @@ function BookReader({ user }) {
         </div>
 
         <div className="pp-panel br-content">
-          <div className="br-chapter-text" dangerouslySetInnerHTML={{ __html: currentChapter.content.replace(/\n/g, '<br>') }} />
+          <div className="br-chapter-text" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((currentChapter.content || '').replace(/\n/g, '<br>')) }} />
         </div>
 
         <div className="br-note">
