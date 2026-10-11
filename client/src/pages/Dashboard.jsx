@@ -22,6 +22,11 @@ const ICONS = {
   book: I(<path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2zm0 0v14" />),
 };
 
+// Local calendar day as YYYY-MM-DD. toISOString() converts to UTC first, which
+// shifts the date by one for anyone ahead of UTC.
+const dayKey = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 function Dashboard({ user }) {
   const [nextNode, setNextNode] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,15 +62,15 @@ function Dashboard({ user }) {
           console.error('Error fetching due flashcards:', error);
         }
         try {
-          const studyResponse = await api.get(`/study/stats/${user.id}?days=1`);
-          const todayKey = new Date().toISOString().split('T')[0];
+          const studyResponse = await api.get(`/study/stats/${user.id}?days=1&tzOffset=${new Date().getTimezoneOffset()}`);
+          const todayKey = dayKey(new Date());
           setFocusToday(studyResponse.data.perDay?.[todayKey]?.minutes ?? 0);
         } catch (error) {
           console.error('Error fetching focus stats:', error);
         }
         // 16-week focus history for the heatmap.
         try {
-          const heatResponse = await api.get(`/study/stats/${user.id}?days=112`);
+          const heatResponse = await api.get(`/study/stats/${user.id}?days=112&tzOffset=${new Date().getTimezoneOffset()}`);
           const byDay = {};
           for (const [day, v] of Object.entries(heatResponse.data.perDay || {})) {
             byDay[day] = v.minutes;
@@ -123,7 +128,7 @@ function Dashboard({ user }) {
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    const key = d.toISOString().split('T')[0];
+    const key = dayKey(d);
     return {
       key,
       label: d.toLocaleDateString('en-GB', { weekday: 'short' }),
@@ -214,13 +219,13 @@ function Dashboard({ user }) {
         <section className="pastel-panel pastel-activity">
           <div className="pastel-panel-head">
             <h2>Weekly activity</h2>
-            <span className="pastel-count">{weekTotal} XP this week</span>
+            <span className="pastel-count">{weekTotal} actions this week</span>
           </div>
           <div className="pastel-bars">
             {weekDays.map((d, i) => (
               <div className="pastel-bar-col" key={d.key}>
                 {i === maxIdx && (
-                  <span className="pastel-tip">{d.count} XP</span>
+                  <span className="pastel-tip">{d.count}</span>
                 )}
                 <div className="pastel-bar-track">
                   <div

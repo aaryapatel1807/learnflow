@@ -1,7 +1,9 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const ActivityLog = require('../models/ActivityLog');
 
 const router = express.Router();
+guardUserParam(router);
 
 // Get activity calendar data for a user
 router.get('/:userId', async (req, res) => {

@@ -165,9 +165,23 @@ function QuizTake() {
             </div>
           </div>
 
+          {result.newAchievements?.length > 0 && (
+            <div className="pp-panel qt-reco" role="status">
+              <h2>🏆 Achievement unlocked</h2>
+              {result.newAchievements.map((a) => (
+                <p key={a.key}>{a.icon} <strong>{a.title}</strong></p>
+              ))}
+            </div>
+          )}
+
           <div className="pp-panel qt-reco">
             <h2>📝 Recommendation</h2>
             <p>{result.recommendation}</p>
+            {result.xpCapped && (
+              <p className="pp-hint" style={{ marginTop: '8px' }}>
+                You've already earned XP for this quiz in the last 24 hours — retakes are for practice.
+              </p>
+            )}
             {result.srsQueued > 0 && (
               <p className="pp-hint" style={{ marginTop: '8px' }}>
                 🔁 {result.srsQueued} missed question{result.srsQueued === 1 ? '' : 's'} added to

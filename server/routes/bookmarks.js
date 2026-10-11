@@ -1,4 +1,5 @@
 const express = require('express');
+const { guardUserParam } = require('../middleware/auth');
 const Bookmark = require('../models/Bookmark');
 const Book = require('../models/Book');
 const Chapter = require('../models/Chapter');
@@ -6,6 +7,7 @@ const Flashcard = require('../models/Flashcard');
 const RoadmapNode = require('../models/RoadmapNode');
 
 const router = express.Router();
+guardUserParam(router);
 
 // Toggle bookmark (create if doesn't exist, delete if exists)
 router.post('/toggle', async (req, res) => {
@@ -205,7 +207,9 @@ router.delete('/:bookmarkId', async (req, res) => {
   try {
     const { bookmarkId } = req.params;
 
-    const bookmark = await Bookmark.findByIdAndDelete(bookmarkId);
+    const filter = { _id: bookmarkId };
+    if (req.user.role !== 'admin') filter.userId = req.user.id;
+    const bookmark = await Bookmark.findOneAndDelete(filter);
 
     if (!bookmark) {
       return res.status(404).json({

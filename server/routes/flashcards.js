@@ -5,6 +5,7 @@ const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
 const Note = require('../models/Note');
 const Chapter = require('../models/Chapter');
+const { checkAndUnlockAchievements } = require('./achievements');
 const Subject = require('../models/Subject');
 const {
   hasCloze,
@@ -123,8 +124,18 @@ router.get('/due', async (req, res) => {
     
     const now = new Date();
     
-    // Get all flashcards
-    const allFlashcards = await Flashcard.find().populate('subject', 'name');
+    // Quiz-miss and cloze cards are generated per user but live in the shared
+    // Flashcard collection; only serve the requesting user's own.
+    const [allCards, myNotes] = await Promise.all([
+      Flashcard.find().populate('subject', 'name'),
+      Note.find({ userId }).select('_id').lean()
+    ]);
+    const myNoteIds = new Set(myNotes.map(n => n._id.toString()));
+    const allFlashcards = allCards.filter(card => {
+      if (card.sourceType === 'quiz-miss') return (card.sourceKey || '').startsWith(`quizmiss:${userId}:`);
+      if (card.sourceType === 'note-cloze') return !!card.sourceRef && myNoteIds.has(card.sourceRef.toString());
+      return true;
+    });
     
     // Get user's review records
     const userReviews = await FlashcardReview.find({ user: userId });
@@ -189,8 +200,16 @@ router.post('/review', async (req, res) => {
       return res.status(400).json({ message: 'Invalid rating' });
     }
     
+    const cardExists = await Flashcard.exists({ _id: flashcardId });
+    if (!cardExists) {
+      return res.status(404).json({ message: 'Flashcard not found' });
+    }
+
     // Find or create review record
     let review = await FlashcardReview.findOne({ user: userId, flashcard: flashcardId });
+    // Only a card that is actually due earns XP — otherwise re-posting the same
+    // review in a loop is unlimited XP.
+    const wasDue = !review || !review.nextReview || review.nextReview <= new Date();
 
     if (!review) {
       review = new FlashcardReview({
@@ -222,10 +241,13 @@ router.post('/review', async (req, res) => {
     // Update user streak
     await updateUserStreak(userId);
     
-    // Award XP for flashcard review
-    const user = await User.findById(userId);
-    user.xp += 5; // 5 XP per flashcard review
-    await user.save();
+    // Award XP for flashcard review (only when the card was due)
+    const xpEarned = wasDue ? 5 : 0;
+    if (xpEarned > 0) {
+      await User.updateOne({ _id: userId }, { $inc: { xp: xpEarned } });
+    }
+
+    const newAchievements = await checkAndUnlockAchievements(userId, 'flashcard_review');
     
     res.json({
       message: 'Review recorded',
@@ -233,7 +255,8 @@ router.post('/review', async (req, res) => {
       nextReviewInDays: nextInterval,
       easiness: nextEasiness,
       reviewCount: review.reviewCount,
-      xpEarned: 5
+      xpEarned,
+      newAchievements
     });
   } catch (error) {
     console.error('Record flashcard review error:', error);
@@ -244,7 +267,8 @@ router.post('/review', async (req, res) => {
 // GET /api/flashcards - Get all flashcards
 router.get('/', async (req, res) => {
   try {
-    const flashcards = await Flashcard.find().populate('subject', 'name');
+    const flashcards = await Flashcard.find({ sourceType: { $nin: ['quiz-miss', 'note-cloze'] } })
+      .populate('subject', 'name');
     res.json(flashcards);
   } catch (error) {
     console.error('Get flashcards error:', error);

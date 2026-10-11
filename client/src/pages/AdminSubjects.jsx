@@ -16,7 +16,7 @@ function AdminSubjects() {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/subjects', {
+      const response = await fetch('/api/admin/subjects', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
@@ -38,7 +38,7 @@ function AdminSubjects() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setSubmitting(true); setError('');
     try {
-      const url = editingSubject ? `http://localhost:5000/api/admin/subjects/${editingSubject._id}` : 'http://localhost:5000/api/admin/subjects';
+      const url = editingSubject ? `/api/admin/subjects/${editingSubject._id}` : '/api/admin/subjects';
       const response = await fetch(url, {
         method: editingSubject ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -57,7 +57,7 @@ function AdminSubjects() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete subject?')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/subjects/${id}`, {
+      const response = await fetch(`/api/admin/subjects/${id}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) throw new Error('Failed to delete');

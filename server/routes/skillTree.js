@@ -2,6 +2,7 @@ const express = require('express');
 const SkillNode = require('../models/SkillNode');
 const Progress = require('../models/Progress');
 const Chapter = require('../models/Chapter');
+const { idOf } = require('../utils/ids');
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ async function arePrerequisitesSatisfied(node, allNodes, completedMap) {
 
   // Check ALL prerequisites - node is only unlocked if ALL are complete
   for (const prereqId of node.prerequisiteSkillNodeIds) {
-    const prereqNode = allNodes.find(n => n._id.toString() === prereqId.toString());
+    const prereqNode = allNodes.find(n => n._id.toString() === idOf(prereqId));
     
     if (!prereqNode) {
       return false; // Prerequisite not found

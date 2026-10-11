@@ -30,7 +30,7 @@ function StudyHeatmap({ activity = {}, focus = {}, weeks = 16 }) {
     for (let w = 0; w < weeks + 1; w++) {
       const col = [];
       for (let d = 0; d < 7; d++) {
-        const key = cursor.toISOString().split('T')[0];
+        const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
         const inFuture = cursor > today;
         const score = inFuture ? null : (activity[key] || 0) + (focus[key] || 0) / 10;
         if (!inFuture) runningTotal += activity[key] || 0;

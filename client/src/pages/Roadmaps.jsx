@@ -46,7 +46,7 @@ function Roadmaps() {
               <h3>{roadmap.title}</h3>
               <div className="pp-tags">
                 {roadmap.category && <span className="pp-tag pp-tag-blue">{roadmap.category}</span>}
-                {roadmap.nodeCount && (
+                {roadmap.nodeCount > 0 && (
                   <span className="pp-tag pp-tag-grey">{roadmap.nodeCount} milestones</span>
                 )}
                 {roadmap.estimatedDuration && (
