@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
   lastActivityDate: {
     type: Date,
     default: null
+  },
+  timezone: {
+    type: String,
+    default: 'UTC'
   }
 }, {
   timestamps: true

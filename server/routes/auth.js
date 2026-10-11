@@ -12,6 +12,17 @@ const {
 
 const router = express.Router();
 
+// IANA timezone validator (no extra deps — Intl throws RangeError on unknown zones).
+const isValidTimezone = (tz) => {
+  if (!tz || typeof tz !== 'string') return false;
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 // Register
 router.post(
   '/register',
@@ -21,7 +32,7 @@ router.post(
   validatePassword(6),
   async (req, res) => {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, timezone } = req.body;
 
       // Check if user exists
       const existingUser = await User.findOne({ email });
@@ -39,7 +50,9 @@ router.post(
       const user = new User({
         name,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        // Optional client-detected timezone; invalid values are ignored (never block signup).
+        ...(isValidTimezone(timezone) ? { timezone } : {})
       });
 
       await user.save();
@@ -58,7 +71,8 @@ router.post(
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          timezone: user.timezone
         }
       });
     } catch (error) {
@@ -122,7 +136,8 @@ router.post(
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          timezone: user.timezone
         }
       });
     } catch (error) {
@@ -148,6 +163,35 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Server error' 
+    });
+  }
+});
+
+// Update current user's timezone (also served at PATCH /api/users/me/timezone
+// since this router is mounted on both /api/auth and /api/users).
+router.patch('/me/timezone', authenticateToken, async (req, res) => {
+  try {
+    const { timezone } = req.body;
+    if (!isValidTimezone(timezone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid IANA timezone is required (e.g. Asia/Kolkata).'
+      });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { timezone },
+      { new: true, runValidators: true }
+    ).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({ success: true, timezone: user.timezone });
+  } catch (error) {
+    console.error('Update timezone error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 });

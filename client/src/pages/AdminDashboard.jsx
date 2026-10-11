@@ -107,6 +107,7 @@ function AdminDashboard() {
         <div className="pp-toolbar" style={{ marginTop: '14px', marginBottom: 0 }}>
           <button className="btn btn-secondary" onClick={() => navigate('/admin/subjects')}>📂 Manage Subjects</button>
           <button className="btn btn-secondary" onClick={() => navigate('/admin/books')}>📖 Manage Books</button>
+          <button className="btn btn-secondary" onClick={() => navigate('/admin/chapters')}>📄 Manage Chapters</button>
           <button className="btn btn-secondary" onClick={() => navigate('/admin/learning-paths')}>🎯 Manage Paths</button>
           <button className="btn btn-secondary" onClick={() => navigate('/admin/roadmaps')}>🗺️ Manage Roadmaps</button>
           <button className="btn btn-secondary" onClick={() => navigate('/admin/quizzes')}>❓ Manage Quizzes</button>

@@ -20,6 +20,7 @@ const calendarRoutes = require('./routes/calendar');
 const recommendationsRoutes = require('./routes/recommendations');
 const skillTreeRoutes = require('./routes/skillTree');
 const studyRoutes = require('./routes/study');
+const leaderboardRoutes = require('./routes/leaderboard');
 const adminRoutes = require('./routes/admin');
 
 // Import middleware
@@ -58,6 +59,10 @@ app.use('/api/calendar', userScoped, calendarRoutes);
 app.use('/api/recommendations', userScoped, recommendationsRoutes);
 app.use('/api/skill-tree', userScoped, skillTreeRoutes);
 app.use('/api/study', userScoped, studyRoutes);
+
+// Leaderboard is aggregate data (not one user's records): token required,
+// no user-scoping needed.
+app.use('/api/leaderboard', authenticateToken, leaderboardRoutes);
 
 // Admin routes (protected with authenticateToken + isAdmin middleware)
 app.use('/api/admin', adminRoutes);
