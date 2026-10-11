@@ -1,5 +1,128 @@
 /* Catalogue — page-specific extras. Structure comes from pastel-pages.css. */
 
+/* Search + filters */
+.cat-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: var(--space-3);
+}
+
+.cat-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cat-search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.cat-search input {
+  width: 100%;
+  padding: 12px 40px 12px 42px;
+  border-radius: 16px;
+  border: 1px solid rgba(130, 105, 145, 0.25);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  color: #262033;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cat-search input:focus {
+  border-color: #b493ff;
+  box-shadow: 0 0 0 3px rgba(180, 147, 255, 0.2);
+}
+
+.cat-search input::placeholder { color: #a08b93; }
+
+.cat-clear {
+  position: absolute;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(130, 105, 145, 0.12);
+  color: #8a7a84;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cat-clear:hover { background: rgba(130, 105, 145, 0.22); }
+
+.cat-filter-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cat-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a7a84;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cat-filter select {
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(130, 105, 145, 0.25);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 600;
+  color: #262033;
+  cursor: pointer;
+  outline: none;
+  min-width: 170px;
+}
+
+.cat-filter select:focus { border-color: #b493ff; }
+
+/* Pagination */
+.cat-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.cat-pagination .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cat-page-info {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8a7a84;
+  min-width: 110px;
+  text-align: center;
+}
+
+[data-theme="dark"] .cat-search input,
+[data-theme="dark"] .cat-filter select {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #f5eef4;
+}
+
+[data-theme="dark"] .cat-search input::placeholder { color: #a68fa1; }
+[data-theme="dark"] .cat-filter { color: #b9a8bd; }
+[data-theme="dark"] .cat-page-info { color: #b9a8bd; }
+[data-theme="dark"] .cat-filter select option { color: #262033; }
+
 .cat-spotlight {
   display: flex;
   gap: 24px;

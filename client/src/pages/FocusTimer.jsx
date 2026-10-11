@@ -18,6 +18,41 @@ function formatTime(totalSeconds) {
 }
 
 /**
+ * Persistence layer for the focus timer (survives reload / tab close).
+ * Saved on every tick while running; restored on mount.
+ */
+const TIMER_STORAGE_KEY = 'learnflow:focus-timer';
+
+const readSavedTimer = () => {
+  try {
+    const raw = localStorage.getItem(TIMER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+};
+
+const clearSavedTimer = () => {
+  try {
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+  } catch (e) {
+    /* storage unavailable — nothing to clear */
+  }
+};
+
+const notifyFocusComplete = (kind, minutes) => {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    new Notification('Focus session complete', {
+      body: `${minutes} minutes of ${kind === 'focus' ? 'focused study' : 'rest'} complete. Nice work!`
+    });
+  } catch (e) {
+    /* notification blocked — the in-page result card still shows */
+  }
+};
+
+/**
  * Drift-free ticker. Prefers a Web Worker (keeps ticking when the tab is
  * backgrounded — pattern from tomyrioss/pomodoro-app) and falls back to
  * setInterval. The caller owns the end-time; onTick recomputes from the
@@ -71,15 +106,79 @@ function FocusTimer() {
   const [subjectId, setSubjectId] = useState('');
   const endAtRef = useRef(null);
   const completeRef = useRef();
+  const originalTitleRef = useRef(document.title);
+
+  // Snapshot the current timer state to localStorage (layer on top of the
+  // Web Worker ticker — the ticker stays the source of truth for countdown).
+  const snapshotTimer = (overrides = {}) => {
+    try {
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+        endAt: endAtRef.current,
+        totalSeconds,
+        presetLabel: preset.label,
+        presetKind: preset.kind,
+        presetMinutes: preset.minutes,
+        customMinutes,
+        subjectId,
+        sessionId,
+        secondsLeft,
+        running,
+        ...overrides,
+      }));
+    } catch (e) {
+      /* storage unavailable (private mode etc.) — timer still works in-memory */
+    }
+  };
 
   const tick = () => {
     const left = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000));
     setSecondsLeft(left);
+    snapshotTimer({ secondsLeft: left, running: true });
     if (left <= 0) completeRef.current(true);
   };
   const ticker = useTicker(tick);
 
   useEffect(() => { fetchStats(); fetchSubjects(); }, []);
+
+  // Restore a persisted timer on mount: resume if the end time is still in
+  // the future, restore paused state if one was saved, otherwise clear.
+  useEffect(() => {
+    const saved = readSavedTimer();
+    if (!saved) return;
+    const now = Date.now();
+    const findPreset = () =>
+      PRESETS.find((p) => p.label === saved.presetLabel) || {
+        kind: saved.presetKind || 'focus',
+        label: saved.presetLabel || 'Custom',
+        minutes: saved.presetMinutes || 25,
+      };
+    if (saved.running && saved.endAt && saved.endAt > now) {
+      setPreset(findPreset());
+      setCustomMinutes(saved.customMinutes || '');
+      setSubjectId(saved.subjectId || '');
+      setSessionId(saved.sessionId || null);
+      endAtRef.current = saved.endAt;
+      setSecondsLeft(Math.max(0, Math.round((saved.endAt - now) / 1000)));
+      setRunning(true);
+      setLastResult(null);
+      ticker.start();
+    } else if (!saved.running && saved.secondsLeft > 0) {
+      setPreset(findPreset());
+      setCustomMinutes(saved.customMinutes || '');
+      setSubjectId(saved.subjectId || '');
+      setSessionId(saved.sessionId || null);
+      setSecondsLeft(saved.secondsLeft);
+    } else {
+      clearSavedTimer();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Tab-title countdown while running; restore the original title otherwise.
+  useEffect(() => {
+    document.title = running ? `⏱ ${formatTime(secondsLeft)} — LearnFlow` : originalTitleRef.current;
+  }, [running, secondsLeft]);
+  useEffect(() => () => { document.title = originalTitleRef.current; }, []);
 
   const fetchStats = async () => {
     try {
@@ -104,6 +203,7 @@ function FocusTimer() {
 
   const startTimer = async () => {
     const minutes = customMinutes ? Math.max(1, Math.min(180, parseInt(customMinutes, 10) || 25)) : minutesFor(preset);
+    let newSessionId = null;
     try {
       const res = await api.post('/study/sessions', {
         userId: user.id,
@@ -111,7 +211,8 @@ function FocusTimer() {
         plannedMinutes: minutes,
         subjectId: subjectId || undefined,
       });
-      setSessionId(res.data._id);
+      newSessionId = res.data._id;
+      setSessionId(newSessionId);
     } catch (e) {
       console.error('Error starting session:', e);
     }
@@ -119,26 +220,35 @@ function FocusTimer() {
     endAtRef.current = Date.now() + minutes * 60 * 1000;
     setRunning(true);
     setLastResult(null);
+    snapshotTimer({ running: true, secondsLeft: minutes * 60, sessionId: newSessionId });
     ticker.start();
+    // Ask for notification permission on the user gesture (never on load).
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
   };
 
   const pauseTimer = () => {
     ticker.stop();
     setRunning(false);
+    snapshotTimer({ running: false });
   };
 
   const resumeTimer = () => {
     endAtRef.current = Date.now() + secondsLeft * 1000;
     setRunning(true);
+    snapshotTimer({ running: true });
     ticker.start();
   };
 
   const completeTimer = async (natural = false) => {
     ticker.stop();
     setRunning(false);
+    clearSavedTimer();
     if (!sessionId) { setSecondsLeft(preset.minutes * 60); return; }
     const planned = customMinutes ? Math.max(1, Math.min(180, parseInt(customMinutes, 10) || 25)) : minutesFor(preset);
     const actual = natural ? planned : Math.max(1, Math.round(planned - secondsLeft / 60));
+    if (natural) notifyFocusComplete(preset.kind, planned);
     try {
       const res = await api.post(`/study/sessions/${sessionId}/complete`, { userId: user.id, actualMinutes: actual });
       setLastResult({
@@ -158,6 +268,7 @@ function FocusTimer() {
   const abandonTimer = async () => {
     ticker.stop();
     setRunning(false);
+    clearSavedTimer();
     if (sessionId) {
       try { await api.post(`/study/sessions/${sessionId}/abandon`, { userId: user.id }); }
       catch (e) { console.error('Error abandoning session:', e); }

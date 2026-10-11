@@ -15,6 +15,7 @@ import FlashcardReview from './pages/FlashcardReview';
 import Quizzes from './pages/Quizzes';
 import QuizTake from './pages/QuizTake';
 import Achievements from './pages/Achievements';
+import Leaderboard from './pages/Leaderboard';
 import { isAuthenticated, getUser, logout } from './utils/auth';
 import Notes from './pages/Notes';
 import Bookmarks from './pages/Bookmarks';
@@ -23,6 +24,9 @@ import FocusTimer from './pages/FocusTimer';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubjects from './pages/AdminSubjects';
 import AdminBooks from './pages/AdminBooks';
+import AdminChapters from './pages/AdminChapters';
+import AdminQuizzes from './pages/AdminQuizzes';
+import AdminFlashcards from './pages/AdminFlashcards';
 import { RoadmapView } from './pages/RoadmapView';
 import { PortfolioView } from './pages/PortfolioView';
 
@@ -76,6 +80,7 @@ function App() {
         <Route path="/quizzes" element={<ProtectedRoute><Quizzes /></ProtectedRoute>} />
         <Route path="/quiz/:quizId" element={<ProtectedRoute><QuizTake /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
         <Route path="/bookmarks" element={<ProtectedRoute><Bookmarks /></ProtectedRoute>} />
         <Route path="/skill-tree/:subjectId" element={<ProtectedRoute><SkillTree /></ProtectedRoute>} />
@@ -83,6 +88,9 @@ function App() {
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/subjects" element={<AdminRoute><AdminSubjects /></AdminRoute>} />
         <Route path="/admin/books" element={<AdminRoute><AdminBooks /></AdminRoute>} />
+        <Route path="/admin/chapters" element={<AdminRoute><AdminChapters /></AdminRoute>} />
+        <Route path="/admin/quizzes" element={<AdminRoute><AdminQuizzes /></AdminRoute>} />
+        <Route path="/admin/flashcards" element={<AdminRoute><AdminFlashcards /></AdminRoute>} />
       </Routes>
       <BottomNav />
     </BrowserRouter>

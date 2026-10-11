@@ -618,3 +618,27 @@ a.pastel-today-item:hover { transform: translateY(-2px); box-shadow: 0 8px 18px 
 }
 .pp-search:focus { outline: 2px solid rgba(224, 80, 122, 0.4); border-color: transparent; }
 [data-theme="dark"] .pp-search { background: rgba(255, 255, 255, 0.06); color: inherit; }
+
+/* ── Timezone picker (Today strip) ─────────────────────────────── */
+.tz-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: inherit;
+  opacity: 0.9;
+}
+.tz-select select {
+  font: inherit;
+  font-size: 0.85rem;
+  max-width: 190px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 120, 160, 0.25);
+  background: rgba(255, 255, 255, 0.55);
+  color: inherit;
+  cursor: pointer;
+}
+.tz-select select:disabled { opacity: 0.6; cursor: wait; }
+.tz-select-hint { min-width: 64px; font-size: 0.8rem; opacity: 0.75; }
+[data-theme="dark"] .tz-select select { background: rgba(255, 255, 255, 0.06); }

@@ -1,0 +1,67 @@
+/* Leaderboard — page-specific extras. Structure comes from pastel-pages.css. */
+
+.lb-list { display: flex; flex-direction: column; gap: 10px; }
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+}
+
+.lb-rank {
+  flex-shrink: 0;
+  width: 44px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #8a7a84;
+  text-align: center;
+}
+
+.lb-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #b493ff 0%, #7cc9ff 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 10px 20px -12px rgba(126, 91, 255, 0.6);
+}
+
+.lb-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 15px;
+  color: #262033;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-you { font-size: 11px; padding: 3px 10px; }
+
+.lb-xp {
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 15px;
+  color: #e0507a;
+}
+
+.lb-row.lb-me {
+  border: 2px solid #b493ff;
+  background: linear-gradient(135deg, rgba(180, 147, 255, 0.12) 0%, rgba(124, 201, 255, 0.12) 100%);
+}
+
+[data-theme="dark"] .lb-rank { color: #b9a8bd; }
+[data-theme="dark"] .lb-name { color: #f5eef4; }

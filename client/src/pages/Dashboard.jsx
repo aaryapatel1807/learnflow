@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import StudyHeatmap from '../components/StudyHeatmap';
+import TimezoneSelect from '../components/TimezoneSelect';
 import './Dashboard.css';
 
 /* Minimal line icons (stroke = currentColor) */
@@ -174,6 +175,7 @@ function Dashboard({ user }) {
         <section className="pastel-panel pastel-today animate-rise" data-delay="1" aria-label="Due today">
           <div className="pastel-panel-head">
             <h2>Today</h2>
+            <TimezoneSelect />
           </div>
           <div className="pastel-today-row">
             {dueFlashcards !== null && dueFlashcards > 0 && (
