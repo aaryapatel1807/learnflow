@@ -20,6 +20,7 @@ const moreItems = [
   { name: "Notes", href: "/notes" },
   { name: "Bookmarks", href: "/bookmarks" },
   { name: "Achievements", href: "/achievements" },
+  { name: "Leaderboard", href: "/leaderboard" },
 ];
 
 const EXPAND_SCROLL_THRESHOLD = 80;

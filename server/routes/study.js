@@ -121,8 +121,23 @@ router.get('/stats/:userId', async (req, res) => {
     since.setDate(since.getDate() - (days - 1));
     since.setHours(0, 0, 0, 0);
 
-    // Client passes Date#getTimezoneOffset() so "today" is the user's day, not UTC's.
-    const tzOffset = Number.parseInt(req.query.tzOffset, 10) || 0;
+    // Day boundaries: prefer the user's stored IANA timezone; fall back to the
+    // client's tzOffset query param (minutes behind UTC, like getTimezoneOffset).
+    // en-CA formats as YYYY-MM-DD, matching the keys the client expects.
+    let dayKey;
+    try {
+      const tzUser = await User.findById(req.params.userId).select('timezone').lean();
+      const storedTz = tzUser && tzUser.timezone;
+      if (!storedTz) throw new Error('no stored timezone');
+      const fmt = new Intl.DateTimeFormat('en-CA', {
+        timeZone: storedTz, year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      fmt.format(new Date()); // throws RangeError on an unknown zone
+      dayKey = (d) => fmt.format(new Date(d));
+    } catch (e) {
+      const tzOffset = Number.parseInt(req.query.tzOffset, 10) || 0;
+      dayKey = (d) => new Date(new Date(d).getTime() - tzOffset * 60000).toISOString().split('T')[0];
+    }
 
     const sessions = await StudySession.find({
       user: req.params.userId,
@@ -135,7 +150,7 @@ router.get('/stats/:userId', async (req, res) => {
     let totalMinutes = 0;
     let totalSessions = 0;
     for (const s of sessions) {
-      const key = new Date(new Date(s.startedAt).getTime() - tzOffset * 60000).toISOString().split('T')[0];
+      const key = dayKey(s.startedAt);
       perDay[key] = perDay[key] || { minutes: 0, sessions: 0 };
       perDay[key].minutes += s.actualMinutes;
       perDay[key].sessions += 1;
