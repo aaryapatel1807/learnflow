@@ -5,6 +5,18 @@ const User = require('../models/User');
 const { authenticateToken, authorizeUserOrAdmin } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const { registerSchema, loginSchema } = require('../validation/authSchemas');
+const rateLimit = require('express-rate-limit');
+
+// Brute-force protection (AWD Task-2 finding F2): at most 20 login attempts
+// per IP per 15 minutes. Legitimate users never reach this; scripted
+// password-guessing does, and is answered with HTTP 429.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many login attempts. Please try again after 15 minutes.' }
+});
 
 const router = express.Router();
 
@@ -89,9 +101,10 @@ router.post(
   }
 );
 
-// Login — same Joi protection as register.
+// Login — rate-limited, same Joi protection as register.
 router.post(
   '/login',
+  loginLimiter,
   validate(loginSchema),
   async (req, res) => {
     try {
