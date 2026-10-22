@@ -547,7 +547,7 @@ Master these hooks and you'll be able to build interactive, dynamic applications
     
     // First, we need to create a demo user (or use an existing one if seeding users separately)
     // For this seed, we'll create a demo user
-    const bcrypt = require('bcryptjs');
+    const bcrypt = require('bcrypt');
     let demoUser = await User.findOne({ email: 'demo@learnflow.com' });
     
     if (!demoUser) {

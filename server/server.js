@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -29,6 +30,13 @@ const { authenticateToken, scopeToUser } = require('./middleware/auth');
 const app = express();
 
 // Middleware
+// Helmet (AWD Task-3): sets HTTP security headers on every response and
+// removes the X-Powered-By fingerprint. crossOriginResourcePolicy is set to
+// "cross-origin" because this JSON API is consumed by the Vite client on a
+// different port; all other Helmet defaults stay enabled.
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true

@@ -1,14 +1,10 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { authenticateToken, authorizeUserOrAdmin } = require('../middleware/auth');
-const { 
-  validateRequiredFields, 
-  validateEmail, 
-  validatePassword,
-  sanitizeInput 
-} = require('../middleware/validation');
+const validate = require('../middleware/validate');
+const { registerSchema, loginSchema } = require('../validation/authSchemas');
 
 const router = express.Router();
 
@@ -23,13 +19,12 @@ const isValidTimezone = (tz) => {
   }
 };
 
-// Register
+// Register — Joi schema validation (AWD Task-3) replaces the hand-rolled
+// checks: it enforces types (blocking NoSQL operator injection), formats,
+// length limits, and strips unknown fields such as a smuggled "role".
 router.post(
   '/register',
-  sanitizeInput(),
-  validateRequiredFields(['name', 'email', 'password']),
-  validateEmail(),
-  validatePassword(6),
+  validate(registerSchema),
   async (req, res) => {
     try {
       const { name, email, password, timezone } = req.body;
@@ -94,12 +89,10 @@ router.post(
   }
 );
 
-// Login
+// Login — same Joi protection as register.
 router.post(
   '/login',
-  sanitizeInput(),
-  validateRequiredFields(['email', 'password']),
-  validateEmail(),
+  validate(loginSchema),
   async (req, res) => {
     try {
       const { email, password } = req.body;
